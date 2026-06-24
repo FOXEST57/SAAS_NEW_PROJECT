@@ -15,7 +15,7 @@ public class SupplierModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long splId;
+    private long splId;
 
     @Column(length = 50)
     private String splName;
