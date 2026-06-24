@@ -1,10 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -44,4 +41,7 @@ public class Article {
     @Min(0)
     protected int artStock;
 
+    @ManyToOne
+    @JoinColumn(name = "tva_id")
+    protected Tva tva;
 }
