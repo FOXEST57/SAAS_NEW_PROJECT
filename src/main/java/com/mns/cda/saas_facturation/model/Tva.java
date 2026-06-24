@@ -17,7 +17,7 @@ import lombok.Setter;
 @Entity
 public class Tva {
 
-    //L'entité TVA aucun champ les taux ne peuvent pas être négatif
+    //L'entité TVA aucun champ les taux ne peuvent être négatif
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
