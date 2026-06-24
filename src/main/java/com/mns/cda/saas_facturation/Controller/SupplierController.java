@@ -27,13 +27,6 @@ public class SupplierController {
     }
 
     @GetMapping("/supplier/{id}")
-    @Operation(
-            summary = "Fetch user by id",
-            description = "fetch the user with id in URL")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "404", description = "id user not found")
-    })
     public ResponseEntity<SupplierModel> get(@PathVariable long id) {
         return ResponseEntity.ok(supplierService.findById(id));
     }
