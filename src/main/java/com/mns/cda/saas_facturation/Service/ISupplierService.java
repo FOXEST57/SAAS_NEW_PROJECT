@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ISupplierService {
+
+    public static class SupplierNotFoundException extends Exception { }
+
     List<SupplierModel> findAll();
 
-    SupplierModel findById(long id);
+    Optional<SupplierModel> findById(Long id) throws SupplierNotFoundException;
 
     void create(SupplierModel supplierModel);
 
-    void delete(long id);
+    void delete(Long id) throws SupplierNotFoundException;
 
-    void update(long id, SupplierModel supplierToUpdate);
+    void modify(Long id, SupplierModel supplierToUpdate) throws SupplierNotFoundException;
 }

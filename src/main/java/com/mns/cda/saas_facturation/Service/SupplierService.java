@@ -1,52 +1,112 @@
 package com.mns.cda.saas_facturation.Service;
 
-import com.mns.cda.saas_facturation.Exception.RessourceIntrouvableException;
 import com.mns.cda.saas_facturation.Model.SupplierModel;
 import com.mns.cda.saas_facturation.Repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Service gérant la logique métier liée aux fournisseurs (Supplier).
+ * Implémente ISupplierService et délègue la persistance à SupplierRepository.
+ *
+ * L'injection de dépendance du repository se fait via le constructeur,
+ * généré automatiquement par l'annotation @RequiredArgsConstructor de Lombok.
+ */
 @Service
 @RequiredArgsConstructor
 public class SupplierService implements ISupplierService {
 
     private final SupplierRepository supplierRepository;
 
+    /**
+     * Récupère la liste de tous les fournisseurs en base de données.
+     *
+     * @return Liste de tous les SupplierModel existants (vide si aucun).
+     */
     @Override
     public List<SupplierModel> findAll() {
         return supplierRepository.findAll();
     }
 
+    /**
+     * Recherche un fournisseur par son identifiant.
+     *
+     * @param id Identifiant du fournisseur à rechercher.
+     * @return Un Optional contenant le fournisseur trouvé.
+     * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
+     */
     @Override
-    public SupplierModel findById(long id) {
-        return supplierRepository.findById(id)
-                .orElseThrow(() -> new RessourceIntrouvableException("Fournisseur introuvable"));
+    public Optional<SupplierModel> findById(Long id) throws SupplierNotFoundException {
+        Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
+
+        if (optionalSupplier.isEmpty()) {
+            throw new SupplierNotFoundException();
+        }
+        return optionalSupplier;
     }
 
+    /**
+     * Crée un nouveau fournisseur en base de données.
+     * L'identifiant est forcé à null avant la sauvegarde pour garantir
+     * que c'est la base de données qui génère l'id (et non le client).
+     *
+     * @param supplierModel Le fournisseur à créer.
+     */
     @Override
     public void create(SupplierModel supplierModel) {
-        supplierModel.setSplId(0L);
+        // On s'assure que l'id est null pour forcer une insertion (INSERT)
+        // et éviter qu'un id fourni par le client n'écrase un enregistrement existant.
+        supplierModel.setSplId(null);
         supplierRepository.save(supplierModel);
     }
 
+    /**
+     * Supprime un fournisseur par son identifiant.
+     * Vérifie d'abord l'existence du fournisseur avant toute suppression.
+     *
+     * @param id Identifiant du fournisseur à supprimer.
+     * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
+     */
     @Override
-    public void delete(long id) {
-        if (!supplierRepository.existsById(id)) {
-            throw new RessourceIntrouvableException("Fournisseur introuvable");
+    public void delete(Long id) throws SupplierNotFoundException {
+        Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
+
+        if (optionalSupplier.isEmpty()) {
+            throw new SupplierNotFoundException();
         }
         supplierRepository.deleteById(id);
     }
 
+    /**
+     * Met à jour un fournisseur existant avec les nouvelles données fournies.
+     * L'id de l'URL est imposé sur l'objet à sauvegarder pour garantir
+     * qu'on modifie bien le bon enregistrement (et non un id éventuellement
+     * fourni dans le corps de la requête).
+     *
+     * Note : les appels setSplXxx(supplierToUpdate.getSplXxx()) sont redondants
+     * puisqu'ils réaffectent la valeur déjà présente sur le même objet.
+     * Il suffit de setter l'id et de sauvegarder directement.
+     *
+     * @param id              Identifiant du fournisseur à mettre à jour.
+     * @param supplierToUpdate Objet contenant les nouvelles valeurs.
+     * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
+     */
     @Override
-    public void update(long id, SupplierModel supplierToUpdate) {
-        if (!supplierRepository.existsById(id)) {
-            throw new RessourceIntrouvableException("Fournisseur introuvable");
+    public void modify(Long id, SupplierModel supplierToUpdate) throws SupplierNotFoundException {
+
+        Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
+
+        if (optionalSupplier.isEmpty()) {
+            throw new SupplierNotFoundException();
         }
+
+        // On force l'id de l'objet à mettre à jour avec celui de l'URL
+        // pour garantir la cohérence (l'id du body est ignoré).
         supplierToUpdate.setSplId(id);
+
         supplierRepository.save(supplierToUpdate);
     }
-
 }
