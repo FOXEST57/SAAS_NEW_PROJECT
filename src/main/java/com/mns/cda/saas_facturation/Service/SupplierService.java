@@ -6,28 +6,33 @@ import com.mns.cda.saas_facturation.Repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class SupplierService {
+public class SupplierService implements ISupplierService {
 
     private final SupplierRepository supplierRepository;
 
+    @Override
     public List<SupplierModel> findAll() {
         return supplierRepository.findAll();
     }
 
-    public Optional<SupplierModel> findById(long id) {
-        return supplierRepository.findById(id);
+    @Override
+    public SupplierModel findById(long id) {
+        return supplierRepository.findById(id)
+                .orElseThrow(() -> new RessourceIntrouvableException("Fournisseur introuvable"));
     }
 
+    @Override
     public void create(SupplierModel supplierModel) {
         supplierModel.setSplId(0L);
         supplierRepository.save(supplierModel);
     }
 
+    @Override
     public void delete(long id) {
         if (!supplierRepository.existsById(id)) {
             throw new RessourceIntrouvableException("Fournisseur introuvable");
@@ -35,6 +40,7 @@ public class SupplierService {
         supplierRepository.deleteById(id);
     }
 
+    @Override
     public void update(long id, SupplierModel supplierToUpdate) {
         if (!supplierRepository.existsById(id)) {
             throw new RessourceIntrouvableException("Fournisseur introuvable");
@@ -42,4 +48,5 @@ public class SupplierService {
         supplierToUpdate.setSplId(id);
         supplierRepository.save(supplierToUpdate);
     }
+
 }
