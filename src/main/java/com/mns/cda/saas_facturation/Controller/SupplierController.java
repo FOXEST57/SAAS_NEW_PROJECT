@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,9 +51,12 @@ public class SupplierController {
             @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<SupplierModel> get(@PathVariable long id) throws ISupplierService.SupplierNotFoundException {
-        // ResponseEntity.ok() encapsule l'objet dans une réponse HTTP 200
-        return ResponseEntity.ok(supplierService.findById(id).get());
+    public ResponseEntity<SupplierModel> get(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(supplierService.findById(id).get());
+        } catch (ISupplierService.SupplierNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -66,7 +70,8 @@ public class SupplierController {
             @ApiResponse(responseCode = "201", description = "Fournisseur créé"),
             @ApiResponse(responseCode = "400", description = "Données invalides")
     })
-    public ResponseEntity<SupplierModel> create(@RequestBody SupplierModel supplierToInsert) {
+    public ResponseEntity<SupplierModel> create(@Validated
+                                                    @RequestBody SupplierModel supplierToInsert) {
         // @RequestBody : Spring désérialise automatiquement le JSON reçu en objet SupplierModel
         supplierService.create(supplierToInsert);
         return new ResponseEntity<>(supplierToInsert, HttpStatus.CREATED); // 201
@@ -93,13 +98,15 @@ public class SupplierController {
      * PUT /supplier/{id}
      * Retourne 204 No Content si modifié, 404 si l'id est introuvable.
      */
-    @PutMapping("/supplier/{id}")
+    @PutMapping("/modify/{id}")
     @Operation(summary = "Modifier un fournisseur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Fournisseur modifié"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<Void> update(@PathVariable long id, @RequestBody SupplierModel supplierToUpdate) {
+    public ResponseEntity<Void> update(@PathVariable long id,
+                                       @Validated
+                                       @RequestBody SupplierModel supplierToUpdate) {
         try {
             supplierService.modify(id, supplierToUpdate);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
