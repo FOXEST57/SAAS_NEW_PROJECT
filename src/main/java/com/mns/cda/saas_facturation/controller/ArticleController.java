@@ -89,10 +89,16 @@ public class ArticleController {
 
 
     @PutMapping("/{id}")
+    @Operation(summary = "Modifie un article en base de données.",
+            description = "Cette route permet de modifier un article en base de données.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Article modifié avec succès."),
+            @ApiResponse(responseCode = "404", description = "L'Article n'existe pas.")
+    })
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException {
         ArticleDTO updated = articleService.update(id, dto);
-        return ResponseEntity.ok(updated);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 }

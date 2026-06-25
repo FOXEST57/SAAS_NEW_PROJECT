@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,9 @@ public class Tva {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tvaId;
+
+    @NotBlank
+    private String tvaName;
 
     @DecimalMin(value = "0.0")
     private BigDecimal tvaTaux;
