@@ -46,4 +46,8 @@ public class Article {
     @ManyToOne
     @JoinColumn(name = "tva_id")
     protected Tva tva;
+
+    @ManyToOne
+    @JoinColumn(name = "supplier_id", nullable = true)
+    protected Supplier supplier;
 }

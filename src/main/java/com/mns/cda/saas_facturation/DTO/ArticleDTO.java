@@ -16,5 +16,6 @@ public record ArticleDTO(
         BigDecimal artPriceExcludeTaxes,
         int artStock,
         Tva tva,
-        BigDecimal artPriceTTC) {
+        BigDecimal artPriceTTC,
+        SupplierResponseDTO supplier) {
 }

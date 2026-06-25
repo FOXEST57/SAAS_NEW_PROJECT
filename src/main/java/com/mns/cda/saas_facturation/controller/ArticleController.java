@@ -4,7 +4,8 @@ import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
-import com.mns.cda.saas_facturation.model.Article;
+import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -61,10 +62,11 @@ public class ArticleController {
             @ApiResponse(responseCode = "201", description = "Article créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<Article> createArticle(
+    public ResponseEntity<ArticleDTO> createArticle(
             @Valid @RequestBody ArticleRequestDTO dto
-    ) {
-        Article response = articleService.create(dto);
+    ) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException {
+
+        ArticleDTO response = articleService.create(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -97,7 +99,10 @@ public class ArticleController {
     })
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException {
+            @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException,
+            ITvaService.TvaNotFoundException,
+            ISupplierService.SupplierNotFoundException {
+
         ArticleDTO updated = articleService.update(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }

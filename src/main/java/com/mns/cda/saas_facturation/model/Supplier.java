@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.Model;
+package com.mns.cda.saas_facturation.model;
 
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
@@ -9,13 +9,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "SUPPLIER")
-public class SupplierModel {
+public class Supplier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,5 +41,10 @@ public class SupplierModel {
     @Column(length = 50, nullable = false)
     @NotBlank(message = "L'adresse est obligatoire")
     private String splAdress;
+
+    @OneToMany(mappedBy = "supplier")
+    private List<Article> articleList = new ArrayList<>();
+
+
 
 }

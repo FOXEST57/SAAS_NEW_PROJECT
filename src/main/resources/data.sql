@@ -15,23 +15,11 @@ VALUES
     ('Asus France', 'contact@asus.fr', '+33102030404', '8 Boulevard Victor Hugo, Strasbourg'),
     ('Logitech France', 'contact@logitech.fr', '+33102030405', '15 Rue du Commerce, Nantes');
 
---3. Table CATEGORY (référencée par CATEGORY et ARTICLE)
-INSERT INTO category (cat_name)
+-- 3. Table ARTICLE (référence TVA et SUPPLIER, doit donc être insérée en dernier)
+INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id, supplier_id)
 VALUES
-    ('High-Tech'),
-    ('Mobilier'),
-    ('Mode'),
-    ('Beauté & Santé'),
-    ('Jeux & Jouets'),
-    ('Bricolage'),
-    ('Auto & Moto');
-
-
--- 4. Table ARTICLE (référence TVA et SUPPLIER, doit donc être insérée en dernier)
-INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id)
-VALUES
-    ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1),
-    ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, 2),
-    ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, 1),
-    ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3),
-    ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2);
+    ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1, 1),
+    ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, 2, 1),
+    ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, 1, 2),
+    ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3, 3),
+    ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2, 3);
