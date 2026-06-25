@@ -100,7 +100,10 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException {
+    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException,
+            ISupplierService.SupplierNotFoundException,
+            ITvaService.TvaNotFoundException{
+
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
@@ -112,8 +115,20 @@ public class ArticleService implements IArticleService {
         article.setArtStock(dto.artStock());
 
         // Mise à jour de la TVA si elle change
-        Tva tva = tvaRepository.findById(dto.tvaId()).orElseThrow(IllegalArgumentException::new);
+        Tva tva = tvaRepository.findById(dto.tvaId()).orElseThrow(ITvaService.TvaNotFoundException::new);
         article.setTva(tva);
+
+        // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
+        Supplier supplier = null;
+
+        // Si un supplierId est fourni, on vérifie qu'il existe bien en base
+        // Lève une SupplierNotFoundException si l'id est inconnu, pour éviter une association invalide
+        if (dto.supplierId() != null) {
+            supplier = supplierRepository.findById(dto.supplierId())
+                    .orElseThrow(ISupplierService.SupplierNotFoundException::new);
+        }
+
+        article.setSupplier(supplier);
 
         Article saved = articleRepository.save(article);
         return toDTO(saved);
@@ -141,11 +156,11 @@ public class ArticleService implements IArticleService {
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
-                supplierResponse,
                 article.getArtPriceExcludeTaxes(),
                 article.getArtStock(),
                 article.getTva(),
-                priceTTC
+                priceTTC,
+                supplierResponse
         );
     }
 }

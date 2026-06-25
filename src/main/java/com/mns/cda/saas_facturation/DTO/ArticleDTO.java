@@ -10,9 +10,9 @@ public record ArticleDTO(
         String artReference,
         String artName,
         String artDescription,
-        SupplierResponseDTO supplier,
         BigDecimal artPriceExcludeTaxes,
         int artStock,
         Tva tva,
-        BigDecimal artPriceTTC) {
+        BigDecimal artPriceTTC,
+        SupplierResponseDTO supplier) {
 }

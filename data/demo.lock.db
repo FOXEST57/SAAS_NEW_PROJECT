@@ -1,6 +1,6 @@
 #FileLock
-#Thu Jun 25 16:09:32 CEST 2026
+#Thu Jun 25 16:22:57 CEST 2026
 hostName=por-mns-65
-id=19eff1d52faedb100e68be523d7fd31b9df51f523db
+id=19eff2999a9a6724a77c3bce552d88900f68b0582f5
 method=file
-server=192.168.1.55\:51289
+server=192.168.1.55\:62108

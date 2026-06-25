@@ -99,7 +99,10 @@ public class ArticleController {
     })
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException {
+            @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException,
+            ITvaService.TvaNotFoundException,
+            ISupplierService.SupplierNotFoundException {
+
         ArticleDTO updated = articleService.update(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }

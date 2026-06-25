@@ -23,6 +23,6 @@ public interface IArticleService {
     void delete(Long id);
 
     //Put
-    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException ;
+    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException,ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException ;
 
 }
