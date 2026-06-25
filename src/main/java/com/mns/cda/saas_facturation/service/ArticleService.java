@@ -41,6 +41,23 @@ public class ArticleService implements IArticleService {
 
     }
 
+    @Override
+    public List<ArticleDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException {
+
+        Optional<Supplier> supplier = supplierRepository.findById(id);
+
+        if (supplier.isEmpty()) {
+            throw new ISupplierService.SupplierNotFoundException();
+        }
+
+        return articleRepository.findBySupplierSplId(id)
+                .stream()
+                .map(this::toDTO)
+                .toList();
+
+    }
+
+
     /**
      * Crée un nouvel article en base de données à partir des données fournies dans le DTO.
      *

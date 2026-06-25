@@ -77,6 +77,8 @@ public class ArticleController {
             @ApiResponse(responseCode = "204", description = "Article supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "L'article n'existe pas.")
     })
+
+
     public ResponseEntity<ArticleDTO> delete(
             @PathVariable Long id) {
 

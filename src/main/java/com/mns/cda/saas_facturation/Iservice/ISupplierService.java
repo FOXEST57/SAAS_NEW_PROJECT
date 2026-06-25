@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.model.Supplier;
 

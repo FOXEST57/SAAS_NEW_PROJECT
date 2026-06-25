@@ -16,6 +16,9 @@ public interface IArticleService {
     //GetByID
     Optional<ArticleDTO> findById(Long id);
 
+    //GetArticlesBySplId
+    List<ArticleDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException;
+
     //Post
     ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException;
 

@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.model.Supplier;
@@ -121,6 +122,16 @@ public class SupplierService implements ISupplierService {
         supplierRepository.save(supplierToUpdate);
     }
 
+    /**
+     * Convertit une entité {@link Supplier} en {@link SupplierDTO}.
+     *
+     * <p>Cette méthode est utilisée en interne par le service pour éviter
+     * d'exposer les entités JPA directement à la couche controller.
+     *
+     * @param supplier l'entité fournisseur à convertir (ne doit pas être {@code null})
+     * @return un {@link SupplierDTO} contenant les informations du fournisseur :
+     *         id, nom, email, téléphone et adresse
+     */
     public SupplierDTO toDTO(Supplier supplier) {
 
         return new SupplierDTO(
@@ -129,7 +140,6 @@ public class SupplierService implements ISupplierService {
                 supplier.getSplEmail(),
                 supplier.getSplPhone(),
                 supplier.getSplAdress()
-
         );
     }
 }
