@@ -12,7 +12,7 @@ public record ArticleRequestDTO(
         @NotBlank String artReference,
         @NotBlank String artName,
         @NotBlank String artDescription,
-        @DecimalMin("0.0") BigDecimal artPriceExcludeTaxes,
+        @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
         @Min(0) int artStock,
         @NotNull @Min(1) Long tvaId
 ) {}

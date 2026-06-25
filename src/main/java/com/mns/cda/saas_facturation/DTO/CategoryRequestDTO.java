@@ -1,6 +1,8 @@
 package com.mns.cda.saas_facturation.DTO;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CategoryRequestDTO(
-        String catName
+        @NotBlank String catName
 ) {
 }
