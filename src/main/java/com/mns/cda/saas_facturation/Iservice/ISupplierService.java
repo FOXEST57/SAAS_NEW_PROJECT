@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.Service;
+package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.Model.SupplierModel;
 

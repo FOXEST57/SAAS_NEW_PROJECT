@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.Controller;
 
 import com.mns.cda.saas_facturation.Model.SupplierModel;
-import com.mns.cda.saas_facturation.Service.ISupplierService;
+import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
