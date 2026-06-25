@@ -1,6 +1,5 @@
 package com.mns.cda.saas_facturation.DTO;
 
-import com.mns.cda.saas_facturation.model.Supplier;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
