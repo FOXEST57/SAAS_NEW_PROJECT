@@ -107,8 +107,8 @@ public class SupplierService implements ISupplierService {
         }
 
         // On vérifie que le fournisseur n'existe pas déjà en BDD avec un id différent du fournisseur à modifier
-        if (supplierRepository.existsBySplNameAndSplIdIsNot(optionalSupplier.get()
-                .getSplName(), optionalSupplier.get().getSplId() )) {
+        if (supplierRepository.existsBySplNameAndSplIdIsNot(supplierToUpdate.getSplName()
+                , optionalSupplier.get().getSplId() )) {
             throw new ExistingSupplierException();
         }
 

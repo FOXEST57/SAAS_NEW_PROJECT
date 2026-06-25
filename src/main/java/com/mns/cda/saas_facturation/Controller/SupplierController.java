@@ -6,10 +6,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class SupplierController {
      * GET /supplier/list
      */
     @GetMapping("/list")
-    @Operation(summary = "Lister tous les fournisseurs")
+    @Operation(summary = "Lister tous les fournisseurs", description = "Permet d'accèder à la liste des fournisseurs")
     @ApiResponse(responseCode = "200", description = "Liste retournée avec succès")
     public List<SupplierModel> findAll() {
         return supplierService.findAll();
@@ -70,7 +70,7 @@ public class SupplierController {
             @ApiResponse(responseCode = "201", description = "Fournisseur créé"),
             @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant")
     })
-    public ResponseEntity<SupplierModel> create(@Validated @RequestBody SupplierModel supplierToInsert) {
+    public ResponseEntity<SupplierModel> create(@Valid @RequestBody SupplierModel supplierToInsert) {
         // @RequestBody : Spring désérialise automatiquement le JSON reçu en objet SupplierModel
 
         try {
@@ -115,7 +115,7 @@ public class SupplierController {
             @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant")
     })
     public ResponseEntity<Void> update(@PathVariable long id,
-                                       @Validated
+                                       @Valid
                                        @RequestBody SupplierModel supplierToUpdate)
             throws ISupplierService.SupplierNotFoundException, ISupplierService.ExistingSupplierException {
 
