@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -35,7 +37,7 @@ public class Article {
 
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
-    protected Double artPriceExcludeTaxes;
+    protected BigDecimal artPriceExcludeTaxes;
 
     @NotNull
     @Min(0)

@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -24,5 +26,5 @@ public class Tva {
     private Long tvaId;
 
     @DecimalMin(value = "0.0")
-    private Double tvaTaux;
+    private BigDecimal tvaTaux;
 }

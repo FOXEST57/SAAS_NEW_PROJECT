@@ -5,11 +5,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record ArticleCreateDTO(
+import java.math.BigDecimal;
+
+//Création d'un DTO pour tout ce qui va être insertion ou modification en base de données
+public record ArticleRequestDTO(
         @NotBlank String artReference,
         @NotBlank String artName,
         @NotBlank String artDescription,
-        @DecimalMin("0.0") Double artPriceExcludeTaxes,
+        @DecimalMin("0.0") BigDecimal artPriceExcludeTaxes,
         @Min(0) int artStock,
         @NotNull @Min(1) Long tvaId
 ) {}

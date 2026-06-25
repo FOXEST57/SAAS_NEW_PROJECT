@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.Iservice;
 
-import com.mns.cda.saas_facturation.DTO.ArticleCreateDTO;
+import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.model.Article;
 
@@ -18,12 +18,12 @@ public interface IArticleService {
     Optional<ArticleDTO> findById(Long id);
 
     //Post
-    Article create(ArticleCreateDTO dto);
+    Article create(ArticleRequestDTO dto);
 
     //Delete
     void delete(Long id);
 
     //Put
-    public ArticleDTO update(long id, ArticleCreateDTO dto) throws ArticleNotFoundException ;
+    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException ;
 
 }

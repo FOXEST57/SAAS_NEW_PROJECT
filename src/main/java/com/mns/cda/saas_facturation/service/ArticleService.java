@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.service;
 
-import com.mns.cda.saas_facturation.DTO.ArticleCreateDTO;
+import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.model.Article;
@@ -10,6 +10,7 @@ import com.mns.cda.saas_facturation.repository.TvaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public Article create(ArticleCreateDTO dto) {
+    public Article create(ArticleRequestDTO dto) {
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(() -> new IllegalArgumentException("TVA not found")); //On vérifie si la TVA donner dans l'objet existe bien en base de données
 
@@ -59,7 +60,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public ArticleDTO update(long id, ArticleCreateDTO dto) throws ArticleNotFoundException {
+    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException {
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
@@ -85,7 +86,7 @@ public class ArticleService implements IArticleService {
      * @return ArticleDTO
      */
     private ArticleDTO toDTO(Article article) {
-        Double priceTTC = article.getArtPriceExcludeTaxes()* (1+article.getTva().getTvaTaux());
+        BigDecimal priceTTC = article.getArtPriceExcludeTaxes().multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
         return new ArticleDTO(
                 article.getArtId(),

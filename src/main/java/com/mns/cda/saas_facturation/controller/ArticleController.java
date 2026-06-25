@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleCreateDTO;
+import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
@@ -62,7 +62,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
     public ResponseEntity<Article> createArticle(
-            @Valid @RequestBody ArticleCreateDTO dto
+            @Valid @RequestBody ArticleRequestDTO dto
     ) {
         Article response = articleService.create(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -91,7 +91,7 @@ public class ArticleController {
     @PutMapping("/{id}")
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody ArticleCreateDTO dto) throws IArticleService.ArticleNotFoundException {
+            @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException {
         ArticleDTO updated = articleService.update(id, dto);
         return ResponseEntity.ok(updated);
     }
