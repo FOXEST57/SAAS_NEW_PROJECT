@@ -56,7 +56,13 @@ public class SupplierService implements ISupplierService {
      * @param supplierModel Le fournisseur à créer.
      */
     @Override
-    public void create(SupplierModel supplierModel) {
+    public void create(SupplierModel supplierModel) throws ExistingSupplierException {
+
+        // On vérifie que le nom du fournisseur n'existe pas en BDD
+        if( supplierRepository.existsBySplName(supplierModel.getSplName())) {
+            throw new ExistingSupplierException();
+        }
+
         // On s'assure que l'id est null pour forcer une insertion (INSERT)
         // et éviter qu'un id fourni par le client n'écrase un enregistrement existant.
         supplierModel.setSplId(null);
@@ -86,21 +92,24 @@ public class SupplierService implements ISupplierService {
      * qu'on modifie bien le bon enregistrement (et non un id éventuellement
      * fourni dans le corps de la requête).
      *
-     * Note : les appels setSplXxx(supplierToUpdate.getSplXxx()) sont redondants
-     * puisqu'ils réaffectent la valeur déjà présente sur le même objet.
-     * Il suffit de setter l'id et de sauvegarder directement.
-     *
      * @param id              Identifiant du fournisseur à mettre à jour.
      * @param supplierToUpdate Objet contenant les nouvelles valeurs.
      * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
      */
     @Override
-    public void modify(Long id, SupplierModel supplierToUpdate) throws SupplierNotFoundException {
+    public void modify(Long id, SupplierModel supplierToUpdate) throws SupplierNotFoundException, ExistingSupplierException {
 
         Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
 
+        // On vérifie l'existance du fournisseur
         if (optionalSupplier.isEmpty()) {
             throw new SupplierNotFoundException();
+        }
+
+        // On vérifie que le fournisseur n'existe pas déjà en BDD avec un id différent du fournisseur à modifier
+        if (supplierRepository.existsBySplNameAndSplIdIsNot(optionalSupplier.get()
+                .getSplName(), optionalSupplier.get().getSplId() )) {
+            throw new ExistingSupplierException();
         }
 
         // On force l'id de l'objet à mettre à jour avec celui de l'URL

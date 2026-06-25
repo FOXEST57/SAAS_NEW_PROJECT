@@ -6,4 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SupplierRepository extends JpaRepository<SupplierModel, Long> {
+
+    boolean existsBySplName (String splName);
+
+    boolean existsBySplNameAndSplIdIsNot(String splName, Long id);
+
 }

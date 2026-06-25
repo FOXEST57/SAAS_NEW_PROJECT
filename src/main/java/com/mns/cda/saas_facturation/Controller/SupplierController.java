@@ -36,7 +36,7 @@ public class SupplierController {
     @GetMapping("/list")
     @Operation(summary = "Lister tous les fournisseurs")
     @ApiResponse(responseCode = "200", description = "Liste retournée avec succès")
-    public List<SupplierModel> getAll() {
+    public List<SupplierModel> findAll() {
         return supplierService.findAll();
     }
 
@@ -51,11 +51,11 @@ public class SupplierController {
             @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<SupplierModel> get(@PathVariable long id) {
+    public ResponseEntity<SupplierModel> findById(@PathVariable long id) {
         try {
             return ResponseEntity.ok(supplierService.findById(id).get());
         } catch (ISupplierService.SupplierNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -68,13 +68,17 @@ public class SupplierController {
     @Operation(summary = "Créer un fournisseur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Fournisseur créé"),
-            @ApiResponse(responseCode = "400", description = "Données invalides")
+            @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant")
     })
-    public ResponseEntity<SupplierModel> create(@Validated
-                                                    @RequestBody SupplierModel supplierToInsert) {
+    public ResponseEntity<SupplierModel> create(@Validated @RequestBody SupplierModel supplierToInsert) {
         // @RequestBody : Spring désérialise automatiquement le JSON reçu en objet SupplierModel
-        supplierService.create(supplierToInsert);
-        return new ResponseEntity<>(supplierToInsert, HttpStatus.CREATED); // 201
+
+        try {
+            supplierService.create(supplierToInsert);
+            return new ResponseEntity<>(supplierToInsert, HttpStatus.CREATED); // 201
+        } catch (ISupplierService.ExistingSupplierException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT); // 409
+        }
     }
 
     /**
@@ -89,8 +93,13 @@ public class SupplierController {
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
     public ResponseEntity<Void> delete(@PathVariable long id) throws ISupplierService.SupplierNotFoundException {
-        supplierService.delete(id);
-        return ResponseEntity.noContent().build(); // 204 : succès sans contenu retourné
+
+        try {
+            supplierService.delete(id);
+            return ResponseEntity.noContent().build(); // 204 : succès sans contenu retourné
+        } catch (ISupplierService.SupplierNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404
+        }
     }
 
     /**
@@ -102,17 +111,22 @@ public class SupplierController {
     @Operation(summary = "Modifier un fournisseur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Fournisseur modifié"),
-            @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
+            @ApiResponse(responseCode = "404", description = "Fournisseur introuvable"),
+            @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant")
     })
     public ResponseEntity<Void> update(@PathVariable long id,
                                        @Validated
-                                       @RequestBody SupplierModel supplierToUpdate) {
+                                       @RequestBody SupplierModel supplierToUpdate)
+            throws ISupplierService.SupplierNotFoundException, ISupplierService.ExistingSupplierException {
+
         try {
             supplierService.modify(id, supplierToUpdate);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
         } catch (ISupplierService.SupplierNotFoundException e) {
             // Si le fournisseur n'existe pas, on retourne une réponse 404
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404
+        } catch (ISupplierService.ExistingSupplierException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT); // 409
         }
     }
 }

@@ -36,5 +36,4 @@ public class SupplierModel {
     @NotBlank(message = "L'adresse est obligatoire")
     private String splAdress;
 
-
 }
