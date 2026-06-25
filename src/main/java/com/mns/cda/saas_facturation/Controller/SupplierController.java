@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.Controller;
 
-import com.mns.cda.saas_facturation.Model.SupplierModel;
+import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,7 +36,7 @@ public class SupplierController {
     @GetMapping("/list")
     @Operation(summary = "Lister tous les fournisseurs", description = "Permet d'accèder à la liste des fournisseurs")
     @ApiResponse(responseCode = "200", description = "Liste retournée avec succès")
-    public List<SupplierModel> findAll() {
+    public List<Supplier> findAll() {
         return supplierService.findAll();
     }
 
@@ -51,7 +51,7 @@ public class SupplierController {
             @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<SupplierModel> findById(@PathVariable long id) {
+    public ResponseEntity<Supplier> findById(@PathVariable long id) {
         try {
             return ResponseEntity.ok(supplierService.findById(id).get());
         } catch (ISupplierService.SupplierNotFoundException e) {
@@ -70,8 +70,8 @@ public class SupplierController {
             @ApiResponse(responseCode = "201", description = "Fournisseur créé"),
             @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant")
     })
-    public ResponseEntity<SupplierModel> create(@Valid @RequestBody SupplierModel supplierToInsert) {
-        // @RequestBody : Spring désérialise automatiquement le JSON reçu en objet SupplierModel
+    public ResponseEntity<Supplier> create(@Valid @RequestBody Supplier supplierToInsert) {
+        // @RequestBody : Spring désérialise automatiquement le JSON reçu en objet Supplier
 
         try {
             supplierService.create(supplierToInsert);
@@ -116,7 +116,7 @@ public class SupplierController {
     })
     public ResponseEntity<Void> update(@PathVariable long id,
                                        @Valid
-                                       @RequestBody SupplierModel supplierToUpdate)
+                                       @RequestBody Supplier supplierToUpdate)
             throws ISupplierService.SupplierNotFoundException, ISupplierService.ExistingSupplierException {
 
         try {

@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.Service;
 
-import com.mns.cda.saas_facturation.Model.SupplierModel;
+import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.Repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,10 @@ public class SupplierService implements ISupplierService {
     /**
      * Récupère la liste de tous les fournisseurs en base de données.
      *
-     * @return Liste de tous les SupplierModel existants (vide si aucun).
+     * @return Liste de tous les Supplier existants (vide si aucun).
      */
     @Override
-    public List<SupplierModel> findAll() {
+    public List<Supplier> findAll() {
         return supplierRepository.findAll();
     }
 
@@ -39,8 +39,8 @@ public class SupplierService implements ISupplierService {
      * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
      */
     @Override
-    public Optional<SupplierModel> findById(Long id) throws SupplierNotFoundException {
-        Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
+    public Optional<Supplier> findById(Long id) throws SupplierNotFoundException {
+        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
 
         if (optionalSupplier.isEmpty()) {
             throw new SupplierNotFoundException();
@@ -53,20 +53,20 @@ public class SupplierService implements ISupplierService {
      * L'identifiant est forcé à null avant la sauvegarde pour garantir
      * que c'est la base de données qui génère l'id (et non le client).
      *
-     * @param supplierModel Le fournisseur à créer.
+     * @param supplier Le fournisseur à créer.
      */
     @Override
-    public void create(SupplierModel supplierModel) throws ExistingSupplierException {
+    public void create(Supplier supplier) throws ExistingSupplierException {
 
         // On vérifie que le nom du fournisseur n'existe pas en BDD
-        if( supplierRepository.existsBySplName(supplierModel.getSplName())) {
+        if( supplierRepository.existsBySplName(supplier.getSplName())) {
             throw new ExistingSupplierException();
         }
 
         // On s'assure que l'id est null pour forcer une insertion (INSERT)
         // et éviter qu'un id fourni par le client n'écrase un enregistrement existant.
-        supplierModel.setSplId(null);
-        supplierRepository.save(supplierModel);
+        supplier.setSplId(null);
+        supplierRepository.save(supplier);
     }
 
     /**
@@ -78,7 +78,7 @@ public class SupplierService implements ISupplierService {
      */
     @Override
     public void delete(Long id) throws SupplierNotFoundException {
-        Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
+        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
 
         if (optionalSupplier.isEmpty()) {
             throw new SupplierNotFoundException();
@@ -97,9 +97,9 @@ public class SupplierService implements ISupplierService {
      * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
      */
     @Override
-    public void modify(Long id, SupplierModel supplierToUpdate) throws SupplierNotFoundException, ExistingSupplierException {
+    public void modify(Long id, Supplier supplierToUpdate) throws SupplierNotFoundException, ExistingSupplierException {
 
-        Optional<SupplierModel> optionalSupplier = supplierRepository.findById(id);
+        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
 
         // On vérifie l'existance du fournisseur
         if (optionalSupplier.isEmpty()) {
