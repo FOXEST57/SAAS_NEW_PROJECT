@@ -91,14 +91,8 @@ public class ArticleController {
     @PutMapping("/{id}")
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody ArticleDTO dto) {
-
-        try {
-            articleService.update(id, dto);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
-
-        } catch (IArticleService.ArticleNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+            @Valid @RequestBody ArticleCreateDTO dto) throws IArticleService.ArticleNotFoundException {
+        ArticleDTO updated = articleService.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 }

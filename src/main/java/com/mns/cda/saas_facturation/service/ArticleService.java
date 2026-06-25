@@ -59,7 +59,7 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public ArticleDTO update(long id, ArticleDTO dto) throws ArticleNotFoundException {
+    public ArticleDTO update(long id, ArticleCreateDTO dto) throws ArticleNotFoundException {
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
@@ -71,11 +71,8 @@ public class ArticleService implements IArticleService {
         article.setArtStock(dto.artStock());
 
         // Mise à jour de la TVA si elle change
-        if (dto.tva() != null) {
-            Tva tva = tvaRepository.findById(dto.tva().getTvaId())
-                    .orElseThrow(() -> new IllegalArgumentException("TVA not found"));
-            article.setTva(tva);
-        }
+        Tva tva = tvaRepository.findById(dto.tvaId()).orElseThrow(IllegalArgumentException::new);
+        article.setTva(tva);
 
         Article saved = articleRepository.save(article);
         return toDTO(saved);

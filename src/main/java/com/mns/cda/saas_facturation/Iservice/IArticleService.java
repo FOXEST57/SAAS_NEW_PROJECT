@@ -24,6 +24,6 @@ public interface IArticleService {
     void delete(Long id);
 
     //Put
-    ArticleDTO update(long id, ArticleDTO dto) throws ArticleNotFoundException;
+    public ArticleDTO update(long id, ArticleCreateDTO dto) throws ArticleNotFoundException ;
 
 }
