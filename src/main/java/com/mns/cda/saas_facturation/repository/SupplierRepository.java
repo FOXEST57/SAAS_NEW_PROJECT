@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.Repository;
+package com.mns.cda.saas_facturation.repository;
 
 import com.mns.cda.saas_facturation.model.Supplier;
 import org.springframework.data.jpa.repository.JpaRepository;

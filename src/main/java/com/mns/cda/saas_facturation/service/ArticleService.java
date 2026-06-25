@@ -4,8 +4,10 @@ import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.model.Article;
+import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.ArticleRepository;
+import com.mns.cda.saas_facturation.repository.SupplierRepository;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class ArticleService implements IArticleService {
 
     protected final ArticleRepository articleRepository;
     protected final TvaRepository tvaRepository;
+    protected final SupplierRepository supplierRepository;
 
     @Override
     public List<ArticleDTO> findAll() {
@@ -42,6 +45,14 @@ public class ArticleService implements IArticleService {
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(() -> new IllegalArgumentException("TVA not found")); //On vérifie si la TVA donner dans l'objet existe bien en base de données
 
+        Supplier supplier = null;
+
+        if(dto.supplierId() != null) {
+
+            supplier = supplierRepository.findById(dto.supplierId())
+                    .orElseThrow(() -> new IllegalArgumentException("Supplier not found")); // On vérifie si le fourniseur donné dans l'objet existe bien en base de données
+        }
+
         Article article = new Article(
                 null,
                 dto.artReference(),
@@ -49,7 +60,8 @@ public class ArticleService implements IArticleService {
                 dto.artDescription(),
                 dto.artPriceExcludeTaxes(),
                 dto.artStock(),
-                articleTva
+                articleTva,
+                supplier
         );
         return articleRepository.save(article);
     }

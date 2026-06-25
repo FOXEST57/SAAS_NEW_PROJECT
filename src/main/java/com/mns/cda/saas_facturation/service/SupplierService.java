@@ -1,7 +1,8 @@
-package com.mns.cda.saas_facturation.Service;
+package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.model.Supplier;
-import com.mns.cda.saas_facturation.Repository.SupplierRepository;
+import com.mns.cda.saas_facturation.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
