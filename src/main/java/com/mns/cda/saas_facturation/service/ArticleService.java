@@ -1,8 +1,9 @@
 package com.mns.cda.saas_facturation.service;
 
-import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
+import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.model.Tva;
@@ -40,19 +41,43 @@ public class ArticleService implements IArticleService {
 
     }
 
+    /**
+     * Crée un nouvel article en base de données à partir des données fournies dans le DTO.
+     *
+     * <p>Les étapes réalisées sont les suivantes :
+     * <ol>
+     *   <li>Vérification de l'existence de la TVA associée</li>
+     *   <li>Récupération optionnelle du fournisseur si un {@code supplierId} est fourni</li>
+     *   <li>Construction et persistance de l'entité {@link Article}</li>
+     *   <li>Mapping de l'entité sauvegardée vers un {@link ArticleDTO} via {@code toDTO()}</li>
+     * </ol>
+     *
+     * @param dto les données de l'article à créer (référence, nom, description, prix, stock, TVA, fournisseur optionnel)
+     * @return un {@link ArticleDTO} contenant les informations de l'article créé,
+     *         incluant la TVA et le fournisseur associé (ou {@code null} si aucun fournisseur)
+     * @throws ITvaService.TvaNotFoundException si la TVA fournie n'existe pas en base de données
+     * @throws ISupplierService.SupplierNotFoundException si le fournisseur fourni n'existe pas en base de données
+     */
     @Override
-    public Article create(ArticleRequestDTO dto) {
-        Tva articleTva = tvaRepository.findById(dto.tvaId())
-                .orElseThrow(() -> new IllegalArgumentException("TVA not found")); //On vérifie si la TVA donner dans l'objet existe bien en base de données
+    public ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException,
+            ISupplierService.SupplierNotFoundException {
 
+        // Récupération de la TVA — obligatoire, lève une TvaNotFoundException si l'id est inconnu
+        Tva articleTva = tvaRepository.findById(dto.tvaId())
+                .orElseThrow(ITvaService.TvaNotFoundException::new);
+
+        // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
         Supplier supplier = null;
 
-        if(dto.supplierId() != null) {
-
+        // Si un supplierId est fourni, on vérifie qu'il existe bien en base
+        // Lève une SupplierNotFoundException si l'id est inconnu, pour éviter une association invalide
+        if (dto.supplierId() != null) {
             supplier = supplierRepository.findById(dto.supplierId())
-                    .orElseThrow(() -> new IllegalArgumentException("Supplier not found")); // On vérifie si le fourniseur donné dans l'objet existe bien en base de données
+                    .orElseThrow(ISupplierService.SupplierNotFoundException::new);
         }
 
+        // Construction de l'entité Article à partir du DTO
+        // L'id est null car il sera généré automatiquement par la base de données
         Article article = new Article(
                 null,
                 dto.artReference(),
@@ -63,7 +88,10 @@ public class ArticleService implements IArticleService {
                 articleTva,
                 supplier
         );
-        return articleRepository.save(article);
+
+        // Persistance en base puis mapping vers le DTO de réponse via toDTO()
+        // L'entité retournée par save() contient l'id généré par la base
+        return toDTO(articleRepository.save(article));
     }
 
     @Override
@@ -100,11 +128,20 @@ public class ArticleService implements IArticleService {
     private ArticleDTO toDTO(Article article) {
         BigDecimal priceTTC = article.getArtPriceExcludeTaxes().multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
+        // Mapping du fournisseur vers son DTO de réponse
+        // Si aucun fournisseur n'est associé, on retourne null pour ce champ
+        SupplierResponseDTO supplierResponse = article.getSupplier() != null
+                ? new SupplierResponseDTO(
+                article.getSupplier().getSplId(),
+                article.getSupplier().getSplName())
+                : null;
+
         return new ArticleDTO(
                 article.getArtId(),
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
+                supplierResponse,
                 article.getArtPriceExcludeTaxes(),
                 article.getArtStock(),
                 article.getTva(),

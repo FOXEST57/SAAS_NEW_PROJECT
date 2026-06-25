@@ -2,7 +2,6 @@ package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.model.Article;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,7 @@ public interface IArticleService {
     Optional<ArticleDTO> findById(Long id);
 
     //Post
-    Article create(ArticleRequestDTO dto);
+    ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException;
 
     //Delete
     void delete(Long id);
