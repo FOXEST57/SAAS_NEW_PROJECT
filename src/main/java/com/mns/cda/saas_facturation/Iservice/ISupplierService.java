@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.model.Supplier;
 
 import java.util.List;
@@ -12,9 +13,9 @@ public interface ISupplierService {
     class ExistingSupplierException extends Exception { }
 
 
-    List<Supplier> findAll();
+    List<SupplierDTO> findAll();
 
-    Optional<Supplier> findById(Long id) throws SupplierNotFoundException;
+    SupplierDTO findById(Long id) throws SupplierNotFoundException;
 
     void create(Supplier supplier) throws ExistingSupplierException;
 

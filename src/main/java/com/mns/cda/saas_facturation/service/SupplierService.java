@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
@@ -28,8 +29,11 @@ public class SupplierService implements ISupplierService {
      * @return Liste de tous les Supplier existants (vide si aucun).
      */
     @Override
-    public List<Supplier> findAll() {
-        return supplierRepository.findAll();
+    public List<SupplierDTO> findAll() {
+        return supplierRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     /**
@@ -40,13 +44,10 @@ public class SupplierService implements ISupplierService {
      * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
      */
     @Override
-    public Optional<Supplier> findById(Long id) throws SupplierNotFoundException {
-        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
+    public SupplierDTO findById(Long id) throws SupplierNotFoundException {
 
-        if (optionalSupplier.isEmpty()) {
-            throw new SupplierNotFoundException();
-        }
-        return optionalSupplier;
+        return toDTO(supplierRepository.findById(id)
+                .orElseThrow(SupplierNotFoundException::new));
     }
 
     /**
@@ -118,5 +119,17 @@ public class SupplierService implements ISupplierService {
         supplierToUpdate.setSplId(id);
 
         supplierRepository.save(supplierToUpdate);
+    }
+
+    public SupplierDTO toDTO(Supplier supplier) {
+
+        return new SupplierDTO(
+                supplier.getSplId(),
+                supplier.getSplName(),
+                supplier.getSplEmail(),
+                supplier.getSplPhone(),
+                supplier.getSplAdress()
+
+        );
     }
 }

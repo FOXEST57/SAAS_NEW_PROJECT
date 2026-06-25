@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,7 @@ public class SupplierController {
     @GetMapping("/list")
     @Operation(summary = "Lister tous les fournisseurs", description = "Permet d'accèder à la liste des fournisseurs")
     @ApiResponse(responseCode = "200", description = "Liste retournée avec succès")
-    public List<Supplier> findAll() {
+    public List<SupplierDTO> findAll() {
         return supplierService.findAll();
     }
 
@@ -51,9 +52,9 @@ public class SupplierController {
             @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<Supplier> findById(@PathVariable long id) {
+    public ResponseEntity<SupplierDTO> findById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(supplierService.findById(id).get());
+            return ResponseEntity.ok(supplierService.findById(id));
         } catch (ISupplierService.SupplierNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

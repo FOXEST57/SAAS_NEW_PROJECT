@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -44,7 +45,5 @@ public class Supplier {
 
     @OneToMany(mappedBy = "supplier")
     private List<Article> articleList = new ArrayList<>();
-
-
 
 }
