@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.Service;
 
+import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.Model.SupplierModel;
 import com.mns.cda.saas_facturation.Repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
