@@ -25,7 +25,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/category")
-@Tag(name = "Tag", description = "Routes de gestion des articles.")
+@Tag(name = "Category", description = "Routes de gestion des articles.")
 @CrossOrigin
 public class CategoryController {
 
