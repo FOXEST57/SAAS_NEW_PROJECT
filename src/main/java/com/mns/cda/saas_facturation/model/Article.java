@@ -27,6 +27,7 @@ public class Article {
     protected Long artId;
 
     @NotBlank
+    @Column(unique = true)
     protected String artReference;
 
     @NotBlank

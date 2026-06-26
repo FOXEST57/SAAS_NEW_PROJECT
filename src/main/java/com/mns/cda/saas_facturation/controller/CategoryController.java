@@ -98,7 +98,7 @@ public class CategoryController {
     })
     public ResponseEntity<Category> update(
             @PathVariable Long id,
-            @RequestBody CategoryRequestDTO category) throws ICategoryService.CategoryNotFoundException {
+            @Valid @RequestBody CategoryRequestDTO category) throws ICategoryService.CategoryNotFoundException {
         Category updatedCategory = categoryService.update(id, category.catName());
         return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
