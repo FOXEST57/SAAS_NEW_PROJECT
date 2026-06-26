@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -25,6 +27,7 @@ public class Article {
     protected Long artId;
 
     @NotBlank
+    @Column(unique = true)
     protected String artReference;
 
     @NotBlank
@@ -35,7 +38,7 @@ public class Article {
 
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
-    protected Double artPriceExcludeTaxes;
+    protected BigDecimal artPriceExcludeTaxes;
 
     @NotNull
     @Min(0)
@@ -44,4 +47,12 @@ public class Article {
     @ManyToOne
     @JoinColumn(name = "tva_id")
     protected Tva tva;
+
+    @ManyToOne
+    @JoinColumn(name = "supplier_id", nullable = true)
+    protected Supplier supplier;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = true)
+    protected Category category;
 }
