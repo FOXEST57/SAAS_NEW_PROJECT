@@ -71,7 +71,7 @@ public class CategoryService implements ICategoryService {
      * @param category
      * @return
      */
-    private CategoryDTO toDTO(Category category) {
+    protected CategoryDTO toDTO(Category category) {
         return new CategoryDTO(
                 category.getCatId(),
                 category.getCatName(),

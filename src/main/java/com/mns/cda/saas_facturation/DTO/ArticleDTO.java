@@ -18,6 +18,6 @@ public record ArticleDTO(
         int artStock,
         Tva tva,
         BigDecimal artPriceTTC,
-        Category category,
+        CategoryDTO category,
         SupplierResponseDTO supplier) {
 }

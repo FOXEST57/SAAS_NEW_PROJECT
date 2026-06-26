@@ -29,6 +29,7 @@ public class ArticleService implements IArticleService {
     protected final TvaRepository tvaRepository;
     protected final SupplierRepository supplierRepository;
     protected final CategoryRepository categoryRepository;
+    protected final CategoryService categoryService;
 
     @Override
     public List<ArticleDTO> findAll() {
@@ -174,7 +175,7 @@ public class ArticleService implements IArticleService {
                 article.getArtStock(),
                 article.getTva(),
                 priceTTC,
-                article.getCategory(),
+                categoryService.toDTO(article.getCategory()),
                 supplierResponse
         );
     }
