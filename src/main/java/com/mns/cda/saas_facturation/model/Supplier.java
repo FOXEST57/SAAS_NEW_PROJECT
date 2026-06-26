@@ -25,7 +25,7 @@ public class Supplier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long splId;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 50, nullable = false, unique = true)
     @NotBlank(message = "Le nom du fournisseur est obligatoire")
     private String splName;
 
@@ -34,7 +34,7 @@ public class Supplier {
     @Email(message = "L'email est mal formaté")
     private String splEmail;
 
-    @Column(length = 50, nullable = false, unique = true)
+    @Column(length = 50, nullable = false)
     @NotBlank(message = "Le numéro de téléphone est obligatoire")
     @ValidPhoneNumber
     private String splPhone;

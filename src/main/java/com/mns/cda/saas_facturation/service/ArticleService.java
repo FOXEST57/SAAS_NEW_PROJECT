@@ -26,6 +26,8 @@ public class ArticleService implements IArticleService {
     protected final TvaRepository tvaRepository;
     protected final SupplierRepository supplierRepository;
 
+    // Voir pagination
+    // Pageable (page, size)
     @Override
     public List<ArticleDTO> findAll() {
         return articleRepository.findAll()
@@ -54,7 +56,6 @@ public class ArticleService implements IArticleService {
                 .stream()
                 .map(this::toDTO)
                 .toList();
-
     }
 
 
@@ -124,6 +125,7 @@ public class ArticleService implements IArticleService {
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
+        // Pas de vérification si référence exite déjà en base
         // Mise à jour des champs
         article.setArtReference(dto.artReference());
         article.setArtName(dto.artName());

@@ -1,8 +1,10 @@
 package com.mns.cda.saas_facturation.service;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
+import com.mns.cda.saas_facturation.DTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +14,25 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service gérant la logique métier liée aux fournisseurs (Supplier).
- * Implémente ISupplierService et délègue la persistance à SupplierRepository.
+ * Service métier gérant la logique liée aux fournisseurs ({@link Supplier}).
  *
- * L'injection de dépendance du repository se fait via le constructeur,
- * généré automatiquement par l'annotation @RequiredArgsConstructor de Lombok.
+ * <p>Implémente {@link ISupplierService} et délègue toutes les opérations
+ * de persistance à {@link SupplierRepository}.</p>
+ *
+ * <p>Ce service est responsable de :</p>
+ * <ul>
+ *   <li>convertir les entités JPA en DTOs avant de les retourner au contrôleur</li>
+ *   <li>construire les entités {@link Supplier} à partir des DTOs reçus en entrée</li>
+ *   <li>lever des exceptions métier explicites ({@link SupplierNotFoundException})
+ *       lorsqu'une ressource demandée est introuvable</li>
+ * </ul>
+ *
+ * <p>L'injection de dépendance du repository se fait via le constructeur,
+ * généré automatiquement par l'annotation {@code @RequiredArgsConstructor} de Lombok.</p>
+ *
+ * @see ISupplierService
+ * @see SupplierRepository
+ * @see SupplierDTO
  */
 @Service
 @RequiredArgsConstructor
@@ -27,62 +43,77 @@ public class SupplierService implements ISupplierService {
     /**
      * Récupère la liste de tous les fournisseurs en base de données.
      *
-     * @return Liste de tous les Supplier existants (vide si aucun).
+     * <p>Chaque entité {@link Supplier} est convertie en {@link SupplierDTO}
+     * via {@link #toDTO(Supplier)} avant d'être retournée au contrôleur.</p>
+     *
+     * @return une {@link List} de {@link SupplierDTO} (vide si aucun fournisseur n'existe)
      */
     @Override
     public List<SupplierDTO> findAll() {
         return supplierRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(this::toDTO)  // Conversion entité → DTO pour chaque élément du flux
                 .toList();
     }
 
     /**
-     * Recherche un fournisseur par son identifiant.
+     * Recherche un fournisseur par son identifiant unique.
      *
-     * @param id Identifiant du fournisseur à rechercher.
-     * @return Un Optional contenant le fournisseur trouvé.
-     * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
+     * <p>Si aucun fournisseur ne correspond à l'id fourni, une {@link SupplierNotFoundException}
+     * est levée. Elle sera interceptée soit localement dans le contrôleur,
+     * soit par le {@code GlobalExceptionInterceptor}.</p>
+     *
+     * @param id l'identifiant du fournisseur à rechercher
+     * @return le {@link SupplierDTO} correspondant au fournisseur trouvé
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
      */
     @Override
     public SupplierDTO findById(Long id) throws SupplierNotFoundException {
-
         return toDTO(supplierRepository.findById(id)
-                .orElseThrow(SupplierNotFoundException::new));
+                .orElseThrow(SupplierNotFoundException::new)); // Lève l'exception si l'Optional est vide
     }
 
     /**
-     * Crée un nouveau fournisseur en base de données.
-     * L'identifiant est forcé à null avant la sauvegarde pour garantir
-     * que c'est la base de données qui génère l'id (et non le client).
+     * Crée un nouveau fournisseur en base de données à partir d'un DTO de requête.
      *
-     * @param supplier Le fournisseur à créer.
+     * <p>L'identifiant est forcé à {@code null} lors de la construction de l'entité
+     * pour garantir que c'est la base de données qui génère l'id via
+     * la stratégie {@code @GeneratedValue}, et non le client.</p>
+     *
+     * @param dto le DTO contenant les données du fournisseur à créer
+     * @return le {@link SupplierDTO} du fournisseur créé, avec son id généré
      */
     @Override
-    public void create(Supplier supplier) throws ExistingSupplierException {
+    public SupplierDTO create(SupplierRequestDTO dto) {
 
-        // On vérifie que le nom du fournisseur n'existe pas en BDD
-        if( supplierRepository.existsBySplName(supplier.getSplName())) {
-            throw new ExistingSupplierException();
-        }
+        // Construction de l'entité à partir du DTO — l'id est null pour forcer la génération en base
+        Supplier supplier = new Supplier(
+                null,
+                dto.name(),
+                dto.email(),
+                dto.phoneNumber(),
+                dto.address(),
+                null
+        );
 
-        // On s'assure que l'id est null pour forcer une insertion (INSERT)
-        // et éviter qu'un id fourni par le client n'écrase un enregistrement existant.
-        supplier.setSplId(null);
-        supplierRepository.save(supplier);
+        return toDTO(supplierRepository.save(supplier));
     }
 
     /**
      * Supprime un fournisseur par son identifiant.
-     * Vérifie d'abord l'existence du fournisseur avant toute suppression.
      *
-     * @param id Identifiant du fournisseur à supprimer.
-     * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
+     * <p>L'existence du fournisseur est vérifiée avant toute tentative de suppression.
+     * Si l'id est introuvable, une {@link SupplierNotFoundException} est levée
+     * pour éviter un appel inutile à {@code deleteById}.</p>
+     *
+     * @param id l'identifiant du fournisseur à supprimer
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
      */
     @Override
     public void delete(Long id) throws SupplierNotFoundException {
         Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
 
+        // Vérification préalable : on lève l'exception avant d'appeler deleteById
         if (optionalSupplier.isEmpty()) {
             throw new SupplierNotFoundException();
         }
@@ -91,49 +122,46 @@ public class SupplierService implements ISupplierService {
 
     /**
      * Met à jour un fournisseur existant avec les nouvelles données fournies.
-     * L'id de l'URL est imposé sur l'objet à sauvegarder pour garantir
-     * qu'on modifie bien le bon enregistrement (et non un id éventuellement
-     * fourni dans le corps de la requête).
      *
-     * @param id              Identifiant du fournisseur à mettre à jour.
-     * @param supplierToUpdate Objet contenant les nouvelles valeurs.
-     * @throws SupplierNotFoundException Si aucun fournisseur ne correspond à cet id.
+     * <p>Le fournisseur est d'abord récupéré en base via son id. Si introuvable,
+     * une {@link SupplierNotFoundException} est levée immédiatement.</p>
+     *
+     * <p>Les champs de l'entité sont ensuite mis à jour un par un via les setters
+     * avant d'être sauvegardés. Cette approche garantit que seuls les champs
+     * explicitement fournis dans le DTO sont modifiés.</p>
+     *
+     * @param id  l'identifiant du fournisseur à mettre à jour
+     * @param dto le DTO contenant les nouvelles valeurs
+     * @return le {@link SupplierDTO} du fournisseur après mise à jour
+     * @throws SupplierNotFoundException  si aucun fournisseur ne correspond à cet id
      */
     @Override
-    public void modify(Long id, Supplier supplierToUpdate) throws SupplierNotFoundException, ExistingSupplierException {
+    public SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException {
 
-        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
+        // Récupération de l'entité existante — lève SupplierNotFoundException si absente
+        Supplier supplier = supplierRepository.findById(id)
+                .orElseThrow(ISupplierService.SupplierNotFoundException::new);
 
-        // On vérifie l'existance du fournisseur
-        if (optionalSupplier.isEmpty()) {
-            throw new SupplierNotFoundException();
-        }
+        // Mise à jour des champs de l'entité avec les valeurs du DTO
+        supplier.setSplName(dto.name());
+        supplier.setSplEmail(dto.email());
+        supplier.setSplPhone(dto.phoneNumber());
+        supplier.setSplAdress(dto.address());
 
-        // On vérifie que le fournisseur n'existe pas déjà en BDD avec un id différent du fournisseur à modifier
-        if (supplierRepository.existsBySplNameAndSplIdIsNot(supplierToUpdate.getSplName()
-                , optionalSupplier.get().getSplId() )) {
-            throw new ExistingSupplierException();
-        }
-
-        // On force l'id de l'objet à mettre à jour avec celui de l'URL
-        // pour garantir la cohérence (l'id du body est ignoré).
-        supplierToUpdate.setSplId(id);
-
-        supplierRepository.save(supplierToUpdate);
+        return toDTO(supplierRepository.save(supplier));
     }
 
     /**
      * Convertit une entité {@link Supplier} en {@link SupplierDTO}.
      *
      * <p>Cette méthode est utilisée en interne par le service pour éviter
-     * d'exposer les entités JPA directement à la couche controller.
+     * d'exposer les entités JPA directement à la couche contrôleur.</p>
      *
      * @param supplier l'entité fournisseur à convertir (ne doit pas être {@code null})
      * @return un {@link SupplierDTO} contenant les informations du fournisseur :
      *         id, nom, email, téléphone et adresse
      */
     public SupplierDTO toDTO(Supplier supplier) {
-
         return new SupplierDTO(
                 supplier.getSplId(),
                 supplier.getSplName(),
