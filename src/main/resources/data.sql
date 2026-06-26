@@ -8,16 +8,17 @@ VALUES
     ('taux super-réduit', 0.021);
 
 -- 2. Table CATEGORY (référencée par ARTICLE.category_id)
-INSERT INTO category (cat_name)
+INSERT INTO category (cat_name, cat_parent_id)
 VALUES
-    ('High-Tech'),
-    ('Mobilier'),
-    ('Mode'),
-    ('Beauté & Santé'),
-    ('Jeux & Jouets'),
-    ('Bricolage'),
-    ('Auto & Moto');
-
+    ('High-Tech', NULL),
+    ('Mobilier', NULL),
+    ('Accessoire informatique',1),
+    ('Moniteur', 1),
+    ('Mode', NULL),
+    ('Beauté & Santé', NULL),
+    ('Jeux & Jouets', NULL),
+    ('Bricolage', NULL),
+    ('Auto & Moto', NULL);
 
 -- 3. Table SUPPLIER (référencée par ARTICLE.supplier_id)
 INSERT INTO supplier (spl_name, spl_email, spl_phone, spl_adress)
