@@ -1,14 +1,13 @@
 package com.mns.cda.saas_facturation.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -24,4 +23,11 @@ public class Category {
     @NotBlank
     protected String catName;
 
+
+    @ManyToOne
+    @JoinColumn(name = "cat_parent_id", nullable = true)
+    protected Category catParent;
+
+    @OneToMany(mappedBy = "catParent")
+    protected List<Category> catChildren;
 }

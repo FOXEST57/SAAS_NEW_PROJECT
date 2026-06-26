@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.DTO;
 
+import com.mns.cda.saas_facturation.model.Category;
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -20,6 +21,7 @@ import jakarta.validation.constraints.NotBlank;
  * @see com.mns.cda.saas_facturation.Iservice.ICategoryService
  */
 public record CategoryRequestDTO(
-        @NotBlank String catName
+        @NotBlank String catName,
+        Long parentId
 ) {
 }

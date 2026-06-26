@@ -2,12 +2,15 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
+import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import com.mns.cda.saas_facturation.model.Article;
+import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.ArticleRepository;
+import com.mns.cda.saas_facturation.repository.CategoryRepository;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,8 @@ public class ArticleService implements IArticleService {
     protected final ArticleRepository articleRepository;
     protected final TvaRepository tvaRepository;
     protected final SupplierRepository supplierRepository;
+    protected final CategoryRepository categoryRepository;
+    protected final CategoryService categoryService;
 
     // Voir pagination
     // Pageable (page, size)
@@ -78,11 +83,15 @@ public class ArticleService implements IArticleService {
      */
     @Override
     public ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException,
-            ISupplierService.SupplierNotFoundException {
+            ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
 
         // Récupération de la TVA — obligatoire, lève une TvaNotFoundException si l'id est inconnu
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
+
+        //Récupération de la catégorie, lève une CategoryNotFoundException si l'id est inconnu
+        Category articleCategory = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(ICategoryService.CategoryNotFoundException::new);
 
         // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
         Supplier supplier = null;
@@ -104,7 +113,8 @@ public class ArticleService implements IArticleService {
                 dto.artPriceExcludeTaxes(),
                 dto.artStock(),
                 articleTva,
-                supplier
+                supplier,
+                articleCategory
         );
 
         // Persistance en base puis mapping vers le DTO de réponse via toDTO()
@@ -120,7 +130,7 @@ public class ArticleService implements IArticleService {
     @Override
     public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException,
             ISupplierService.SupplierNotFoundException,
-            ITvaService.TvaNotFoundException{
+            ITvaService.TvaNotFoundException, ICategoryService.CategoryNotFoundException {
 
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
@@ -134,8 +144,13 @@ public class ArticleService implements IArticleService {
         article.setArtStock(dto.artStock());
 
         // Mise à jour de la TVA si elle change
-        Tva tva = tvaRepository.findById(dto.tvaId()).orElseThrow(ITvaService.TvaNotFoundException::new);
+        Tva tva = tvaRepository.findById(dto.tvaId())
+                .orElseThrow(ITvaService.TvaNotFoundException::new);
         article.setTva(tva);
+
+        Category category = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+        article.setCategory(category);
 
         // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
         Supplier supplier = null;
@@ -179,6 +194,7 @@ public class ArticleService implements IArticleService {
                 article.getArtStock(),
                 article.getTva(),
                 priceTTC,
+                categoryService.toDTO(article.getCategory()),
                 supplierResponse
         );
     }

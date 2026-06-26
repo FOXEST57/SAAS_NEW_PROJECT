@@ -86,8 +86,9 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Category récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Category non trouvé.")
     })
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-        Optional<Category> optionalCategory = categoryService.findById(id);
+    public ResponseEntity<CategoryDTO> getCategoryById(
+            @PathVariable Long id) {
+        Optional<CategoryDTO> optionalCategory = categoryService.findById(id);
 
         // Si l'Optional est vide, la catégorie n'existe pas en base → 404
         if (optionalCategory.isEmpty()) {
@@ -117,8 +118,10 @@ public class CategoryController {
             @ApiResponse(responseCode = "201", description = "Category créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<Category> create(@Valid @RequestBody CategoryRequestDTO category) {
-        Category response = categoryService.create(category);
+    public ResponseEntity<CategoryDTO> create(
+            @Valid @RequestBody CategoryRequestDTO category
+    ) throws ICategoryService.CategoryNotFoundException {
+        CategoryDTO response = categoryService.create(category);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -145,9 +148,10 @@ public class CategoryController {
             @ApiResponse(responseCode = "204", description = "Category supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "La Category n'existe pas.")
     })
-    public ResponseEntity<Category> delete(@PathVariable Long id) {
+    public ResponseEntity<CategoryDTO> delete(
+            @PathVariable Long id) {
 
-        Optional<Category> optionalCategory = categoryService.findById(id);
+        Optional<CategoryDTO> optionalCategory = categoryService.findById(id);
 
         // Vérification préalable : inutile d'appeler delete() si la catégorie est inexistante
         if (optionalCategory.isEmpty()) {
@@ -177,10 +181,12 @@ public class CategoryController {
             @ApiResponse(responseCode = "204", description = "Category modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "La Category n'existe pas.")
     })
-    public ResponseEntity<Category> update(
+    public ResponseEntity<CategoryDTO> update(
             @PathVariable Long id,
-            @RequestBody CategoryRequestDTO category) throws ICategoryService.CategoryNotFoundException {
-        Category updatedCategory = categoryService.update(id, category.catName());
+            @Valid @RequestBody CategoryRequestDTO category)
+            throws ICategoryService.CategoryNotFoundException {
+        CategoryDTO updatedCategory = categoryService.update(id, category);
         return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
+
 }

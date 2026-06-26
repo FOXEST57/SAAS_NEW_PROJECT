@@ -33,13 +33,12 @@ public interface ICategoryService {
      * jusqu'au contrôleur via {@code throws} pour être gérée en réponse HTTP 404.</p>
      */
     public static class CategoryNotFoundException extends Exception {}
-
     /**
      * Récupère la liste complète de toutes les catégories en base de données.
      *
      * @return une {@link List} de {@link Category} (vide si aucune catégorie n'existe)
      */
-    List<Category> findAll();
+    List<CategoryDTO> findAll();
 
     /**
      * Recherche une catégorie par son identifiant unique.
@@ -50,7 +49,7 @@ public interface ICategoryService {
      * @param id l'identifiant unique de la catégorie à rechercher
      * @return un {@link Optional} contenant la {@link Category} si trouvée, vide sinon
      */
-    Optional<Category> findById(Long id);
+    Optional<CategoryDTO> findById(Long id);
 
     /**
      * Crée une nouvelle catégorie en base de données à partir d'un DTO de requête.
@@ -58,7 +57,7 @@ public interface ICategoryService {
      * @param dto les données de la catégorie à créer
      * @return la {@link Category} créée avec son id généré
      */
-    Category create(CategoryRequestDTO dto);
+    CategoryDTO create(CategoryRequestDTO dto) throws CategoryNotFoundException;
 
     /**
      * Supprime une catégorie par son identifiant unique.
@@ -81,5 +80,5 @@ public interface ICategoryService {
      * @return la {@link Category} après mise à jour
      * @throws CategoryNotFoundException si aucune catégorie ne correspond à l'id fourni
      */
-    Category update(long id, String catName) throws CategoryNotFoundException;
+    CategoryDTO update(long id, String catName) throws CategoryNotFoundException;
 }
