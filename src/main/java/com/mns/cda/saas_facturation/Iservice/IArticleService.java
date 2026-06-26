@@ -17,12 +17,12 @@ public interface IArticleService {
     Optional<ArticleDTO> findById(Long id);
 
     //Post
-    ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException;
+    ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
 
     //Delete
     void delete(Long id);
 
     //Put
-    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException,ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException ;
+    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
 
 }

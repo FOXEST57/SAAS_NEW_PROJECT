@@ -50,4 +50,8 @@ public class Article {
     @ManyToOne
     @JoinColumn(name = "supplier_id", nullable = true)
     protected Supplier supplier;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = true)
+    protected Category category;
 }

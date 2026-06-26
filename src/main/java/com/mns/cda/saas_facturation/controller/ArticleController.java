@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
+import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,7 +65,7 @@ public class ArticleController {
     })
     public ResponseEntity<ArticleDTO> createArticle(
             @Valid @RequestBody ArticleRequestDTO dto
-    ) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException {
+    ) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
 
         ArticleDTO response = articleService.create(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -101,7 +102,7 @@ public class ArticleController {
             @PathVariable Long id,
             @Valid @RequestBody ArticleRequestDTO dto) throws IArticleService.ArticleNotFoundException,
             ITvaService.TvaNotFoundException,
-            ISupplierService.SupplierNotFoundException {
+            ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
 
         ArticleDTO updated = articleService.update(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);

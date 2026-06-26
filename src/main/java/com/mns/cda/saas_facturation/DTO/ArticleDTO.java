@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.DTO;
 
+import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.model.Tva;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,5 +18,6 @@ public record ArticleDTO(
         int artStock,
         Tva tva,
         BigDecimal artPriceTTC,
+        Category category,
         SupplierResponseDTO supplier) {
 }
