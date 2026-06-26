@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.controller;
 
 
+import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.DTO.TvaRequestDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateTvaTauxDTO;
@@ -34,7 +35,7 @@ public class CategoryController {
     @GetMapping("/list")
     @Operation(summary = "Récupère la liste des articles",
             description = "Cette route permet de récupérer la liste de toutes les category en base de données.")
-    public List<Category> getCategory()  {
+    public List<CategoryDTO> getCategory()  {
         return categoryService.findAll();
     }
 
@@ -46,9 +47,9 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Category récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Category non trouvé.")
     })
-    public ResponseEntity<Category> getCategoryById(
+    public ResponseEntity<CategoryDTO> getCategoryById(
             @PathVariable Long id) {
-        Optional<Category> optionalCategory = categoryService.findById(id);
+        Optional<CategoryDTO> optionalCategory = categoryService.findById(id);
 
         if (optionalCategory.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -63,10 +64,10 @@ public class CategoryController {
             @ApiResponse(responseCode = "201", description = "Category créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<Category> create(
+    public ResponseEntity<CategoryDTO> create(
             @Valid @RequestBody CategoryRequestDTO category
-    ) {
-        Category response = categoryService.create(category);
+    ) throws ICategoryService.CategoryNotFoundException {
+        CategoryDTO response = categoryService.create(category);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -77,10 +78,10 @@ public class CategoryController {
             @ApiResponse(responseCode = "204", description = "Category supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "La Category n'existe pas.")
     })
-    public ResponseEntity<Category> delete(
+    public ResponseEntity<CategoryDTO> delete(
             @PathVariable Long id) {
 
-        Optional<Category> optionalCategory = categoryService.findById(id);
+        Optional<CategoryDTO> optionalCategory = categoryService.findById(id);
 
         if (optionalCategory.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -96,10 +97,11 @@ public class CategoryController {
             @ApiResponse(responseCode = "204", description = "Category modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "La Category n'existe pas.")
     })
-    public ResponseEntity<Category> update(
+    public ResponseEntity<CategoryDTO> update(
             @PathVariable Long id,
-            @RequestBody CategoryRequestDTO category) throws ICategoryService.CategoryNotFoundException {
-        Category updatedCategory = categoryService.update(id, category.catName());
+            @Valid @RequestBody CategoryRequestDTO category)
+            throws ICategoryService.CategoryNotFoundException {
+        CategoryDTO updatedCategory = categoryService.update(id, category);
         return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
 

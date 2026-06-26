@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.model.Category;
 
@@ -10,13 +11,13 @@ public interface ICategoryService {
 
     public static class CategoryNotFoundException extends Exception {}
 
-    List<Category> findAll();
+    List<CategoryDTO> findAll();
 
-    Optional<Category> findById(Long id);
+    Optional<CategoryDTO> findById(Long id);
 
-    Category create(CategoryRequestDTO dto);
+    CategoryDTO create(CategoryRequestDTO dto) throws CategoryNotFoundException;
 
     void delete(Long id);
 
-    Category update(long id, String catName) throws CategoryNotFoundException ;
+    CategoryDTO update(long id, CategoryRequestDTO categoryToUpdate) throws CategoryNotFoundException ;
 }
