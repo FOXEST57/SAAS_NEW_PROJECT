@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.model.Category;
@@ -62,7 +63,7 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category récupéré avec succès."),
     })
-    public List<Category> getCategory() {
+    public List<CategoryDTO> getCategory() {
         return categoryService.findAll();
     }
 

@@ -76,7 +76,7 @@ public interface IArticleService {
      * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
      */
-    ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException;
+    ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
 
     /**
      * Supprime un article par son identifiant unique.
@@ -102,5 +102,5 @@ public interface IArticleService {
      * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
      */
-    ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException;
+    ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
 }

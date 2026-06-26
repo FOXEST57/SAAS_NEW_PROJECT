@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.model.Category;
 
@@ -76,9 +77,9 @@ public interface ICategoryService {
      * existe bien en base avant toute modification.</p>
      *
      * @param id      l'identifiant unique de la catégorie à modifier
-     * @param catName le nouveau nom à appliquer à la catégorie
+     * @param categoryToUpdate le nouveau nom à appliquer à la catégorie
      * @return la {@link Category} après mise à jour
      * @throws CategoryNotFoundException si aucune catégorie ne correspond à l'id fourni
      */
-    CategoryDTO update(long id, String catName) throws CategoryNotFoundException;
+    CategoryDTO update(long id, CategoryRequestDTO categoryToUpdate) throws CategoryNotFoundException;
 }
