@@ -2,7 +2,7 @@ package com.mns.cda.saas_facturation.controller;
 
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;

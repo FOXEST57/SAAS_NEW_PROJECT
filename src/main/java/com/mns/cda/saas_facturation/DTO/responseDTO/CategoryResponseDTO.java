@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.DTO;
+package com.mns.cda.saas_facturation.DTO.responseDTO;
 
 public record CategoryResponseDTO(
         Long catId,

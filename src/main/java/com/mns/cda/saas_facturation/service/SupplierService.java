@@ -1,8 +1,8 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;

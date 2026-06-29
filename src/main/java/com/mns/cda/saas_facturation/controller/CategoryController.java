@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.controller;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
-import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.model.Category;
 import io.swagger.v3.oas.annotations.Operation;

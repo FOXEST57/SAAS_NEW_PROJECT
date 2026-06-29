@@ -1,8 +1,8 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
-import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
-import com.mns.cda.saas_facturation.DTO.CategoryResponseDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.repository.CategoryRepository;

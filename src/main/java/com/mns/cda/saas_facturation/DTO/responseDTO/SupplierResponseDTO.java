@@ -1,4 +1,7 @@
-package com.mns.cda.saas_facturation.DTO;
+package com.mns.cda.saas_facturation.DTO.responseDTO;
+
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 
 /**
  * DTO de réponse allégé représentant un fournisseur dans le contexte d'une ressource imbriquée.
