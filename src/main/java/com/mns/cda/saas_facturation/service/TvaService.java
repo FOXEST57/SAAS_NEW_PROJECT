@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.service;
 
-import com.mns.cda.saas_facturation.DTO.TvaRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
@@ -37,10 +38,11 @@ import java.util.Optional;
  * @see TvaRepository
  * @see Tva
  */
-@Service
-@RequiredArgsConstructor
+@Service             // Déclare cette classe comme un composant Spring de couche service
+@RequiredArgsConstructor // Lombok génère un constructeur avec tous les champs final (injection automatique)
 public class TvaService implements ITvaService {
 
+    // Repository Spring Data JPA : gère tous les accès base de données pour l'entité Tva
     protected final TvaRepository tvaRepository;
 
     /**
@@ -53,6 +55,7 @@ public class TvaService implements ITvaService {
      */
     @Override
     public List<Tva> findAll() {
+        // SELECT * FROM tva — retourne toutes les lignes de la table
         return tvaRepository.findAll();
     }
 
@@ -67,6 +70,7 @@ public class TvaService implements ITvaService {
      */
     @Override
     public Optional<Tva> findById(Long id) {
+        // SELECT * FROM tva WHERE tva_id = ? — retourne un Optional pour forcer la gestion du cas vide
         return tvaRepository.findById(id);
     }
 
@@ -78,17 +82,19 @@ public class TvaService implements ITvaService {
      * la stratégie {@code @GeneratedValue}.</p>
      *
      * @param tva le DTO contenant le libellé et le taux de la TVA à créer
-     * @return la {@link Tva} créée avec son id généré
+     * @return la {@link Tva} créée avec son id généré par la base de données
      */
     @Override
     public Tva create(TvaRequestDTO tva) {
 
-        // Construction de l'entité — l'id est null pour forcer la génération en base
+        // Construction de l'entité à partir du DTO — l'id est null pour forcer la génération en base (@GeneratedValue)
         Tva tvaEntity = new Tva(
                 null,
                 tva.tvaName(),
-                tva.tvaTaux());
+                tva.tvaTaux()
+        );
 
+        // INSERT INTO tva — retourne l'entité avec son id généré
         return tvaRepository.save(tvaEntity);
     }
 
@@ -102,6 +108,7 @@ public class TvaService implements ITvaService {
      */
     @Override
     public void delete(Long id) {
+        // DELETE FROM tva WHERE tva_id = ?
         tvaRepository.deleteById(id);
     }
 
@@ -119,12 +126,14 @@ public class TvaService implements ITvaService {
     @Override
     public Tva patchTaux(long id, BigDecimal tvaTaux) throws TvaNotFoundException {
 
-        // Récupération de l'entité existante — lève TvaNotFoundException si absente
+        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'id est inconnu
         Tva tvaEntity = tvaRepository.findById(id)
                 .orElseThrow(TvaNotFoundException::new);
 
-        // Seul le taux est mis à jour — le nom reste inchangé
+        // Seul le taux est mis à jour — le nom reste inchangé (sémantique PATCH)
         tvaEntity.setTvaTaux(tvaTaux);
+
+        // JPA détecte le changement sur le champ tvaTaux et génère un UPDATE ciblé
         tvaRepository.save(tvaEntity);
 
         return tvaEntity;
@@ -145,14 +154,35 @@ public class TvaService implements ITvaService {
     @Override
     public Tva update(long id, TvaRequestDTO dto) throws TvaNotFoundException {
 
-        // Récupération de l'entité existante — lève TvaNotFoundException si absente
+        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'id est inconnu
         Tva tvaEntity = tvaRepository.findById(id)
                 .orElseThrow(TvaNotFoundException::new);
 
-        // Mise à jour des deux champs de l'entité
+        // Mise à jour des deux champs — comportement PUT : tout est remplacé
         tvaEntity.setTvaName(dto.tvaName());
         tvaEntity.setTvaTaux(dto.tvaTaux());
 
+        // UPDATE tva SET tva_name = ?, tva_taux = ? WHERE tva_id = ?
         return tvaRepository.save(tvaEntity);
+    }
+
+    /**
+     * Convertit une entité {@link Tva} en {@link TvaResponseDTO}.
+     *
+     * <p>Cette méthode est utilisée par les autres services (notamment {@link ArticleService})
+     * pour inclure les informations de TVA dans leurs propres DTOs de réponse,
+     * sans exposer directement l'entité JPA.</p>
+     *
+     * @param tva l'entité TVA à convertir (ne doit pas être {@code null})
+     * @return un {@link TvaResponseDTO} contenant l'id, le libellé et le taux de la TVA
+     */
+    @Override
+    public TvaResponseDTO toResponseDto(Tva tva) {
+        // Mapping simple champ par champ — pas de calcul ni de relation à résoudre
+        return new TvaResponseDTO(
+                tva.getTvaId(),
+                tva.getTvaName(),
+                tva.getTvaTaux()
+        );
     }
 }

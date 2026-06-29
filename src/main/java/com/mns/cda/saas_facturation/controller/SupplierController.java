@@ -2,7 +2,8 @@ package com.mns.cda.saas_facturation.controller;
 
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -117,7 +118,7 @@ public class SupplierController {
             @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<List<ArticleDTO>> findArticleBySupplierId(@PathVariable Long id) {
+    public ResponseEntity<List<ArticleResponseSupplierDTO>> findArticleBySupplierId(@PathVariable Long id) {
         try {
             // Délègue la récupération des articles au service
             // Le service vérifie d'abord que le fournisseur existe avant de retourner ses articles

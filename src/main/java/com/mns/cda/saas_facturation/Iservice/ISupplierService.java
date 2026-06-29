@@ -1,7 +1,9 @@
 package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
+import com.mns.cda.saas_facturation.model.Supplier;
 
 import java.util.List;
 
@@ -26,6 +28,11 @@ import java.util.List;
  * @see SupplierRequestDTO
  */
 public interface ISupplierService {
+
+
+    SupplierDTO toDTO(Supplier supplier);
+
+    SupplierResponseDTO toResponseDTO(Supplier supplier);
 
     /**
      * Exception levée lorsqu'un fournisseur recherché par son identifiant

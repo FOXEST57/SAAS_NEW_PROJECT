@@ -1,7 +1,9 @@
 package com.mns.cda.saas_facturation.Iservice;
 
-import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.model.Article;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,10 @@ import java.util.Optional;
  * @see ArticleRequestDTO
  */
 public interface IArticleService {
+
+    ArticleDTO toDTO(Article article);
+
+    ArticleResponseSupplierDTO toSupplierResponseDTO(Article article);
 
     /**
      * Exception levée lorsqu'un article recherché par son identifiant
@@ -63,7 +69,7 @@ public interface IArticleService {
      *         (vide si le fournisseur n'a aucun article)
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
      */
-    List<ArticleDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException;
+    List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException;
 
     /**
      * Crée un nouvel article en base de données à partir d'un DTO de requête.

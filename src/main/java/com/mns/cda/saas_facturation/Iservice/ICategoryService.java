@@ -1,7 +1,8 @@
 package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
-import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.model.Category;
 
 import java.util.List;
@@ -25,6 +26,10 @@ import java.util.Optional;
  * @see CategoryRequestDTO
  */
 public interface ICategoryService {
+
+    CategoryDTO toDTO(Category category);
+
+    CategoryResponseDTO toResponseDTO(Category category);
 
     /**
      * Exception levée lorsqu'une catégorie recherchée par son identifiant

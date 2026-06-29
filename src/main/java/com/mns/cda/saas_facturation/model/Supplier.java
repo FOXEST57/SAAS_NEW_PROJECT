@@ -1,6 +1,5 @@
 package com.mns.cda.saas_facturation.model;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -83,7 +82,7 @@ public class Supplier {
      */
     @Column(length = 50, nullable = false)
     @NotBlank(message = "L'adresse est obligatoire")
-    private String splAdress;
+    private String splAddress;
 
     /**
      * Liste des articles associés à ce fournisseur.
@@ -91,6 +90,6 @@ public class Supplier {
      * de l'entité {@link Article}. Initialisée à une liste vide pour éviter
      * les {@code NullPointerException} lors de l'ajout d'articles.
      */
-    @OneToMany(mappedBy = "supplier")
+    @ManyToMany(mappedBy = "supplier")
     private List<Article> articleList = new ArrayList<>();
 }

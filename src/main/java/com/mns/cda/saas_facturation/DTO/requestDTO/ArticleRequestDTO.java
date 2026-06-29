@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.DTO;
+package com.mns.cda.saas_facturation.DTO.requestDTO;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
@@ -42,6 +42,6 @@ public record ArticleRequestDTO(
         @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
         @Min(0) int artStock,
         @NotNull @Min(1) Long tvaId,
-        Long categoryId,
+        @Positive Long categoryId,
         @Positive Long supplierId
 ) {}
