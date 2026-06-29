@@ -5,10 +5,7 @@ import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
-import com.mns.cda.saas_facturation.Iservice.IArticleService;
-import com.mns.cda.saas_facturation.Iservice.ICategoryService;
-import com.mns.cda.saas_facturation.Iservice.ISupplierService;
-import com.mns.cda.saas_facturation.Iservice.ITvaService;
+import com.mns.cda.saas_facturation.Iservice.*;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.model.Supplier;
@@ -62,6 +59,7 @@ public class ArticleService implements IArticleService {
     private final ICategoryService categoryService;
     private final ITvaService tvaService;
     private final ISupplierService supplierService;
+    private final IArticleSupplierService articleSupplierService;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.

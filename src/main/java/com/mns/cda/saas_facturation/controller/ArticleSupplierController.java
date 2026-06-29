@@ -1,6 +1,10 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.ArticleSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
+import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IArticleSupplierService;
+import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.model.ArticleSupplier;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,17 +26,17 @@ public class ArticleSupplierController {
     private final IArticleSupplierService articleSupplierService;
 
     @GetMapping("/list")
-    public List<ArticleSupplier> findAll() {
+    public List<ArticleSupplierDTO> findAll() {
         return articleSupplierService.findAll();
     }
 
     @GetMapping("/{articleId}/{supplierId}")
-    public ResponseEntity<ArticleSupplier> findById(
+    public ResponseEntity<ArticleSupplierDTO> findById(
             @PathVariable Long articleId,
             @PathVariable Long supplierId) {
 
         ArticleSupplier.ArticleSupplierId articleSupplierId = new ArticleSupplier.ArticleSupplierId(articleId, supplierId);
-        Optional<ArticleSupplier> articleSupplier = articleSupplierService.findById(articleSupplierId);
+        Optional<ArticleSupplierDTO> articleSupplier = articleSupplierService.findById(articleSupplierId);
 
         if (articleSupplier.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -41,21 +45,22 @@ public class ArticleSupplierController {
     }
 
     @PostMapping
-    public ResponseEntity<ArticleSupplier> create(
-            @Valid @RequestBody ArticleSupplier articleSupplier) {
+    public ResponseEntity<ArticleSupplierDTO> create(
+            @Valid @RequestBody ArticleSupplierRequestDTO articleSupplier)
+            throws IArticleService.ArticleNotFoundException,
+            ISupplierService.SupplierNotFoundException {
 
-        articleSupplierService.create(articleSupplier);
-
-        return new ResponseEntity<>(articleSupplier, HttpStatus.CREATED);
+        ArticleSupplierDTO response = articleSupplierService.create(articleSupplier);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{articleId}/{supplierId}")
-    public ResponseEntity<ArticleSupplier> delete(
+    public ResponseEntity<ArticleSupplierDTO> delete(
             @PathVariable Long articleId,
             @PathVariable Long supplierId) {
 
         ArticleSupplier.ArticleSupplierId  articleSupplierId = new ArticleSupplier.ArticleSupplierId(articleId, supplierId);
-        Optional<ArticleSupplier> articleSupplier = articleSupplierService.findById(articleSupplierId);
+        Optional<ArticleSupplierDTO> articleSupplier = articleSupplierService.findById(articleSupplierId);
 
         if (articleSupplier.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -65,18 +70,18 @@ public class ArticleSupplierController {
     }
 
     @PutMapping("/{articleId}/{supplierd}")
-    public ResponseEntity<ArticleSupplier> update(
+    public ResponseEntity<ArticleSupplierDTO> update(
             @PathVariable Long articleId,
-            @PathVariable Long supplierd,
-            @Valid @RequestBody ArticleSupplier articleSupplier
-    ) {
-        ArticleSupplier.ArticleSupplierId articleSupplierId = new ArticleSupplier.ArticleSupplierId(articleId, supplierd);
-        try {
-            articleSupplierService.update(articleSupplier);
-            return new ResponseEntity<>(articleSupplier, HttpStatus.OK);
-        } catch (IArticleSupplierService.ArticleSupplierNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+            @PathVariable Long supplierId,
+            @Valid @RequestBody ArticleSupplierRequestDTO dto
+    ) throws ISupplierService.SupplierNotFoundException,
+            IArticleService.ArticleNotFoundException,
+            IArticleSupplierService.ArticleSupplierNotFoundException {
+
+        ArticleSupplier.ArticleSupplierId artSplId = new ArticleSupplier.ArticleSupplierId(articleId, supplierId);
+
+        ArticleSupplierDTO updated = articleSupplierService.update(artSplId, dto);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 }
 

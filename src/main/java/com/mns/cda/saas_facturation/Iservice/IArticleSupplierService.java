@@ -1,5 +1,7 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.ArticleSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
 import com.mns.cda.saas_facturation.model.ArticleSupplier;
 
 import java.util.List;
@@ -7,15 +9,22 @@ import java.util.Optional;
 
 public interface IArticleSupplierService {
 
+    ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier);
+
     public static class ArticleSupplierNotFoundException extends Exception {}
 
-    List<ArticleSupplier> findAll();
+    List<ArticleSupplierDTO> findAll();
 
-    Optional<ArticleSupplier> findById(ArticleSupplier.ArticleSupplierId id);
+    Optional<ArticleSupplierDTO> findById(ArticleSupplier.ArticleSupplierId id);
 
-    ArticleSupplier create(ArticleSupplier articleSupplier);
+    ArticleSupplierDTO create(ArticleSupplierRequestDTO dto)
+            throws IArticleService.ArticleNotFoundException,
+            ISupplierService.SupplierNotFoundException;
 
-    ArticleSupplier update(ArticleSupplier articleSupplier) throws ArticleSupplierNotFoundException;
+    ArticleSupplierDTO update(ArticleSupplier.ArticleSupplierId id, ArticleSupplierRequestDTO dto)
+            throws ArticleSupplierNotFoundException,
+            IArticleService.ArticleNotFoundException,
+            ISupplierService.SupplierNotFoundException;
 
     void deleteById(ArticleSupplier.ArticleSupplierId id);
 }
