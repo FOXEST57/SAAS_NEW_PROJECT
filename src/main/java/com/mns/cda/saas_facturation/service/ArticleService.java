@@ -2,18 +2,15 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
-import com.mns.cda.saas_facturation.model.Article;
-import com.mns.cda.saas_facturation.model.Category;
-import com.mns.cda.saas_facturation.model.Supplier;
-import com.mns.cda.saas_facturation.model.Tva;
-import com.mns.cda.saas_facturation.repository.ArticleRepository;
-import com.mns.cda.saas_facturation.repository.CategoryRepository;
-import com.mns.cda.saas_facturation.repository.SupplierRepository;
-import com.mns.cda.saas_facturation.repository.TvaRepository;
+import com.mns.cda.saas_facturation.model.*;
+import com.mns.cda.saas_facturation.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -54,11 +51,11 @@ public class ArticleService implements IArticleService {
     private final TvaRepository tvaRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
+    private final ArticleSupplierRepository articleSupplierRepository;
 
     // Services délégués pour le mapping vers leurs DTOs respectifs
     private final ICategoryService categoryService;
     private final ITvaService tvaService;
-    private final ISupplierService supplierService;
     private final IArticleSupplierService articleSupplierService;
 
     /**
@@ -120,7 +117,7 @@ public class ArticleService implements IArticleService {
         // findBySupplierSplId est une méthode dérivée Spring Data : SELECT * FROM article WHERE spl_id = ?
         return articleRepository.findBySupplierSplId(id)
                 .stream()
-                .map(this::toSupplierResponseDTO)
+                .map(this::toResponseDTO)
                 .toList();
     }
 
@@ -158,15 +155,7 @@ public class ArticleService implements IArticleService {
                     .orElseThrow(ICategoryService.CategoryNotFoundException::new);
         }
 
-        // Le fournisseur est optionnel (cardinalité 0,1) : null si non renseigné
-        Supplier supplier = null;
-        if (dto.supplierId() != null) {
-            // Vérification explicite : évite une association vers un fournisseur inexistant en base
-            supplier = supplierRepository.findById(dto.supplierId())
-                    .orElseThrow(ISupplierService.SupplierNotFoundException::new);
-        }
-
-        // Construction de l'entité Article : l'id est null car généré automatiquement par la BDD (@GeneratedValue)
+        // Construction de l'entité Article : l'id est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
         Article article = new Article(
                 null,
                 dto.artReference(),
@@ -175,9 +164,33 @@ public class ArticleService implements IArticleService {
                 dto.artPriceExcludeTaxes(),
                 dto.artStock(),
                 articleTva,
-                supplier,
+                List.of(),
                 category
         );
+        // Création de l'article tel qu'il est pour créer l'entité et lui associer une ID
+        article = articleRepository.save(article);
+
+        //Vérification si la request contient ou non des relations article_supplier ajouter ou non si elle n'en contient pas on laisse la liste a vide sinon
+        // on boucle pour chaque supplier ajouter pour crée la relation article_supplier nécessite donc le stock et la référence produit fournisseur.
+        if (dto.suppliers() != null) {
+            for (ArticleSupplierRequestDTO artSpl : dto.suppliers()) {
+
+                Supplier supplier = supplierRepository.findById(artSpl.supplierId())
+                        .orElseThrow(ISupplierService.SupplierNotFoundException::new);
+
+                ArticleSupplier link = new ArticleSupplier(
+                        new ArticleSupplier.ArticleSupplierId(article.getArtId(), supplier.getSplId()),
+                        article,
+                        supplier,
+                        artSpl.artSplReference(),
+                        artSpl.artSplStock()
+
+                );
+                //On sauvegarde la nouvelle relation qu'on vient de créer
+                articleSupplierRepository.save(link);
+            }
+        }
+
 
         // save() persiste l'entité et retourne la version avec l'id généré par la base
         return toDTO(articleRepository.save(article));
@@ -219,9 +232,9 @@ public class ArticleService implements IArticleService {
      * @throws ICategoryService.CategoryNotFoundException si la catégorie référencée n'existe pas en base
      */
     @Override
-    public ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException,
-            ISupplierService.SupplierNotFoundException,
-            ITvaService.TvaNotFoundException, ICategoryService.CategoryNotFoundException {
+    public ArticleDTO update(long id, ArticleUpdateDTO dto) throws ArticleNotFoundException,
+            ITvaService.TvaNotFoundException,
+            ICategoryService.CategoryNotFoundException {
 
         // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son id
         Article article = articleRepository.findById(id)
@@ -247,14 +260,7 @@ public class ArticleService implements IArticleService {
                     .orElseThrow(ICategoryService.CategoryNotFoundException::new);
             article.setCategory(category);
         }
-
-        // Le fournisseur est optionnel : on passe null si absent, ce qui supprime la relation en base
-        Supplier supplier = null;
-        if (dto.supplierId() != null) {
-            supplier = supplierRepository.findById(dto.supplierId())
-                    .orElseThrow(ISupplierService.SupplierNotFoundException::new);
-        }
-        article.setSupplier(supplier);
+        article.setSuppliers(article.getSuppliers());
 
         // Persistance des modifications puis conversion en DTO pour la réponse HTTP
         Article saved = articleRepository.save(article);
@@ -286,15 +292,22 @@ public class ArticleService implements IArticleService {
         BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
                 .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
-        // Mapping conditionnel du fournisseur : null si l'article n'a pas de fournisseur associé
-        SupplierResponseDTO supplierResponse = article.getSupplier() != null
-                ? supplierService.toResponseDTO(article.getSupplier())
-                : null;
+//        // Mapping conditionnel du fournisseur : null si l'article n'a pas de fournisseur associé
+//        SupplierResponseDTO supplierResponse = article.getSupplier() != null
+//                ? supplierService.toResponseDTO(article.getSupplier())
+//                : null;
 
         // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
         CategoryResponseDTO categoryResponse = article.getCategory() != null
                 ? categoryService.toResponseDTO(article.getCategory())
                 : null;
+
+        List<ArticleSupplierResponseDTO> suppliersLinks = article.getSuppliers() != null
+                ? article.getSuppliers()
+                .stream()
+                .map(articleSupplierService::toResponseDTO)
+                .toList()
+                :List.of();
 
         // Construction du DTO de réponse avec toutes les données calculées et mappées
         return new ArticleDTO(
@@ -307,12 +320,12 @@ public class ArticleService implements IArticleService {
                 tvaService.toResponseDto(article.getTva()),
                 priceTTC,                          // Prix TTC calculé dynamiquement
                 categoryResponse,
-                supplierResponse
+                suppliersLinks
         );
     }
 
     @Override
-    public ArticleResponseSupplierDTO toSupplierResponseDTO(Article article) {
+    public ArticleResponseSupplierDTO toResponseDTO(Article article) {
 
         return new ArticleResponseSupplierDTO(
                 article.getArtId(),

@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.ArticleSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
 import com.mns.cda.saas_facturation.model.ArticleSupplier;
 
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.Optional;
 public interface IArticleSupplierService {
 
     ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier);
+
+    ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier);
 
     public static class ArticleSupplierNotFoundException extends Exception {}
 

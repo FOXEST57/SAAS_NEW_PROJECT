@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -102,7 +103,7 @@ public class Article {
      * La colonne de jointure en base est {@code supplier_id}.
      */
     @OneToMany(mappedBy = "article")
-    protected List<ArticleSupplier> suppliers ;
+    protected List<ArticleSupplier> suppliers = new ArrayList<>() ;
 
     /**
      * Catégorie de classement de l'article.

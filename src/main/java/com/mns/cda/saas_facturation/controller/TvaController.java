@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.controller;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
-import com.mns.cda.saas_facturation.DTO.UpdateTvaTauxDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateTvaTauxDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import com.mns.cda.saas_facturation.model.Tva;
 import io.swagger.v3.oas.annotations.Operation;

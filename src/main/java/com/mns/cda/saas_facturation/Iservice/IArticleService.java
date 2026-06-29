@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.Iservice;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.model.Article;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public interface IArticleService {
 
     ArticleDTO toDTO(Article article);
 
-    ArticleResponseSupplierDTO toSupplierResponseDTO(Article article);
+    ArticleResponseSupplierDTO toResponseDTO(Article article);
 
     /**
      * Exception levée lorsqu'un article recherché par son identifiant
@@ -108,5 +109,5 @@ public interface IArticleService {
      * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
      */
-    ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
+    ArticleDTO update(long id, ArticleUpdateDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ICategoryService.CategoryNotFoundException;
 }

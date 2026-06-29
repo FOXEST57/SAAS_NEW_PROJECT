@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.ArticleSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IArticleSupplierService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
@@ -104,7 +105,17 @@ public class ArticleSupplierService implements IArticleSupplierService {
     public ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier) {
         return new ArticleSupplierDTO(
                 articleSupplier.getArtSplId(),
-                articleService.toSupplierResponseDTO(articleSupplier.getArticle()),
+                articleService.toResponseDTO(articleSupplier.getArticle()),
+                supplierService.toResponseDTO(articleSupplier.getSupplier()),
+                articleSupplier.getArtSplReference(),
+                articleSupplier.getArtSplStock()
+        );
+    }
+
+    @Override
+    public ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier) {
+        return new ArticleSupplierResponseDTO(
+                articleSupplier.getArtSplId(),
                 supplierService.toResponseDTO(articleSupplier.getSupplier()),
                 articleSupplier.getArtSplReference(),
                 articleSupplier.getArtSplStock()
