@@ -36,3 +36,10 @@ VALUES
     ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, 1, 2, 1),
     ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3, 3, 1),
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2, 3,1);
+
+INSERT INTO maker (mkr_name)
+VALUES
+('Fabricant 1'),
+('Fabricant 2'),
+('Fabricant 3'),
+('Fabricant 4');

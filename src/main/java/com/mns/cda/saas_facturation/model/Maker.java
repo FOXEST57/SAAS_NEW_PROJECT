@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,6 @@ public class Maker {
     private Long mkrId;
 
     @Column(nullable = false, unique = true)
-    @NotNull(message = "Le nom du fabriquant est obligatoire")
+    @NotBlank(message = "Le nom du fabriquant est obligatoire")
     private String mkrName;
 }
