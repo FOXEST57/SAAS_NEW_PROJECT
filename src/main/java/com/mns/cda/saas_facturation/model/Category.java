@@ -49,6 +49,7 @@ public class Category {
      * Ne peut pas être vide ou composé uniquement d'espaces blancs.
      */
     @NotBlank
+    @Column(unique = true)
     protected String catName;
 
     /**
