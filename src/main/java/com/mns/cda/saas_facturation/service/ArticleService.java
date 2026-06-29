@@ -218,7 +218,7 @@ public class ArticleService implements IArticleService {
                 .orElseThrow(ArticleNotFoundException::new);
 
         // Mise à jour des champs simples de l'article
-        // Note : pas de vérification si la référence existe déjà en base pour une autre article
+        // Note : pas de vérification si la référence existe déjà en base pour un autre article
         article.setArtReference(dto.artReference());
         article.setArtName(dto.artName());
         article.setArtDescription(dto.artDescription());

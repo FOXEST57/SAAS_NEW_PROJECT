@@ -1,7 +1,8 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
 import com.mns.cda.saas_facturation.model.PostalCode;
-import com.mns.cda.saas_facturation.service.IPostalCodeService;
+import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,13 +20,13 @@ public class PostalCodeController {
     private final IPostalCodeService postalCodeService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<PostalCode>> getPostalCodes() {
+    public ResponseEntity<List<PostalCodeDTO>> getPostalCodes() {
         return new ResponseEntity<>(postalCodeService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{pcodeId}")
-    public ResponseEntity<PostalCode> getPostalCodeById(@PathVariable Long pcodeId) {
-        Optional<PostalCode> optionalPostalCode = postalCodeService.findById(pcodeId);
+    public ResponseEntity<PostalCodeDTO> getPostalCodeById(@PathVariable Long pcodeId) {
+        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pcodeId);
 
         if (optionalPostalCode.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -42,23 +43,29 @@ public class PostalCodeController {
     }
 
     @PutMapping("/{pcodeId}")
-    public ResponseEntity<PostalCode> modifyPostalCode(@PathVariable Long pcodeId, @RequestBody @Valid PostalCode postalCode) {
-        try {
-            postalCodeService.modify(pcodeId, postalCode);
-            return new ResponseEntity<>(postalCode, HttpStatus.OK);
-        } catch (IPostalCodeService.PostalCodeNotFoundException e) {
+    public ResponseEntity<PostalCodeDTO> modifyPostalCode(@PathVariable Long pcodeId, @RequestBody @Valid PostalCode postalCode) {
+        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pcodeId);
+
+        if (optionalPostalCode.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        PostalCodeDTO postalCodeModified = postalCodeService.modify(pcodeId, postalCode);
+
+        return new ResponseEntity<>(postalCodeModified, HttpStatus.OK);
     }
 
     @DeleteMapping("{pcodeId}")
     public ResponseEntity<Void> deletePostalCode(@PathVariable Long pcodeId) {
-        try {
-            postalCodeService.delete(pcodeId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IPostalCodeService.PostalCodeNotFoundException e) {
+        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pcodeId);
+
+        if (optionalPostalCode.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        postalCodeService.delete(pcodeId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

@@ -1,5 +1,7 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
+import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import com.mns.cda.saas_facturation.model.PostalCode;
 import com.mns.cda.saas_facturation.repository.PostalCodeRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +17,16 @@ public class PostalCodeService implements IPostalCodeService {
     private final PostalCodeRepository postalCodeRepository;
 
     @Override
-    public List<PostalCode> findAll() {
-        return postalCodeRepository.findAll();
+    public List<PostalCodeDTO> findAll() {
+        return postalCodeRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     @Override
-    public Optional<PostalCode> findById(Long pcodeId) {
-        return postalCodeRepository.findById(pcodeId);
+    public Optional<PostalCodeDTO> findById(Long pcodeId) {
+        return postalCodeRepository.findById(pcodeId).map(this::toDTO);
     }
 
     @Override
@@ -31,26 +36,21 @@ public class PostalCodeService implements IPostalCodeService {
     }
 
     @Override
-    public void modify(Long pcodeId, PostalCode postalCode) throws PostalCodeNotFoundException {
-        Optional<PostalCode> optionalPostalCode = postalCodeRepository.findById(pcodeId);
-
-        if (optionalPostalCode.isEmpty()) {
-            throw new PostalCodeNotFoundException();
-        }
-
+    public PostalCodeDTO modify(Long pcodeId, PostalCode postalCode) {
         postalCode.setPcodeId(pcodeId);
-        postalCodeRepository.save(postalCode);
+
+        return toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
-    public void delete(Long pcodeId) throws PostalCodeNotFoundException {
-        Optional<PostalCode> optionalPostalCode = postalCodeRepository.findById(pcodeId);
-        
-        if (optionalPostalCode.isEmpty()) {
-            throw new PostalCodeNotFoundException();
-        }
-        
+    public void delete(Long pcodeId) {
         postalCodeRepository.deleteById(pcodeId);
+    }
+
+    protected PostalCodeDTO toDTO(PostalCode postalCode) {
+        return new PostalCodeDTO(
+                postalCode.getPcodeName()
+        );
     }
 
 }

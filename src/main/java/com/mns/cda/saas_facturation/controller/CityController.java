@@ -1,7 +1,10 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.CityDTO;
+import com.mns.cda.saas_facturation.DTO.CityRequestDTO;
+import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import com.mns.cda.saas_facturation.model.City;
-import com.mns.cda.saas_facturation.service.ICityService;
+import com.mns.cda.saas_facturation.Iservice.ICityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,13 +22,13 @@ public class CityController {
     private final ICityService cityService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<City>> getCities() {
+    public ResponseEntity<List<CityDTO>> getCities() {
         return new ResponseEntity<>(cityService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{cityId}")
-    public ResponseEntity<City> getCityById(@PathVariable Long cityId) {
-        Optional<City> optionalCity = cityService.findById(cityId);
+    public ResponseEntity<CityDTO> getCityById(@PathVariable Long cityId) {
+        Optional<CityDTO> optionalCity = cityService.findById(cityId);
 
         if (optionalCity.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -35,30 +38,24 @@ public class CityController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> createCity(@RequestBody @Valid City city) {
-        cityService.create(city);
+    public ResponseEntity<Void> createCity(@RequestBody @Valid CityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
+        cityService.create(dto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{cityId}")
-    public ResponseEntity<City> modifyCity(@PathVariable Long cityId, @RequestBody @Valid City city) {
-        try {
-            cityService.modify(cityId, city);
-            return new ResponseEntity<>(city, HttpStatus.OK);
-        } catch (ICityService.CityNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<CityDTO> modifyCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) throws ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
+        CityDTO cityModified = cityService.modify(cityId, dto);
+
+        return new ResponseEntity<>(cityModified, HttpStatus.OK);
     }
 
     @DeleteMapping("{cityId}")
-    public ResponseEntity<Void> deleteCity(@PathVariable Long cityId) {
-        try {
-            cityService.delete(cityId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ICityService.CityNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Void> deleteCity(@PathVariable Long cityId) throws ICityService.CityNotFoundException {
+        cityService.delete(cityId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

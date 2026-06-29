@@ -1,10 +1,17 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.CustomerDTO;
+import com.mns.cda.saas_facturation.DTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.Iservice.ICityService;
+import com.mns.cda.saas_facturation.Iservice.ICustomerService;
+import com.mns.cda.saas_facturation.model.City;
 import com.mns.cda.saas_facturation.model.Customer;
+import com.mns.cda.saas_facturation.repository.CityRepository;
 import com.mns.cda.saas_facturation.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,44 +20,74 @@ import java.util.Optional;
 public class CustomerService implements ICustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CityRepository cityRepository;
+    private final CityService cityService;
 
     @Override
-    public List<Customer> findAll() {
-        return customerRepository.findAll();
+    public List<CustomerDTO> findAll() {
+        return customerRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     @Override
-    public Optional<Customer> findById(Long ctmId) {
-        return customerRepository.findById(ctmId);
+    public Optional<CustomerDTO> findById(Long ctmId) {
+        return customerRepository.findById(ctmId)
+                .map(this::toDTO);
     }
 
     @Override
-    public void create(Customer customer) {
-        customer.setCtmId(null);
+    public void create(CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
+        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
+
+        Customer customer = new Customer(
+                null,
+                dto.ctmFirstName(),
+                dto.ctmLastName(),
+                dto.ctmEmail(),
+                dto.ctmPhone(),
+                dto.ctmAddress(),
+                null,
+                null,
+                city
+        );
+
         customerRepository.save(customer);
     }
 
     @Override
-    public void modify(Long ctmId, Customer customer) throws CustomerNotFoundException {
-        Optional<Customer> optionalCustomer = customerRepository.findById(ctmId);
+    public CustomerDTO modify(Long ctmId, CustomerRequestDTO dto) throws CustomerNotFoundException, ICityService.CityNotFoundException {
+        Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
+        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
 
-        if (optionalCustomer.isEmpty()) {
-            throw new CustomerNotFoundException();
-        }
+        customer.setCtmFirstName(dto.ctmFirstName());
+        customer.setCtmLastName(dto.ctmLastName());
+        customer.setCtmEmail(dto.ctmEmail());
+        customer.setCtmPhone(dto.ctmPhone());
+        customer.setCtmAddress(dto.ctmAddress());
+        customer.setCtmModificationDate(LocalDateTime.now());
+        customer.setCity(city);
 
-        customer.setCtmId(ctmId);
-        customerRepository.save(customer);
+        return toDTO(customerRepository.save(customer));
     }
 
     @Override
     public void delete(Long ctmId) throws CustomerNotFoundException {
-        Optional<Customer> optionalCustomer = customerRepository.findById(ctmId);
+        Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
 
-        if (optionalCustomer.isEmpty()) {
-            throw new CustomerNotFoundException();
-        }
+        customerRepository.delete(customer);
+    }
 
-        customerRepository.deleteById(ctmId);
+    protected CustomerDTO toDTO(Customer customer) {
+        return new CustomerDTO(
+                customer.getCtmFirstName(),
+                customer.getCtmLastName(),
+                customer.getCtmEmail(),
+                customer.getCtmPhone(),
+                customer.getCtmAddress(),
+                cityService.toDTO(customer.getCity())
+        );
     }
 
 }

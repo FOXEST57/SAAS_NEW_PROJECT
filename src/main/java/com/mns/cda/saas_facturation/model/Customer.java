@@ -1,11 +1,10 @@
 package com.mns.cda.saas_facturation.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,15 +25,19 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long ctmId;
 
+    @NotBlank
     protected String ctmFirstName;
 
+    @NotBlank
     protected String ctmLastName;
 
     @Email
     protected String ctmEmail;
 
+    @ValidPhoneNumber
     protected String ctmPhone;
 
+    @NotBlank
     protected String ctmAddress;
 
     @CreatedDate
@@ -42,5 +45,9 @@ public class Customer {
 
     @LastModifiedDate
     protected LocalDateTime ctmModificationDate;
+
+    @ManyToOne
+    @NotBlank
+    protected City city;
 
 }
