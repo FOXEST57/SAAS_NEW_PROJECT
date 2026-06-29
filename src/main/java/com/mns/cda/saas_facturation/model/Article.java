@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Entité JPA représentant un article du catalogue produits.
@@ -100,9 +101,11 @@ public class Article {
      * ({@code nullable = true}).
      * La colonne de jointure en base est {@code supplier_id}.
      */
-    @ManyToOne
-    @JoinColumn(name = "supplier_id", nullable = true)
-    protected Supplier supplier;
+    @ManyToMany
+    @JoinTable(name = "article_supplier",
+                joinColumns = @JoinColumn(name = "article_id"),
+                inverseJoinColumns = @JoinColumn(name = "supplier_id"))
+    protected List<Supplier> supplier;
 
     /**
      * Catégorie de classement de l'article.

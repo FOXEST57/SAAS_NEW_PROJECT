@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.model.Tva;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * DTO de sortie représentant un article retourné par l'API au client.
@@ -46,5 +47,5 @@ public record ArticleDTO(
         TvaResponseDTO tva,
         BigDecimal artPriceTTC,
         CategoryResponseDTO category,
-        SupplierResponseDTO supplier) {
+        List<SupplierResponseDTO> supplier) {
 }
