@@ -1,10 +1,14 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.DTO.CustomerRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.ICityService;
-import com.mns.cda.saas_facturation.model.Customer;
-import com.mns.cda.saas_facturation.Iservice.ICustomerService;
+import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.Iservice.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,19 +18,90 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Contrôleur REST exposant les endpoints de gestion des clients.
+ *
+ * <p>Ce contrôleur prend en charge les opérations CRUD sur la ressource {@code Customer}.
+ * Toutes les routes sont préfixées par {@code /customer} et retournent des données
+ * au format JSON.</p>
+ *
+ * <p>La logique métier est entièrement déléguée à {@link ICustomerService}.
+ * Ce contrôleur se limite à :</p>
+ * <ul>
+ *   <li>recevoir les requêtes HTTP entrantes</li>
+ *   <li>valider les données d'entrée via {@code @Valid}</li>
+ *   <li>appeler le service approprié</li>
+ *   <li>construire et retourner la {@link ResponseEntity} avec le bon statut HTTP</li>
+ * </ul>
+ *
+ * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
+ * qui les transforme en réponse 400 structurée.</p>
+ *
+ * <p>Les exceptions métier ({@link ICustomerService.CustomerNotFoundException} et
+ * {@link ICityService.CityNotFoundException})
+ * sont propagées vers la couche de gestion globale des erreurs.</p>
+ *
+ * @see ICustomerService
+ * @see CustomerDTO
+ * @see CustomerRequestDTO
+ */
 @RequiredArgsConstructor
 @RequestMapping("/customer")
 @RestController
+@Tag(name = "Customer", description = "Routes de gestion des clients.")
+@CrossOrigin
 public class CustomerController {
 
+    /**
+     * Service métier de gestion des clients, injecté par constructeur via {@code @RequiredArgsConstructor}.
+     * L'utilisation de l'interface {@link ICustomerService} garantit le découplage
+     * entre le contrôleur et l'implémentation concrète du service.
+     */
     private final ICustomerService customerService;
 
+    /**
+     * Récupère la liste complète de tous les clients enregistrés en base de données.
+     *
+     * <p>Les clients sont retournés sous forme de {@link CustomerDTO} afin de ne pas
+     * exposer directement les entités JPA au client.</p>
+     *
+     * @return une {@link ResponseEntity} de {@link List} de {@link CustomerDTO} (vide si aucun client n'existe),
+     *         avec le statut HTTP 200 OK
+     */
     @GetMapping("/list")
+    @Operation(
+            summary = "Récupère la liste des clients.",
+            description = "Cette route permet de récupérer la liste de tous les clients dans la base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Liste des clients récupérée avec succès.")
+    })
     public ResponseEntity<List<CustomerDTO>> getCustomers() {
         return new ResponseEntity<>(customerService.findAll(), HttpStatus.OK);
     }
 
+    /**
+     * Récupère un client spécifique à partir de son identifiant unique.
+     *
+     * <p>Si aucun client ne correspond à l'ID fourni, une réponse 404 est retournée
+     * sans corps, conformément aux conventions REST.</p>
+     *
+     * @param ctmId l'identifiant unique du client à récupérer, extrait de l'URL
+     * @return une {@link ResponseEntity} contenant :
+     *         <ul>
+     *           <li>l'{@link CustomerDTO} correspondant avec le statut 200 OK si trouvé</li>
+     *           <li>un corps vide avec le statut 404 Not Found si le client n'existe pas</li>
+     *         </ul>
+     */
     @GetMapping("/{ctmId}")
+    @Operation(
+            summary = "Récupère un client par son ID.",
+            description = "Cette route permet de récupérer un client spécifique par son ID dans la base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Client récupéré avec succès."),
+            @ApiResponse(responseCode = "404", description = "Client non trouvé.")
+    })
     public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long ctmId) {
         Optional<CustomerDTO> optionalCustomer = customerService.findById(ctmId);
 
@@ -37,21 +112,87 @@ public class CustomerController {
         return new ResponseEntity<>(optionalCustomer.get(), HttpStatus.OK);
     }
 
-    @PostMapping()
-    public ResponseEntity<Void> createCustomer(@RequestBody @Valid CustomerRequestDTO customer) throws ICityService.CityNotFoundException {
-        customerService.create(customer);
+    /**
+     * Crée un nouveau client en base de données à partir des données fournies dans le corps de la requête.
+     *
+     * <p>Le DTO est validé automatiquement par Bean Validation ({@code @Valid}) avant
+     * d'atteindre la logique métier. En cas d'échec de validation, le
+     * {@code GlobalExceptionInterceptor} intercepte l'exception et retourne un 400
+     * avec le détail des champs invalides.</p>
+     *
+     * <p>Le service peut lever des exceptions la ville référencée dans le DTO
+     * n'existe pas en base de données.</p>
+     *
+     * @param dto les données du client à créer, désérialisées depuis le corps JSON
+     *            de la requête et validées par {@code @Valid}
+     * @return une {@link ResponseEntity} contenant l'{@link CustomerDTO} du client créé
+     *         (avec son ID généré) et le statut HTTP 201 Created
+     * @throws ICityService.CityNotFoundException si la ville référencée n'existe pas
+     */
+    @PostMapping
+    @Operation(
+            summary = "Créer un nouveau client.",
+            description = "Cette route permet de créer un nouveau client dans la base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Client créé avec succès."),
+            @ApiResponse(responseCode = "400", description = "Requête invalide.")
+    })
+    public ResponseEntity<Void> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
+        customerService.create(dto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    /**
+     * Met à jour intégralement un client existant à partir de son identifiant.
+     *
+     * <p>Cette opération correspond à un remplacement complet (sémantique HTTP PUT) :
+     * tous les champs du client sont écrasés par les valeurs fournies dans le DTO.</p>
+     *
+     * <p>Le DTO est validé par Bean Validation avant traitement. Les exceptions métier
+     * sont propagées si le client ou la ville référencée sont introuvables.</p>
+     *
+     * @param ctmId  l'identifiant unique du client à modifier, extrait de l'URL
+     * @param dto les nouvelles données du client, désérialisées depuis le corps JSON
+     *            et validées par {@code @Valid}
+     * @return une {@link ResponseEntity} contenant l'{@link CustomerDTO} mis à jour
+     *         avec le statut HTTP 200 OK
+     * @throws ICustomerService.CustomerNotFoundException   si le client ciblé n'existe pas en base
+     * @throws ICityService.CityNotFoundException           si la ville référencée n'existe pas
+     */
     @PutMapping("/{ctmId}")
-    public ResponseEntity<CustomerDTO> modifyCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO customer) throws ICustomerService.CustomerNotFoundException, ICityService.CityNotFoundException {
-            CustomerDTO customerModified = customerService.modify(ctmId, customer);
+    @Operation(
+            summary = "Modifie un client en base de données.",
+            description = "Cette route permet de modifier un client en base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Client modifié avec succès.")
+    })
+    public ResponseEntity<CustomerDTO> modifyCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) throws ICustomerService.CustomerNotFoundException, ICityService.CityNotFoundException {
+            CustomerDTO customerModified = customerService.modify(ctmId, dto);
 
             return new ResponseEntity<>(customerModified, HttpStatus.OK);
     }
 
-    @DeleteMapping("{ctmId}")
+    /**
+     * Supprime un client existant à partir de son identifiant unique.
+     *
+     * <p>En cas de succès, une réponse 204 No Content est retournée conformément
+     * aux conventions REST (pas de corps dans la réponse après suppression).</p>
+     *
+     * @param ctmId l'identifiant unique du client à supprimer, extrait de l'URL
+     * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
+     * @throws ICustomerService.CustomerNotFoundException si le client n'existe pas en base
+     */
+    @DeleteMapping("/{ctmId}")
+    @Operation(
+            summary = "Supprime un client par son ID.",
+            description = "Cette route permet de supprimer un client spécifique par son ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Client supprimé avec succès."),
+    })
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long ctmId) throws ICustomerService.CustomerNotFoundException {
         customerService.delete(ctmId);
 

@@ -47,6 +47,7 @@ public class Customer {
     protected LocalDateTime ctmModificationDate;
 
     @ManyToOne
+    @JoinColumn(name = "city_id")
     @NotBlank
     protected City city;
 

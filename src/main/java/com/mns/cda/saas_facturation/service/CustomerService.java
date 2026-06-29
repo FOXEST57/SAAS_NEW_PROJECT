@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.DTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.model.City;

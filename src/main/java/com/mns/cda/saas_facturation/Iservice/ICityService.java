@@ -1,8 +1,7 @@
 package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.CityDTO;
-import com.mns.cda.saas_facturation.DTO.CityRequestDTO;
-import com.mns.cda.saas_facturation.model.City;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CityRequestDTO;
 
 import java.util.List;
 import java.util.Optional;

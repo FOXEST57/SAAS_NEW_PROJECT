@@ -23,6 +23,7 @@ public class City {
     protected String cityName;
 
     @ManyToOne
+    @JoinColumn(name = "postal_code_id")
     @NotBlank
     protected PostalCode postalCode;
 

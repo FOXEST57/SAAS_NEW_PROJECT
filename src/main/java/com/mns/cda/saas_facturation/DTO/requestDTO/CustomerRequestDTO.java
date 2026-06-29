@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.DTO;
+package com.mns.cda.saas_facturation.DTO.requestDTO;
 
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.validation.constraints.Email;
