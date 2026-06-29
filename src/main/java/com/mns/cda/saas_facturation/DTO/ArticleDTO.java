@@ -41,8 +41,8 @@ public record ArticleDTO(
         String artDescription,
         BigDecimal artPriceExcludeTaxes,
         int artStock,
-        Tva tva,
+        TvaResponseDTO tva,
         BigDecimal artPriceTTC,
-        CategoryDTO category,
+        CategoryResponseDTO category,
         SupplierResponseDTO supplier) {
 }

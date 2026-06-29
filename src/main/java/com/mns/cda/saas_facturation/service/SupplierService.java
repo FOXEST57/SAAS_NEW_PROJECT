@@ -144,7 +144,7 @@ public class SupplierService implements ISupplierService {
         supplier.setSplName(dto.name());
         supplier.setSplEmail(dto.email());
         supplier.setSplPhone(dto.phoneNumber());
-        supplier.setSplAdress(dto.address());
+        supplier.setSplAddress(dto.address());
 
         return toDTO(supplierRepository.save(supplier));
     }
@@ -165,7 +165,7 @@ public class SupplierService implements ISupplierService {
                 supplier.getSplName(),
                 supplier.getSplEmail(),
                 supplier.getSplPhone(),
-                supplier.getSplAdress()
+                supplier.getSplAddress()
         );
     }
 }
