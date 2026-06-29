@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
@@ -104,7 +105,7 @@ public class ArticleService implements IArticleService {
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
      */
     @Override
-    public List<ArticleDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException {
+    public List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException {
 
         Optional<Supplier> supplier = supplierRepository.findById(id);
 
@@ -115,7 +116,7 @@ public class ArticleService implements IArticleService {
 
         return articleRepository.findBySupplierSplId(id)
                 .stream()
-                .map(this::toDTO)
+                .map(this::toSupplierResponseDTO)
                 .toList();
     }
 
@@ -311,6 +312,21 @@ public class ArticleService implements IArticleService {
                 priceTTC,
                 categoryResponse,
                 supplierResponse
+        );
+    }
+
+    @Override
+    public ArticleResponseSupplierDTO toSupplierResponseDTO(Article article) {
+
+        return new ArticleResponseSupplierDTO(
+                article.getArtId(),
+                article.getArtReference(),
+                article.getArtName(),
+                article.getArtDescription(),
+                article.getArtPriceExcludeTaxes(),
+                article.getArtStock(),
+                tvaService.toResponseDto(article.getTva()),
+                categoryService.toResponseDTO(article.getCategory())
         );
     }
 }
