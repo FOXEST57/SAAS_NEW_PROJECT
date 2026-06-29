@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.CategoryRequestDTO;
+import com.mns.cda.saas_facturation.DTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.repository.CategoryRepository;
@@ -165,7 +166,9 @@ public class CategoryService implements ICategoryService {
      * @return un {@link CategoryDTO} contenant l'id, le nom, le nom du parent
      *         et la liste des enfants convertis
      */
-    protected CategoryDTO toDTO(Category category) {
+
+    @Override
+    public CategoryDTO toDTO(Category category) {
         return new CategoryDTO(
                 category.getCatId(),
                 category.getCatName(),
@@ -177,6 +180,22 @@ public class CategoryService implements ICategoryService {
                         .map(this::toDTO)
                         .toList()
                         : List.of()
+        );
+    }
+
+    @Override
+    public CategoryResponseDTO toResponseDTO(Category category) {
+
+        String catParentName = null;
+
+        if(category.getCatParent() != null) {
+            catParentName = category.getCatParent().getCatName();
+        }
+
+        return new CategoryResponseDTO(
+                category.getCatId(),
+                category.getCatName(),
+                catParentName
         );
     }
 }

@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
@@ -159,6 +160,7 @@ public class SupplierService implements ISupplierService {
      * @return un {@link SupplierDTO} contenant les informations du fournisseur :
      *         id, nom, email, téléphone et adresse
      */
+    @Override
     public SupplierDTO toDTO(Supplier supplier) {
         return new SupplierDTO(
                 supplier.getSplId(),
@@ -168,4 +170,15 @@ public class SupplierService implements ISupplierService {
                 supplier.getSplAddress()
         );
     }
+
+    @Override
+    public SupplierResponseDTO toResponseDTO(Supplier supplier) {
+        return new SupplierResponseDTO(
+                supplier.getSplId(),
+                supplier.getSplName()
+        );
+    }
+
+
+
 }

@@ -52,7 +52,9 @@ public class ArticleService implements IArticleService {
     private final TvaRepository tvaRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
-    private final CategoryService categoryService;
+    private final ICategoryService categoryService;
+    private final ITvaService tvaService;
+    private final ISupplierService supplierService;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
@@ -141,9 +143,12 @@ public class ArticleService implements IArticleService {
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
-        // Récupération de la catégorie — obligatoire, lève une CategoryNotFoundException si l'id est inconnu
-        Category articleCategory = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+        Category category = null;
+
+        if (dto.categoryId() != null) {
+            category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+        }
 
         // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
         Supplier supplier = null;
@@ -166,7 +171,7 @@ public class ArticleService implements IArticleService {
                 dto.artStock(),
                 articleTva,
                 supplier,
-                articleCategory
+                category
         );
 
         // Persistance en base puis mapping vers le DTO de réponse
@@ -231,9 +236,13 @@ public class ArticleService implements IArticleService {
         article.setTva(tva);
 
         // Mise à jour de la catégorie — lève CategoryNotFoundException si l'id est inconnu
-        Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(ICategoryService.CategoryNotFoundException::new);
-        article.setCategory(category);
+        Category category = null;
+
+        if (dto.categoryId() != null) {
+            category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+            article.setCategory(category);
+        }
 
         // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
         Supplier supplier = null;
@@ -268,7 +277,9 @@ public class ArticleService implements IArticleService {
      * @return un {@link ArticleDTO} contenant toutes les informations de l'article,
      *         le prix TTC calculé et le fournisseur mappé en {@link SupplierResponseDTO}
      */
-    private ArticleDTO toDTO(Article article) {
+
+    @Override
+    public ArticleDTO toDTO(Article article) {
 
         // Calcul du prix TTC : prixHT × (1 + tauxTVA/100)
         BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
@@ -277,9 +288,13 @@ public class ArticleService implements IArticleService {
         // Mapping du fournisseur vers son DTO de réponse
         // Si aucun fournisseur n'est associé, on retourne null pour ce champ
         SupplierResponseDTO supplierResponse = article.getSupplier() != null
-                ? new SupplierResponseDTO(
-                article.getSupplier().getSplId(),
-                article.getSupplier().getSplName())
+                ? supplierService.toResponseDTO(
+                        article.getSupplier())
+                : null;
+
+        CategoryResponseDTO categoryResponse = article.getCategory() != null
+                ? categoryService.toResponseDTO(
+                article.getCategory())
                 : null;
 
         return new ArticleDTO(
@@ -289,9 +304,9 @@ public class ArticleService implements IArticleService {
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(),
                 article.getArtStock(),
-                article.getTva(),
+                tvaService.toResponseDto(article.getTva()),
                 priceTTC,
-                categoryService.toDTO(article.getCategory()),
+                categoryResponse,
                 supplierResponse
         );
     }

@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.TvaRequestDTO;
+import com.mns.cda.saas_facturation.DTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
@@ -154,5 +155,14 @@ public class TvaService implements ITvaService {
         tvaEntity.setTvaTaux(dto.tvaTaux());
 
         return tvaRepository.save(tvaEntity);
+    }
+
+    @Override
+    public TvaResponseDTO toResponseDto(Tva tva) {
+        return new TvaResponseDTO(
+                tva.getTvaId(),
+                tva.getTvaName(),
+                tva.getTvaTaux()
+        );
     }
 }

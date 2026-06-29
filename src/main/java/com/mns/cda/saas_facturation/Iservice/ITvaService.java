@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.TvaRequestDTO;
+import com.mns.cda.saas_facturation.DTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateTvaTauxDTO;
 import com.mns.cda.saas_facturation.model.Tva;
 
@@ -30,6 +31,8 @@ import java.util.Optional;
  * @see TvaRequestDTO
  */
 public interface ITvaService {
+
+    TvaResponseDTO toResponseDto(Tva tva);
 
     /**
      * Exception levée lorsqu'un taux de TVA recherché par son identifiant

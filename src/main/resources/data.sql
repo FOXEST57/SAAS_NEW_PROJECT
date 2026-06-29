@@ -21,7 +21,7 @@ VALUES
     ('Auto & Moto', NULL);
 
 -- 3. Table SUPPLIER (référencée par ARTICLE.supplier_id)
-INSERT INTO supplier (spl_name, spl_email, spl_phone, spl_adress)
+INSERT INTO supplier (spl_name, spl_email, spl_phone, spl_address)
 VALUES
     ('HP France', 'contact@hp.fr', '+33102030402', '12 Avenue de la République, Lyon'),
     ('Lenovo France', 'contact@lenovo.fr', '+33102030403', '25 Rue Nationale, Lille'),

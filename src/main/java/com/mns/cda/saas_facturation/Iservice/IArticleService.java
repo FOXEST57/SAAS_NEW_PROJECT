@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.model.Article;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,8 @@ import java.util.Optional;
  * @see ArticleRequestDTO
  */
 public interface IArticleService {
+
+    ArticleDTO toDTO(Article article);
 
     /**
      * Exception levée lorsqu'un article recherché par son identifiant
