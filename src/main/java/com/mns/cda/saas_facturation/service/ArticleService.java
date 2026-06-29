@@ -1,6 +1,9 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
+import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
@@ -44,14 +47,17 @@ import java.util.Optional;
  * @see ArticleDTO
  * @see ArticleRequestDTO
  */
-@Service
-@RequiredArgsConstructor
+@Service             // Déclare cette classe comme un composant Spring de couche service
+@RequiredArgsConstructor // Lombok génère un constructeur avec tous les champs final (injection automatique)
 public class ArticleService implements IArticleService {
 
+    // Repositories : interfaces Spring Data JPA qui gèrent les accès base de données
     private final ArticleRepository articleRepository;
     private final TvaRepository tvaRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
+
+    // Services délégués pour le mapping vers leurs DTOs respectifs
     private final ICategoryService categoryService;
     private final ITvaService tvaService;
     private final ISupplierService supplierService;
@@ -62,15 +68,17 @@ public class ArticleService implements IArticleService {
      * <p>Chaque entité {@link Article} est convertie en {@link ArticleDTO}
      * via {@link #toDTO(Article)}, ce qui inclut le calcul du prix TTC.</p>
      *
+     * <p><b>Note :</b> à envisager si le volume d'articles devient important,
+     * l'usage de {@code Pageable} (page, size) pour limiter les données retournées.</p>
+     *
      * @return une {@link List} de {@link ArticleDTO} (vide si aucun article n'existe)
      */
-    // Voir pagination — Pageable (page, size) à envisager si le volume d'articles devient important
     @Override
     public List<ArticleDTO> findAll() {
-        return articleRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return articleRepository.findAll()  // Récupère toutes les lignes de la table Article
+                .stream()                   // Transforme la liste en flux pour le traitement
+                .map(this::toDTO)           // Convertit chaque entité Article en ArticleDTO
+                .toList();                  // Collecte le résultat dans une liste immuable
     }
 
     /**
@@ -84,8 +92,8 @@ public class ArticleService implements IArticleService {
      */
     @Override
     public Optional<ArticleDTO> findById(Long id) {
-        return articleRepository.findById(id)
-                .map(this::toDTO); // Conversion entité → DTO si l'Optional n'est pas vide
+        return articleRepository.findById(id) // Recherche par clé primaire — retourne un Optional
+                .map(this::toDTO);            // Si présent, convertit l'entité en DTO avant retour
     }
 
     /**
@@ -105,11 +113,12 @@ public class ArticleService implements IArticleService {
 
         Optional<Supplier> supplier = supplierRepository.findById(id);
 
-        // Vérification préalable : on lève l'exception si le fournisseur est inexistant
+        // Vérification préalable : inutile d'interroger les articles si le fournisseur est inexistant
         if (supplier.isEmpty()) {
             throw new ISupplierService.SupplierNotFoundException();
         }
 
+        // findBySupplierSplId est une méthode dérivée Spring Data : SELECT * FROM article WHERE spl_id = ?
         return articleRepository.findBySupplierSplId(id)
                 .stream()
                 .map(this::toDTO)
@@ -122,7 +131,7 @@ public class ArticleService implements IArticleService {
      * <p>Les étapes réalisées sont les suivantes :</p>
      * <ol>
      *   <li>Vérification de l'existence de la TVA associée</li>
-     *   <li>Vérification de l'existence de la catégorie associée</li>
+     *   <li>Vérification de l'existence de la catégorie associée (optionnelle)</li>
      *   <li>Récupération optionnelle du fournisseur si un {@code supplierId} est fourni</li>
      *   <li>Construction et persistance de l'entité {@link Article}</li>
      *   <li>Mapping de l'entité sauvegardée vers un {@link ArticleDTO} via {@link #toDTO(Article)}</li>
@@ -139,29 +148,26 @@ public class ArticleService implements IArticleService {
     public ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException,
             ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
 
-        // Récupération de la TVA — obligatoire, lève une TvaNotFoundException si l'id est inconnu
+        // La TVA est obligatoire : orElseThrow lève l'exception si l'id est inconnu
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
+        // La catégorie est optionnelle : on ne la recherche que si un categoryId est fourni
         Category category = null;
-
         if (dto.categoryId() != null) {
             category = categoryRepository.findById(dto.categoryId())
                     .orElseThrow(ICategoryService.CategoryNotFoundException::new);
         }
 
-        // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
+        // Le fournisseur est optionnel (cardinalité 0,1) : null si non renseigné
         Supplier supplier = null;
-
-        // Si un supplierId est fourni, on vérifie qu'il existe bien en base
-        // Lève une SupplierNotFoundException si l'id est inconnu, pour éviter une association invalide
         if (dto.supplierId() != null) {
+            // Vérification explicite : évite une association vers un fournisseur inexistant en base
             supplier = supplierRepository.findById(dto.supplierId())
                     .orElseThrow(ISupplierService.SupplierNotFoundException::new);
         }
 
-        // Construction de l'entité Article à partir du DTO
-        // L'id est null car il sera généré automatiquement par la base de données
+        // Construction de l'entité Article : l'id est null car généré automatiquement par la BDD (@GeneratedValue)
         Article article = new Article(
                 null,
                 dto.artReference(),
@@ -174,8 +180,7 @@ public class ArticleService implements IArticleService {
                 category
         );
 
-        // Persistance en base puis mapping vers le DTO de réponse
-        // L'entité retournée par save() contient l'id généré par la base
+        // save() persiste l'entité et retourne la version avec l'id généré par la base
         return toDTO(articleRepository.save(article));
     }
 
@@ -183,24 +188,25 @@ public class ArticleService implements IArticleService {
      * Supprime un article par son identifiant unique.
      *
      * <p>L'existence de l'article est vérifiée en amont dans le contrôleur
-     * avant d'appeler cette méthode.</p>
+     * via {@link #findById(Long)} avant d'appeler cette méthode.</p>
      *
      * @param id l'identifiant unique de l'article à supprimer
      */
     @Override
     public void delete(Long id) {
+        // deleteById génère un DELETE FROM article WHERE art_id = ?
         articleRepository.deleteById(id);
     }
 
     /**
-     * Met à jour intégralement un article existant à partir de son identifiant.
+     * Met à jour intégralement un article existant à partir de son identifiant (comportement PUT).
      *
      * <p>Les étapes réalisées sont les suivantes :</p>
      * <ol>
      *   <li>Récupération de l'entité existante — lève {@link ArticleNotFoundException} si absente</li>
      *   <li>Mise à jour des champs simples (référence, nom, description, prix, stock)</li>
      *   <li>Mise à jour de la TVA associée</li>
-     *   <li>Mise à jour de la catégorie associée</li>
+     *   <li>Mise à jour de la catégorie associée (optionnelle)</li>
      *   <li>Mise à jour optionnelle du fournisseur ({@code null} si non fourni)</li>
      *   <li>Persistance et mapping vers {@link ArticleDTO}</li>
      * </ol>
@@ -218,44 +224,40 @@ public class ArticleService implements IArticleService {
             ISupplierService.SupplierNotFoundException,
             ITvaService.TvaNotFoundException, ICategoryService.CategoryNotFoundException {
 
-        // Récupération de l'entité existante — lève ArticleNotFoundException si absente
+        // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son id
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
-        // Mise à jour des champs simples de l'article
-        // Note : pas de vérification si la référence existe déjà en base pour une autre article
+        // Mise à jour des champs primitifs : chaque setter modifie la valeur en mémoire
+        // JPA détecte les changements et génère un UPDATE SQL lors du save()
         article.setArtReference(dto.artReference());
         article.setArtName(dto.artName());
         article.setArtDescription(dto.artDescription());
         article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
         article.setArtStock(dto.artStock());
 
-        // Mise à jour de la TVA — lève TvaNotFoundException si l'id est inconnu
+        // Mise à jour de la relation TVA : on charge l'entité Tva depuis sa clé étrangère
         Tva tva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
         article.setTva(tva);
 
-        // Mise à jour de la catégorie — lève CategoryNotFoundException si l'id est inconnu
+        // La catégorie est optionnelle : on ne met à jour la relation que si un id est fourni
         Category category = null;
-
         if (dto.categoryId() != null) {
             category = categoryRepository.findById(dto.categoryId())
                     .orElseThrow(ICategoryService.CategoryNotFoundException::new);
             article.setCategory(category);
         }
 
-        // Le fournisseur est optionnel (0,1) — on initialise à null par défaut
+        // Le fournisseur est optionnel : on passe null si absent, ce qui supprime la relation en base
         Supplier supplier = null;
-
-        // Si un supplierId est fourni, on vérifie qu'il existe bien en base
-        // Lève une SupplierNotFoundException si l'id est inconnu, pour éviter une association invalide
         if (dto.supplierId() != null) {
             supplier = supplierRepository.findById(dto.supplierId())
                     .orElseThrow(ISupplierService.SupplierNotFoundException::new);
         }
-
         article.setSupplier(supplier);
 
+        // Persistance des modifications puis conversion en DTO pour la réponse HTTP
         Article saved = articleRepository.save(article);
         return toDTO(saved);
     }
@@ -277,35 +279,34 @@ public class ArticleService implements IArticleService {
      * @return un {@link ArticleDTO} contenant toutes les informations de l'article,
      *         le prix TTC calculé et le fournisseur mappé en {@link SupplierResponseDTO}
      */
-
     @Override
     public ArticleDTO toDTO(Article article) {
 
-        // Calcul du prix TTC : prixHT × (1 + tauxTVA/100)
+        // Calcul du prix TTC : prixHT × (1 + tauxTVA)
+        // BigDecimal est utilisé à la place de double pour éviter les erreurs d'arrondi monétaires
         BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
                 .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
-        // Mapping du fournisseur vers son DTO de réponse
-        // Si aucun fournisseur n'est associé, on retourne null pour ce champ
+        // Mapping conditionnel du fournisseur : null si l'article n'a pas de fournisseur associé
         SupplierResponseDTO supplierResponse = article.getSupplier() != null
-                ? supplierService.toResponseDTO(
-                        article.getSupplier())
+                ? supplierService.toResponseDTO(article.getSupplier())
                 : null;
 
+        // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
         CategoryResponseDTO categoryResponse = article.getCategory() != null
-                ? categoryService.toResponseDTO(
-                article.getCategory())
+                ? categoryService.toResponseDTO(article.getCategory())
                 : null;
 
+        // Construction du DTO de réponse avec toutes les données calculées et mappées
         return new ArticleDTO(
                 article.getArtId(),
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
-                article.getArtPriceExcludeTaxes(),
+                article.getArtPriceExcludeTaxes(), // Prix HT
                 article.getArtStock(),
                 tvaService.toResponseDto(article.getTva()),
-                priceTTC,
+                priceTTC,                          // Prix TTC calculé dynamiquement
                 categoryResponse,
                 supplierResponse
         );

@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.DTO;
+package com.mns.cda.saas_facturation.DTO.requestDTO;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
  * En cas d'échec, le {@code GlobalExceptionInterceptor} retourne un 400
  * avec le détail des champs invalides.</p>
  *
- * <p>Contrairement à {@link com.mns.cda.saas_facturation.DTO.ArticleRequestDTO} qui utilise
+ * <p>Contrairement à {@link ArticleRequestDTO} qui utilise
  * {@code @DecimalMin(value = "0.0", inclusive = false)}, le taux ici accepte
  * la valeur {@code 0.0} (inclusive par défaut), ce qui permet de représenter
  * une TVA à 0% (ex : produits exonérés).</p>

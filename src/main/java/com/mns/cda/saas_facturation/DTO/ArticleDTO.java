@@ -1,6 +1,8 @@
 package com.mns.cda.saas_facturation.DTO;
 
-import com.mns.cda.saas_facturation.model.Category;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.model.Tva;
 
 import java.math.BigDecimal;
