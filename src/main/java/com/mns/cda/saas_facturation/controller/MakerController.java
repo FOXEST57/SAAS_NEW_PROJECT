@@ -1,9 +1,8 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+
 import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,9 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.annotation.Target;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -52,6 +50,15 @@ public class MakerController {
         return ResponseEntity.ok(makerService.findById(id));
     }
 
+    @PostMapping("")
+    @Operation(
+            summary = "Crée un nouveau fabricant.",
+            description = "Cette route permet de créer un nouveau fabricant dans la base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Fabricant créé avec succès."),
+            @ApiResponse(responseCode = "400", description = "Données invalides.")
+    })
     public ResponseEntity<MakerDTO> create (@Valid @RequestBody MakerRequestDTO dto) {
         return new ResponseEntity<>(makerService.create(dto), HttpStatus.CREATED);
     }
@@ -65,12 +72,21 @@ public class MakerController {
             @ApiResponse(responseCode = "204", description = "Fabricant supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "Le fabricant n'existe pas.")
     })
-
     public ResponseEntity<Void> delete(@PathVariable Long id) throws IMakerService.MakerNotFoundException {
         makerService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Met à jour un fabricant existant.",
+            description = "Cette route permet de modifier les informations d'un fabricant existant, identifié par son ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Fabricant mis à jour avec succès."),
+            @ApiResponse(responseCode = "404", description = "Fabricant non trouvé."),
+            @ApiResponse(responseCode = "400", description = "Données invalides.")
+    })
     public ResponseEntity<MakerDTO> update (
             @PathVariable Long id,
             @Valid @RequestBody MakerRequestDTO dto) throws IMakerService.MakerNotFoundException {

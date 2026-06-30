@@ -2,23 +2,23 @@ package com.mns.cda.saas_facturation.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class ArticleMaker {
+public class MakerReference {
 
     @Embeddable
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode
-    public static class ArticleMakerId implements Serializable {
+    public static class MakerReferenceId implements Serializable {
         @Column(name ="article_id")
         private Long articleId;
         @Column(name ="maker_id")
@@ -26,7 +26,7 @@ public class ArticleMaker {
     }
 
     @EmbeddedId
-    private ArticleMakerId artMkrId;
+    private MakerReferenceId mkrRefId;
 
     @ManyToOne
     @MapsId("articleId")
@@ -39,6 +39,9 @@ public class ArticleMaker {
     protected Maker maker;
 
     @NotBlank
-    protected  String artMkrReference;
+    protected  String mkrRefReference;
+
+    @NotNull
+    protected Long mkrRefStock;
 
 }
