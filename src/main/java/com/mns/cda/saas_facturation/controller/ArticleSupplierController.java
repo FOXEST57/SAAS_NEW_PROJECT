@@ -69,7 +69,7 @@ public class ArticleSupplierController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/{articleId}/{supplierd}")
+    @PutMapping("/{articleId}/{supplierId}")
     public ResponseEntity<ArticleSupplierDTO> update(
             @PathVariable Long articleId,
             @PathVariable Long supplierId,

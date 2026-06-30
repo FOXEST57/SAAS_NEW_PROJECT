@@ -58,8 +58,10 @@ public class ArticleSupplierService implements IArticleSupplierService {
         Article artSplArticle = articleRepository.findById(dto.articleId())
                 .orElseThrow(IArticleService.ArticleNotFoundException::new);
 
+        ArticleSupplier.ArticleSupplierId artSplId= new ArticleSupplier.ArticleSupplierId(dto.articleId(), dto.supplierId());
+
         ArticleSupplier artSpl = new ArticleSupplier(
-                null,
+                artSplId,
                 artSplArticle,
                 artSplSupplier,
                 dto.artSplReference(),
@@ -89,6 +91,9 @@ public class ArticleSupplierService implements IArticleSupplierService {
                 .orElseThrow(IArticleService.ArticleNotFoundException::new);
         artSpl.setArticle(article);
 
+
+        ArticleSupplier.ArticleSupplierId artSplId = new ArticleSupplier.ArticleSupplierId(dto.articleId(), dto.supplierId());
+        artSpl.setArtSplId(artSplId);
         artSpl.setArtSplReference(dto.artSplReference());
         artSpl.setArtSplStock(dto.artSplStock());
 

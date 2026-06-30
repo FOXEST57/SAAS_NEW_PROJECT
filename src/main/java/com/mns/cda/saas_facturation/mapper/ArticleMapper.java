@@ -51,7 +51,9 @@ public class ArticleMapper {
                 article.getArtPriceExcludeTaxes(), // Prix HT
                 article.getArtStock(),
                 tvaResponseMapper.toResponseDto(article.getTva()),
-                priceTTC,                          // Prix TTC calculé dynamiquement
+                priceTTC,
+                article.getArtCreateDate(),
+                article.getArtUpdateDate(),// Prix TTC calculé dynamiquement
                 categoryResponse,
                 suppliersLinks
         );

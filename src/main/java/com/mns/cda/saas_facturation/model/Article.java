@@ -9,8 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +48,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Article {
 
     /**
@@ -87,6 +92,12 @@ public class Article {
     @Min(0)
     protected int artStock;
 
+    @CreatedDate
+    protected LocalDateTime artCreateDate;
+
+    @LastModifiedDate
+    protected LocalDateTime artUpdateDate;
+
     /**
      * Taux de TVA associé à cet article.
      * Relation {@code @ManyToOne} : plusieurs articles peuvent partager le même taux de TVA.
@@ -103,7 +114,7 @@ public class Article {
      * La colonne de jointure en base est {@code supplier_id}.
      */
     @OneToMany(mappedBy = "article")
-    protected List<ArticleSupplier> suppliers;
+    protected List<ArticleSupplier> suppliers = new ArrayList<>();
 
     /**
      * Catégorie de classement de l'article.

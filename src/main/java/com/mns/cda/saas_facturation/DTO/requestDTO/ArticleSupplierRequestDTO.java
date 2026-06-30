@@ -7,6 +7,6 @@ public record ArticleSupplierRequestDTO(
         @NotNull Long articleId,
         @NotNull Long supplierId,
         @NotBlank String artSplReference,
-        @NotBlank int artSplStock
+        @NotNull int artSplStock
 ) {
 }

@@ -7,6 +7,7 @@ import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.model.Tva;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -47,6 +48,8 @@ public record ArticleDTO(
         int artStock,
         TvaResponseDTO tva,
         BigDecimal artPriceTTC,
+        LocalDateTime  artCreatedDate,
+        LocalDateTime  artUpdatedDate,
         CategoryResponseDTO category,
         List<ArticleSupplierResponseDTO> suppliers) {
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,17 +122,17 @@ public class ArticleService implements IArticleService {
         }
 
         // Construction de l'entité Article : l'id est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
-        Article article = new Article(
-                null,
-                dto.artReference(),
-                dto.artName(),
-                dto.artDescription(),
-                dto.artPriceExcludeTaxes(),
-                dto.artStock(),
-                articleTva,
-                List.of(),
-                category
-        );
+        Article article = new Article();
+
+                article.setArtReference(dto.artReference());
+                article.setArtName(dto.artName());
+                article.setArtDescription(dto.artDescription());
+                article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
+                article.setArtStock(dto.artStock());
+                article.setTva(articleTva);
+                article.setCategory(category);
+
+
         // Création de l'article tel qu'il est pour créer l'entité et lui associer une ID
         article = articleRepository.save(article);
 

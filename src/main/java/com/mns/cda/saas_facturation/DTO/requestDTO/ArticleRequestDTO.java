@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.DTO.requestDTO;
 
 import com.mns.cda.saas_facturation.model.ArticleSupplier;
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ import java.util.List;
  * @see com.mns.cda.saas_facturation.controller.ArticleController
  * @see com.mns.cda.saas_facturation.Iservice.IArticleService
  */
+
 public record ArticleRequestDTO(
         @NotBlank @Column(unique = true) String artReference,
         @NotBlank String artName,
