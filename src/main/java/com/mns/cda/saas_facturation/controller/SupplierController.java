@@ -98,36 +98,36 @@ public class SupplierController {
         }
     }
 
-    /**
-     * Récupère la liste des articles associés à un fournisseur spécifique.
-     * GET /supplier/{id}/articles
-     *
-     * <p>Cette route permet d'obtenir tous les articles liés à un fournisseur
-     * identifié par son id. Si le fournisseur n'existe pas, une réponse 404 est retournée.</p>
-     *
-     * @param id l'identifiant du fournisseur dont on veut récupérer les articles
-     * @return une {@link ResponseEntity} contenant :
-     *         <ul>
-     *           <li>200 OK avec la liste des {@link ArticleDTO} si le fournisseur existe</li>
-     *           <li>404 Not Found si aucun fournisseur ne correspond à cet id</li>
-     *         </ul>
-     */
-    @GetMapping("/{id}/articles")
-    @Operation(summary = "Récupérer une liste d'article par id fournisseur")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
-            @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
-    })
-    public ResponseEntity<List<ArticleResponseSupplierDTO>> findArticleBySupplierId(@PathVariable Long id) {
-        try {
-            // Délègue la récupération des articles au service
-            // Le service vérifie d'abord que le fournisseur existe avant de retourner ses articles
-            return ResponseEntity.ok(articleService.findBySupplier(id));
-        } catch (ISupplierService.SupplierNotFoundException e) {
-            // Levée par le service si aucun fournisseur ne correspond à l'id fourni
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    /**
+//     * Récupère la liste des articles associés à un fournisseur spécifique.
+//     * GET /supplier/{id}/articles
+//     *
+//     * <p>Cette route permet d'obtenir tous les articles liés à un fournisseur
+//     * identifié par son id. Si le fournisseur n'existe pas, une réponse 404 est retournée.</p>
+//     *
+//     * @param id l'identifiant du fournisseur dont on veut récupérer les articles
+//     * @return une {@link ResponseEntity} contenant :
+//     *         <ul>
+//     *           <li>200 OK avec la liste des {@link ArticleDTO} si le fournisseur existe</li>
+//     *           <li>404 Not Found si aucun fournisseur ne correspond à cet id</li>
+//     *         </ul>
+//     */
+//    @GetMapping("/{id}/articles")
+//    @Operation(summary = "Récupérer une liste d'article par id fournisseur")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
+//            @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
+//    })
+//    public ResponseEntity<List<ArticleResponseSupplierDTO>> findArticleBySupplierId(@PathVariable Long id) {
+//        try {
+//            // Délègue la récupération des articles au service
+//            // Le service vérifie d'abord que le fournisseur existe avant de retourner ses articles
+//            return ResponseEntity.ok(articleService.findBySupplier(id));
+//        } catch (ISupplierService.SupplierNotFoundException e) {
+//            // Levée par le service si aucun fournisseur ne correspond à l'id fourni
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     /**
      * Crée un nouveau fournisseur à partir des données reçues dans le corps de la requête.

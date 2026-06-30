@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -101,11 +102,8 @@ public class Article {
      * ({@code nullable = true}).
      * La colonne de jointure en base est {@code supplier_id}.
      */
-    @ManyToMany
-    @JoinTable(name = "article_supplier",
-                joinColumns = @JoinColumn(name = "article_id"),
-                inverseJoinColumns = @JoinColumn(name = "supplier_id"))
-    protected List<Supplier> supplier;
+    @OneToMany(mappedBy = "article")
+    protected List<ArticleSupplier> suppliers;
 
     /**
      * Catégorie de classement de l'article.

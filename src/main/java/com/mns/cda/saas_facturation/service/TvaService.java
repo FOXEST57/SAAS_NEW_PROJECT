@@ -1,7 +1,6 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
@@ -44,6 +43,7 @@ public class TvaService implements ITvaService {
 
     // Repository Spring Data JPA : gère tous les accès base de données pour l'entité Tva
     protected final TvaRepository tvaRepository;
+
 
     /**
      * Récupère la liste complète de tous les taux de TVA en base de données.
@@ -164,25 +164,5 @@ public class TvaService implements ITvaService {
 
         // UPDATE tva SET tva_name = ?, tva_taux = ? WHERE tva_id = ?
         return tvaRepository.save(tvaEntity);
-    }
-
-    /**
-     * Convertit une entité {@link Tva} en {@link TvaResponseDTO}.
-     *
-     * <p>Cette méthode est utilisée par les autres services (notamment {@link ArticleService})
-     * pour inclure les informations de TVA dans leurs propres DTOs de réponse,
-     * sans exposer directement l'entité JPA.</p>
-     *
-     * @param tva l'entité TVA à convertir (ne doit pas être {@code null})
-     * @return un {@link TvaResponseDTO} contenant l'id, le libellé et le taux de la TVA
-     */
-    @Override
-    public TvaResponseDTO toResponseDto(Tva tva) {
-        // Mapping simple champ par champ — pas de calcul ni de relation à résoudre
-        return new TvaResponseDTO(
-                tva.getTvaId(),
-                tva.getTvaName(),
-                tva.getTvaTaux()
-        );
     }
 }

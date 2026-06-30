@@ -90,6 +90,6 @@ public class Supplier {
      * de l'entité {@link Article}. Initialisée à une liste vide pour éviter
      * les {@code NullPointerException} lors de l'ajout d'articles.
      */
-    @ManyToMany(mappedBy = "supplier")
-    private List<Article> articleList = new ArrayList<>();
+    @OneToMany(mappedBy = "supplier")
+    private List<ArticleSupplier> articles ;
 }

@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.DTO;
 
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
@@ -32,7 +33,7 @@ import java.util.List;
  * @param artStock              quantité disponible en stock
  * @param tva                   taux de TVA applicable à l'article
  * @param artPriceTTC           prix toutes taxes comprises, calculé par le service
- * @param supplier              informations du fournisseur associé à l'article
+ * @param suppliers              informations du fournisseur associé à l'article
  *
  * @see Tva
  * @see SupplierResponseDTO
@@ -47,5 +48,5 @@ public record ArticleDTO(
         TvaResponseDTO tva,
         BigDecimal artPriceTTC,
         CategoryResponseDTO category,
-        List<SupplierResponseDTO> supplier) {
+        List<ArticleSupplierResponseDTO> suppliers) {
 }

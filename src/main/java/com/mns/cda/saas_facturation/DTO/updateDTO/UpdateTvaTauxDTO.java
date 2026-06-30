@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.DTO;
+package com.mns.cda.saas_facturation.DTO.updateDTO;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
 import jakarta.validation.constraints.DecimalMin;
