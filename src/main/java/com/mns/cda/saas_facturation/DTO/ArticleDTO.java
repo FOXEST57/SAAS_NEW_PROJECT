@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.DTO;
 
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
@@ -51,5 +51,5 @@ public record ArticleDTO(
         LocalDateTime  artCreatedDate,
         LocalDateTime  artUpdatedDate,
         CategoryResponseDTO category,
-        List<ArticleSupplierResponseDTO> suppliers) {
+        List<SupplierReferenceResponseDTO> suppliers) {
 }

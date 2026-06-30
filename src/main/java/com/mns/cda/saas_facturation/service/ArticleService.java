@@ -2,7 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
 import com.mns.cda.saas_facturation.model.*;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +47,7 @@ public class ArticleService implements IArticleService {
     private final TvaRepository tvaRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
-    private final ArticleSupplierRepository articleSupplierRepository;
+    private final SupplierReferenceRepository supplierReferenceRepository;
 
     private final ArticleMapper articleMapper;
 
@@ -114,7 +113,7 @@ public class ArticleService implements IArticleService {
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
-        // La catégorie est optionnelle : on ne la recherche que si un categoryId est fourni
+        // La catégorie est optionnelle : on ne la recherche que si une categoryId est fourni
         Category category = null;
         if (dto.categoryId() != null) {
             category = categoryRepository.findById(dto.categoryId())
@@ -139,21 +138,21 @@ public class ArticleService implements IArticleService {
         //Vérification si la request contient ou non des relations article_supplier ajouter ou non si elle n'en contient pas on laisse la liste a vide sinon
         // on boucle pour chaque supplier ajouter pour crée la relation article_supplier nécessite donc le stock et la référence produit fournisseur.
         if (dto.suppliers() != null) {
-            for (ArticleSupplierRequestDTO artSpl : dto.suppliers()) {
+            for (SupplierReferenceRequestDTO artSpl : dto.suppliers()) {
 
                 Supplier supplier = supplierRepository.findById(artSpl.supplierId())
                         .orElseThrow(ISupplierService.SupplierNotFoundException::new);
 
-                ArticleSupplier link = new ArticleSupplier(
-                        new ArticleSupplier.ArticleSupplierId(article.getArtId(), supplier.getSplId()),
+                SupplierReference link = new SupplierReference(
+                        new SupplierReference.SupplierReferenceId(article.getArtId(), supplier.getSplId()),
                         article,
                         supplier,
-                        artSpl.artSplReference(),
-                        artSpl.artSplStock()
+                        artSpl.splRefReference(),
+                        artSpl.splRefStock()
 
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer
-                articleSupplierRepository.save(link);
+                supplierReferenceRepository.save(link);
             }
         }
 
