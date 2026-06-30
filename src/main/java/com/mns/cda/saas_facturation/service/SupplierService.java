@@ -2,8 +2,8 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +39,13 @@ public class SupplierService implements ISupplierService {
 
     private final SupplierRepository supplierRepository;
 
+    private final SupplierMapper supplierMapper;
+
     /**
      * Récupère la liste de tous les fournisseurs en base de données.
      *
      * <p>Chaque entité {@link Supplier} est convertie en {@link SupplierDTO}
-     * via {@link #toDTO(Supplier)} avant d'être retournée au contrôleur.</p>
+     * via  avant d'être retournée au contrôleur.</p>
      *
      * @return une {@link List} de {@link SupplierDTO} (vide si aucun fournisseur n'existe)
      */
@@ -51,7 +53,7 @@ public class SupplierService implements ISupplierService {
     public List<SupplierDTO> findAll() {
         return supplierRepository.findAll()
                 .stream()
-                .map(this::toDTO)  // Conversion entité → DTO pour chaque élément du flux
+                .map(supplierMapper::toDTO)  // Conversion entité → DTO pour chaque élément du flux
                 .toList();
     }
 
@@ -68,7 +70,7 @@ public class SupplierService implements ISupplierService {
      */
     @Override
     public SupplierDTO findById(Long id) throws SupplierNotFoundException {
-        return toDTO(supplierRepository.findById(id)
+        return supplierMapper.toDTO(supplierRepository.findById(id)
                 .orElseThrow(SupplierNotFoundException::new)); // Lève l'exception si l'Optional est vide
     }
 
@@ -95,7 +97,7 @@ public class SupplierService implements ISupplierService {
                 null
         );
 
-        return toDTO(supplierRepository.save(supplier));
+        return supplierMapper.toDTO(supplierRepository.save(supplier));
     }
 
     /**
@@ -147,36 +149,7 @@ public class SupplierService implements ISupplierService {
         supplier.setSplPhone(dto.phoneNumber());
         supplier.setSplAddress(dto.address());
 
-        return toDTO(supplierRepository.save(supplier));
-    }
-
-    /**
-     * Convertit une entité {@link Supplier} en {@link SupplierDTO}.
-     *
-     * <p>Cette méthode est utilisée en interne par le service pour éviter
-     * d'exposer les entités JPA directement à la couche contrôleur.</p>
-     *
-     * @param supplier l'entité fournisseur à convertir (ne doit pas être {@code null})
-     * @return un {@link SupplierDTO} contenant les informations du fournisseur :
-     *         id, nom, email, téléphone et adresse
-     */
-    @Override
-    public SupplierDTO toDTO(Supplier supplier) {
-        return new SupplierDTO(
-                supplier.getSplId(),
-                supplier.getSplName(),
-                supplier.getSplEmail(),
-                supplier.getSplPhone(),
-                supplier.getSplAddress()
-        );
-    }
-
-    @Override
-    public SupplierResponseDTO toResponseDTO(Supplier supplier) {
-        return new SupplierResponseDTO(
-                supplier.getSplId(),
-                supplier.getSplName()
-        );
+        return supplierMapper.toDTO(supplierRepository.save(supplier));
     }
 
 

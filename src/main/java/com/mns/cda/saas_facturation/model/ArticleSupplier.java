@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Setter
 @Getter
@@ -23,9 +24,21 @@ public class ArticleSupplier {
     @NoArgsConstructor
     public static class ArticleSupplierId implements Serializable {
         @Column(name ="article_id")
-        private Long articleId;
+        Long articleId;
         @Column(name = "supplier_id")
-        private Long supplierId;
+        Long supplierId;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            ArticleSupplierId that = (ArticleSupplierId) o;
+            return Objects.equals(articleId, that.articleId) && Objects.equals(supplierId, that.supplierId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(articleId, supplierId);
+        }
     }
 
     @EmbeddedId

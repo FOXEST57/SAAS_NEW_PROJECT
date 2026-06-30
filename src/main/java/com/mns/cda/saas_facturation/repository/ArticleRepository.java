@@ -25,22 +25,22 @@ import java.util.List;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    /**
-     * Récupère la liste de tous les articles associés à un fournisseur spécifique.
-     *
-     * <p>Cette méthode utilise la convention de nommage Spring Data JPA :
-     * {@code findBy} + {@code Supplier} (champ de {@link Article}) + {@code SplId}
-     * (champ de {@link com.mns.cda.saas_facturation.model.Supplier}).
-     * Spring génère automatiquement la requête SQL correspondante à l'exécution.</p>
-     *
-     * <p>Requête SQL équivalente :</p>
-     * <pre>{@code
-     * SELECT * FROM article WHERE supplier_id = :id
-     * }</pre>
-     *
-     * @param id l'identifiant unique du fournisseur dont on veut récupérer les articles
-     * @return une {@link List} d'articles associés à ce fournisseur
-     *         (vide si le fournisseur n'a aucun article)
-     */
-    List<Article> findBySupplierSplId(Long id);
+//    /**
+//     * Récupère la liste de tous les articles associés à un fournisseur spécifique.
+//     *
+//     * <p>Cette méthode utilise la convention de nommage Spring Data JPA :
+//     * {@code findBy} + {@code Supplier} (champ de {@link Article}) + {@code SplId}
+//     * (champ de {@link com.mns.cda.saas_facturation.model.Supplier}).
+//     * Spring génère automatiquement la requête SQL correspondante à l'exécution.</p>
+//     *
+//     * <p>Requête SQL équivalente :</p>
+//     * <pre>{@code
+//     * SELECT * FROM article WHERE supplier_id = :id
+//     * }</pre>
+//     *
+//     * @param id l'identifiant unique du fournisseur dont on veut récupérer les articles
+//     * @return une {@link List} d'articles associés à ce fournisseur
+//     *         (vide si le fournisseur n'a aucun article)
+//     */
+//    List<Article> findBySupplierSplId(Long id);
 }

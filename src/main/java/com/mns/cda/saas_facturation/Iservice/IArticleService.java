@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.Iservice;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.model.Article;
 
 import java.util.List;
@@ -25,15 +26,12 @@ import java.util.Optional;
  */
 public interface IArticleService {
 
-    ArticleDTO toDTO(Article article);
-
-    ArticleResponseSupplierDTO toSupplierResponseDTO(Article article);
 
     /**
      * Exception levée lorsqu'un article recherché par son identifiant
      * n'existe pas en base de données.
      *
-     * <p>Elle est typiquement levée par {@link #findById(Long)} ou {@link #update(long, ArticleRequestDTO)}
+     * <p>Elle est typiquement levée par {@link #findById(Long)} ou
      * et remonte jusqu'au contrôleur via {@code throws} pour être gérée
      * en réponse HTTP 404.</p>
      */
@@ -57,19 +55,6 @@ public interface IArticleService {
      */
     Optional<ArticleDTO> findById(Long id);
 
-    /**
-     * Récupère la liste des articles associés à un fournisseur spécifique.
-     *
-     * <p>Si le fournisseur identifié par {@code id} n'existe pas en base,
-     * une {@link ISupplierService.SupplierNotFoundException} est levée
-     * avant tout accès aux articles.</p>
-     *
-     * @param id l'identifiant unique du fournisseur dont on veut les articles
-     * @return une {@link List} de {@link ArticleDTO} associés à ce fournisseur
-     *         (vide si le fournisseur n'a aucun article)
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
-     */
-    List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException;
 
     /**
      * Crée un nouvel article en base de données à partir d'un DTO de requête.
@@ -108,5 +93,5 @@ public interface IArticleService {
      * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
      */
-    ArticleDTO update(long id, ArticleRequestDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
+    ArticleDTO update(long id, ArticleUpdateDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ICategoryService.CategoryNotFoundException;
 }

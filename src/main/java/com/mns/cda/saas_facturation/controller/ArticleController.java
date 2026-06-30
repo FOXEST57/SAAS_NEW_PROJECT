@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.controller;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
@@ -217,10 +218,10 @@ public class ArticleController {
     })
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody ArticleRequestDTO dto
+            @Valid @RequestBody ArticleUpdateDTO dto
     ) throws IArticleService.ArticleNotFoundException,
             ITvaService.TvaNotFoundException,
-            ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
+            ICategoryService.CategoryNotFoundException {
 
         ArticleDTO updated = articleService.update(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);

@@ -1,9 +1,12 @@
 package com.mns.cda.saas_facturation.DTO.requestDTO;
 
+import com.mns.cda.saas_facturation.model.ArticleSupplier;
 import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * DTO d'entrée représentant les données reçues par l'API pour créer ou modifier un article.
@@ -35,6 +38,7 @@ import java.math.BigDecimal;
  * @see com.mns.cda.saas_facturation.controller.ArticleController
  * @see com.mns.cda.saas_facturation.Iservice.IArticleService
  */
+
 public record ArticleRequestDTO(
         @NotBlank @Column(unique = true) String artReference,
         @NotBlank String artName,
@@ -43,5 +47,5 @@ public record ArticleRequestDTO(
         @Min(0) int artStock,
         @NotNull @Min(1) Long tvaId,
         @Positive Long categoryId,
-        @Positive Long supplierId
+        List<ArticleSupplierRequestDTO> suppliers
 ) {}
