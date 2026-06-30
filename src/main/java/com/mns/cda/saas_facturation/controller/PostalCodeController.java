@@ -1,13 +1,7 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IArticleService;
-import com.mns.cda.saas_facturation.Iservice.ISupplierService;
-import com.mns.cda.saas_facturation.Iservice.ITvaService;
-import com.mns.cda.saas_facturation.model.PostalCode;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -79,8 +73,8 @@ public class PostalCodeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des codes postaux récupérée avec succès.")
     })
-    public ResponseEntity<List<PostalCodeDTO>> getPostalCodes() {
-        return new ResponseEntity<>(postalCodeService.findAll(), HttpStatus.OK);
+    public List<PostalCodeDTO> getPostalCodes() {
+        return postalCodeService.findAll();
     }
 
     /**
@@ -92,7 +86,7 @@ public class PostalCodeController {
      * @param pcodeId l'identifiant unique du code postal à récupérer, extrait de l'URL
      * @return une {@link ResponseEntity} contenant :
      *         <ul>
-     *           <li>l'{@link ArticleDTO} correspondant avec le statut 200 OK si trouvé</li>
+     *           <li>l'{@link PostalCodeDTO} correspondant avec le statut 200 OK si trouvé</li>
      *           <li>un corps vide avec le statut 404 Not Found si le code postal n'existe pas</li>
      *         </ul>
      */
@@ -137,10 +131,10 @@ public class PostalCodeController {
             @ApiResponse(responseCode = "201", description = "Code postal créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<Void> createPostalCode(@RequestBody @Valid PostalCodeRequestDTO dto) {
-        postalCodeService.create(dto);
+    public ResponseEntity<PostalCodeDTO> createPostalCode(@RequestBody @Valid PostalCodeRequestDTO dto) {
+        PostalCodeDTO postalCodeCreated = postalCodeService.create(dto);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(postalCodeCreated, HttpStatus.CREATED);
     }
 
     /**
@@ -168,10 +162,10 @@ public class PostalCodeController {
             @ApiResponse(responseCode = "200", description = "Code postal modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "Le code postal n'existe pas.")
     })
-    public ResponseEntity<PostalCodeDTO> modifyPostalCode(@PathVariable Long pcodeId, @RequestBody @Valid PostalCodeRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
-        PostalCodeDTO postalCodeModified = postalCodeService.modify(pcodeId, dto);
+    public ResponseEntity<PostalCodeDTO> updatePostalCode(@PathVariable Long pcodeId, @RequestBody @Valid PostalCodeRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
+        PostalCodeDTO postalCodeUpdated = postalCodeService.update(pcodeId, dto);
 
-        return new ResponseEntity<>(postalCodeModified, HttpStatus.OK);
+        return new ResponseEntity<>(postalCodeUpdated, HttpStatus.OK);
     }
 
     /**

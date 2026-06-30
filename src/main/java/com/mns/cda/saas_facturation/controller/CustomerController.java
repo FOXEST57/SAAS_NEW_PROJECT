@@ -1,8 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,8 +74,8 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des clients récupérée avec succès.")
     })
-    public ResponseEntity<List<CustomerDTO>> getCustomers() {
-        return new ResponseEntity<>(customerService.findAll(), HttpStatus.OK);
+    public List<CustomerDTO> getCustomers() {
+        return customerService.findAll();
     }
 
     /**
@@ -138,10 +136,10 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Client créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<Void> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
-        customerService.create(dto);
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
+        CustomerDTO customerCreated = customerService.create(dto);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(customerCreated, HttpStatus.CREATED);
     }
 
     /**
@@ -169,10 +167,10 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Client modifié avec succès.")
     })
-    public ResponseEntity<CustomerDTO> modifyCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) throws ICustomerService.CustomerNotFoundException, ICityService.CityNotFoundException {
-            CustomerDTO customerModified = customerService.modify(ctmId, dto);
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) throws ICustomerService.CustomerNotFoundException, ICityService.CityNotFoundException {
+            CustomerDTO customerUpdated = customerService.update(ctmId, dto);
 
-            return new ResponseEntity<>(customerModified, HttpStatus.OK);
+            return new ResponseEntity<>(customerUpdated, HttpStatus.OK);
     }
 
     /**

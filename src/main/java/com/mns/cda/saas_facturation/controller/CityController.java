@@ -1,8 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.CityDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,8 +73,8 @@ public class CityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des articles récupérée avec succès.")
     })
-    public ResponseEntity<List<CityDTO>> getCities() {
-        return new ResponseEntity<>(cityService.findAll(), HttpStatus.OK);
+    public List<CityDTO> getCities() {
+        return cityService.findAll();
     }
 
     /**
@@ -136,10 +134,10 @@ public class CityController {
             @ApiResponse(responseCode = "201", description = "Ville créée avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<Void> createCity(@RequestBody @Valid CityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
-        cityService.create(dto);
+    public ResponseEntity<CityDTO> createCity(@RequestBody @Valid CityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
+        CityDTO cityCreated = cityService.create(dto);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(cityCreated, HttpStatus.CREATED);
     }
 
     /**
@@ -168,10 +166,10 @@ public class CityController {
             @ApiResponse(responseCode = "200", description = "Ville modifiée avec succès."),
             @ApiResponse(responseCode = "404", description = "La ville n'existe pas.")
     })
-    public ResponseEntity<CityDTO> modifyCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) throws ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
-        CityDTO cityModified = cityService.modify(cityId, dto);
+    public ResponseEntity<CityDTO> updateCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) throws ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
+        CityDTO cityUpdated = cityService.update(cityId, dto);
 
-        return new ResponseEntity<>(cityModified, HttpStatus.OK);
+        return new ResponseEntity<>(cityUpdated, HttpStatus.OK);
     }
 
     /**
@@ -184,7 +182,7 @@ public class CityController {
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi</li>
      * @throws ICityService.CityNotFoundException si la ville ciblée n'existe pas en base
      */
-    @DeleteMapping("{cityId}")
+    @DeleteMapping("/{cityId}")
     @Operation(
             summary = "Supprime une ville par son ID.",
             description = "Cette route permet de supprimer une ville spécifique par son ID."

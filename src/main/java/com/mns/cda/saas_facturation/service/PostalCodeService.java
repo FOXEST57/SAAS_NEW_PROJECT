@@ -31,17 +31,17 @@ public class PostalCodeService implements IPostalCodeService {
     }
 
     @Override
-    public void create(PostalCodeRequestDTO dto) {
+    public PostalCodeDTO create(PostalCodeRequestDTO dto) {
         PostalCode postalCode = new PostalCode(
                 null,
                 dto.pcodeName()
         );
 
-        postalCodeRepository.save(postalCode);
+        return toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
-    public PostalCodeDTO modify(Long pcodeId, PostalCodeRequestDTO dto) throws PostalCodeNotFoundException {
+    public PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO dto) throws PostalCodeNotFoundException {
         PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(PostalCodeNotFoundException::new);
 
         postalCode.setPcodeName(dto.pcodeName());
@@ -56,7 +56,8 @@ public class PostalCodeService implements IPostalCodeService {
         postalCodeRepository.delete(postalCode);
     }
 
-    protected PostalCodeDTO toDTO(PostalCode postalCode) {
+    @Override
+    public PostalCodeDTO toDTO(PostalCode postalCode) {
         return new PostalCodeDTO(
                 postalCode.getPcodeName()
         );

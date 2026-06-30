@@ -187,7 +187,7 @@ public class SupplierController {
 
     /**
      * Met à jour les informations d'un fournisseur existant.
-     * PUT /supplier/modify/{id}
+     * PUT /supplier/update/{id}
      *
      * <p>Tous les champs du fournisseur sont remplacés par les valeurs fournies dans le DTO
      * (sémantique HTTP PUT — remplacement complet).</p>

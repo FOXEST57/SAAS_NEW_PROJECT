@@ -38,7 +38,7 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public void create(CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
+    public CustomerDTO create(CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
         City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
 
         Customer customer = new Customer(
@@ -53,11 +53,11 @@ public class CustomerService implements ICustomerService {
                 city
         );
 
-        customerRepository.save(customer);
+        return toDTO(customerRepository.save(customer));
     }
 
     @Override
-    public CustomerDTO modify(Long ctmId, CustomerRequestDTO dto) throws CustomerNotFoundException, ICityService.CityNotFoundException {
+    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws CustomerNotFoundException, ICityService.CityNotFoundException {
         Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
         City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
 
@@ -79,7 +79,8 @@ public class CustomerService implements ICustomerService {
         customerRepository.delete(customer);
     }
 
-    protected CustomerDTO toDTO(Customer customer) {
+    @Override
+    public CustomerDTO toDTO(Customer customer) {
         return new CustomerDTO(
                 customer.getCtmFirstName(),
                 customer.getCtmLastName(),

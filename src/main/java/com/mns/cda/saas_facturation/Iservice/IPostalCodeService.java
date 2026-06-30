@@ -15,9 +15,12 @@ public interface IPostalCodeService {
 
     Optional<PostalCodeDTO> findById(Long pcodeId);
 
-    void create(PostalCodeRequestDTO postalCode);
+    PostalCodeDTO create(PostalCodeRequestDTO postalCode);
 
-    PostalCodeDTO modify(Long pcodeId, PostalCodeRequestDTO postalCode) throws PostalCodeNotFoundException;
+    PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO postalCode) throws PostalCodeNotFoundException;
 
     void delete(Long pcodeId) throws PostalCodeNotFoundException;
+
+    PostalCodeDTO toDTO(PostalCode postalCode);
+
 }
