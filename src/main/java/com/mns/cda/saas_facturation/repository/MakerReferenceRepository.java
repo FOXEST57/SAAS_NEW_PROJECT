@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface MakerReferenceRepository extends JpaRepository<MakerReference, MakerReference.MakerReferenceId> {
 
-    List<MakerReference> findByArtMkrId_ArticleId(Long artMkrIdArticleId);
+    List<MakerReference> findByMkrRefId_ArticleId(Long artMkrIdArticleId);
 
-    List<MakerReference> findByArtMkrId_MakerId(Long artMkrIdMakerId);
+    List<MakerReference> findByMkrRefId_MakerId(Long artMkrIdMakerId);
 }

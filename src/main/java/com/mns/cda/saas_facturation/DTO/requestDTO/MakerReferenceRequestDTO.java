@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 public record MakerReferenceRequestDTO(
         @NotNull Long artId,
         @NotNull Long mkrId,
-        @NotBlank String mkrRefReference,
-        @NotNull Long mkrRefStock
+        @NotBlank String mkrRefReference
 ) {
 }

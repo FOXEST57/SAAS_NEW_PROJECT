@@ -37,7 +37,7 @@ public class MakerReferenceService implements IMakerReferenceService {
 
     @Override
     public List<MakerReferenceResponseDTO> findAllByArticle(Long artId)  {
-        return makerReferenceRepository.findByArtMkrId_ArticleId(artId)
+        return makerReferenceRepository.findByMkrRefId_ArticleId(artId)
                 .stream()
                 .map(this::toResponseDto)
                 .toList();
@@ -45,7 +45,7 @@ public class MakerReferenceService implements IMakerReferenceService {
 
     @Override
     public List<MakerReferenceResponseDTO> findAllByMaker(Long mkrId)  {
-        return makerReferenceRepository.findByArtMkrId_MakerId(mkrId)
+        return makerReferenceRepository.findByMkrRefId_MakerId(mkrId)
                 .stream()
                 .map(this::toResponseDto)
                 .toList();
@@ -70,11 +70,10 @@ public class MakerReferenceService implements IMakerReferenceService {
                 .orElseThrow(IMakerService.MakerNotFoundException::new);
 
         MakerReference makerReference = new MakerReference(
-                null,
+                new MakerReference.MakerReferenceId(),
                 article,
                 maker,
-                dto.mkrRefReference(),
-                dto.mkrRefStock()
+                dto.mkrRefReference()
         );
 
         return toResponseDto(makerReferenceRepository.save(makerReference));
@@ -88,7 +87,6 @@ public class MakerReferenceService implements IMakerReferenceService {
        ).orElseThrow(MakerReferenceNotFoundException::new);
 
        makerReference.setMkrRefReference(dto.mkrRefReference());
-       makerReference.setMkrRefStock(dto.mkrRefStock());
 
        return toResponseDto(makerReferenceRepository.save(makerReference));
 
@@ -118,8 +116,7 @@ public class MakerReferenceService implements IMakerReferenceService {
         return new MakerReferenceResponseDTO(
                 articleResponseMakerReferenceDTO,
                 makerResponseDTO,
-                makerReference.getMkrRefReference(),
-                makerReference.getMkrRefStock()
+                makerReference.getMkrRefReference()
         );
     }
 }

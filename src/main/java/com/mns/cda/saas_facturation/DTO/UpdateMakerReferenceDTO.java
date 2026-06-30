@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record UpdateMakerReferenceDTO(
-        @NotBlank String mkrRefReference,
-        @NotNull Long mkrRefStock
+        @NotBlank String mkrRefReference
 ) {
 }

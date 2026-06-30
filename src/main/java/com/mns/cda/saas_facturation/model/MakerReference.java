@@ -38,10 +38,7 @@ public class MakerReference {
     @JoinColumn(name ="maker_id")
     protected Maker maker;
 
+    @Column(unique = true, nullable = false)
     @NotBlank
     protected  String mkrRefReference;
-
-    @NotNull
-    protected Long mkrRefStock;
-
 }

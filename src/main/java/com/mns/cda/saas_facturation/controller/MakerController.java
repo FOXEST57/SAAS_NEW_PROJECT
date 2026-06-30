@@ -47,7 +47,12 @@ public class MakerController {
     })
     public ResponseEntity<MakerDTO> getMakerById(@PathVariable Long id) throws IMakerService.MakerNotFoundException {
 
-        return ResponseEntity.ok(makerService.findById(id));
+        try {
+            makerService.findById(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IMakerService.MakerNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("")
@@ -73,8 +78,12 @@ public class MakerController {
             @ApiResponse(responseCode = "404", description = "Le fabricant n'existe pas.")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) throws IMakerService.MakerNotFoundException {
-        makerService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            makerService.delete(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IMakerService.MakerNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("/{id}")
@@ -91,6 +100,10 @@ public class MakerController {
             @PathVariable Long id,
             @Valid @RequestBody MakerRequestDTO dto) throws IMakerService.MakerNotFoundException {
 
-        return new ResponseEntity<>(makerService.modify(id, dto), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(makerService.modify(id, dto),HttpStatus.NO_CONTENT);
+        } catch (IMakerService.MakerNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
