@@ -1,9 +1,7 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.model.Category;
-import com.mns.cda.saas_facturation.service.ArticleService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

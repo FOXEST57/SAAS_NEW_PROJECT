@@ -30,10 +30,6 @@ import java.util.List;
 public interface ISupplierService {
 
 
-//    SupplierDTO toDTO(Supplier supplier);
-//
-//    SupplierResponseDTO toResponseDTO(Supplier supplier);
-
     /**
      * Exception levée lorsqu'un fournisseur recherché par son identifiant
      * n'existe pas en base de données.

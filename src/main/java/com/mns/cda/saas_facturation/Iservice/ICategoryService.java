@@ -27,15 +27,12 @@ import java.util.Optional;
  */
 public interface ICategoryService {
 
-//    CategoryDTO toDTO(Category category);
-//
-//    CategoryResponseDTO toResponseDTO(Category category);
 
     /**
      * Exception levée lorsqu'une catégorie recherchée par son identifiant
      * n'existe pas en base de données.
      *
-     * <p>Elle est typiquement levée par {@link #update(long, String)} et remonte
+     * <p>Elle est typiquement levée par  et remonte
      * jusqu'au contrôleur via {@code throws} pour être gérée en réponse HTTP 404.</p>
      */
     public static class CategoryNotFoundException extends Exception {}

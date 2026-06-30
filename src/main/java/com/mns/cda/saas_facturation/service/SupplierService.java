@@ -2,7 +2,6 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.model.Supplier;
@@ -152,35 +151,6 @@ public class SupplierService implements ISupplierService {
 
         return supplierMapper.toDTO(supplierRepository.save(supplier));
     }
-
-    /**
-     * Convertit une entité {@link Supplier} en {@link SupplierDTO}.
-     *
-     * <p>Cette méthode est utilisée en interne par le service pour éviter
-     * d'exposer les entités JPA directement à la couche contrôleur.</p>
-     *
-     * @param supplier l'entité fournisseur à convertir (ne doit pas être {@code null})
-     * @return un {@link SupplierDTO} contenant les informations du fournisseur :
-     *         id, nom, email, téléphone et adresse
-     */
-//    @Override
-//    public SupplierDTO toDTO(Supplier supplier) {
-//        return new SupplierDTO(
-//                supplier.getSplId(),
-//                supplier.getSplName(),
-//                supplier.getSplEmail(),
-//                supplier.getSplPhone(),
-//                supplier.getSplAddress()
-//        );
-//    }
-//
-//    @Override
-//    public SupplierResponseDTO toResponseDTO(Supplier supplier) {
-//        return new SupplierResponseDTO(
-//                supplier.getSplId(),
-//                supplier.getSplName()
-//        );
-//    }
 
 
 

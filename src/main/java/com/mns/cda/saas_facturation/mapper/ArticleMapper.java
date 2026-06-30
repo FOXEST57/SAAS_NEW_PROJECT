@@ -29,10 +29,6 @@ public class ArticleMapper {
         BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
                 .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
-//        // Mapping conditionnel du fournisseur : null si l'article n'a pas de fournisseur associé
-//        SupplierResponseDTO supplierResponse = article.getSupplier() != null
-//                ? supplierService.toResponseDTO(article.getSupplier())
-//                : null;
 
         // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
         CategoryResponseDTO categoryResponse = article.getCategory() != null

@@ -29,8 +29,6 @@ public class ArticleSupplierService implements IArticleSupplierService {
 
     private final ArticleSupplierMapper articleSupplierMapper;
 
-//    protected final SupplierService supplierService;
-//    protected final ArticleService articleService;
 
     //GetAll
     @Override
@@ -103,24 +101,4 @@ public class ArticleSupplierService implements IArticleSupplierService {
         articleSupplierRepository.deleteById(id);
     }
 
-//    @Override
-//    public ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier) {
-//        return new ArticleSupplierDTO(
-//                articleSupplier.getArtSplId(),
-//                articleService.toResponseDTO(articleSupplier.getArticle()),
-//                supplierService.toResponseDTO(articleSupplier.getSupplier()),
-//                articleSupplier.getArtSplReference(),
-//                articleSupplier.getArtSplStock()
-//        );
-//    }
-//
-//    @Override
-//    public ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier) {
-//        return new ArticleSupplierResponseDTO(
-//                articleSupplier.getArtSplId(),
-//                supplierService.toResponseDTO(articleSupplier.getSupplier()),
-//                articleSupplier.getArtSplReference(),
-//                articleSupplier.getArtSplStock()
-//        );
-//    }
 }
