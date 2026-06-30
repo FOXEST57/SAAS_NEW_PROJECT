@@ -50,6 +50,6 @@ public record ArticleDTO(
         BigDecimal artPriceTTC,
         LocalDateTime  artCreatedDate,
         LocalDateTime  artUpdatedDate,
-        CategoryResponseDTO category,
+        List<CategoryResponseDTO> categories,
         List<SupplierReferenceResponseDTO> suppliers) {
 }

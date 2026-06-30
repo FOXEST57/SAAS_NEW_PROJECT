@@ -10,7 +10,7 @@ public record ArticleResponseCustomerDTO(
         String artDescription,
         BigDecimal artPriceTTC,
         int artStock,
-        CategoryResponseDTO category,
+        List<CategoryResponseDTO> categories,
         List<SupplierResponseDTO> supplier
 ) {
 }

@@ -30,10 +30,12 @@ public class ArticleMapper {
                 .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
 
-        // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
-        CategoryResponseDTO categoryResponse = article.getCategory() != null
-                ? categoryMapper.toResponseDTO(article.getCategory())
-                : null;
+        List<CategoryResponseDTO> categoriesResponse = article.getCategories() != null
+                ? article.getCategories()
+                .stream()
+                .map(categoryMapper::toResponseDTO)
+                .toList()
+                :List.of();
 
         List<SupplierReferenceResponseDTO> suppliersLinks = article.getSuppliers() != null
                 ? article.getSuppliers()
@@ -54,7 +56,7 @@ public class ArticleMapper {
                 priceTTC,
                 article.getArtCreateDate(),
                 article.getArtUpdateDate(),// Prix TTC calculé dynamiquement
-                categoryResponse,
+                categoriesResponse,
                 suppliersLinks
         );
     }

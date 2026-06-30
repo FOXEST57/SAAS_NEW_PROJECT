@@ -73,4 +73,7 @@ public class Category {
      */
     @OneToMany(mappedBy = "catParent")
     protected List<Category> catChildren;
+
+    @ManyToMany(mappedBy = "categories")
+    protected List<Article> articles;
 }
