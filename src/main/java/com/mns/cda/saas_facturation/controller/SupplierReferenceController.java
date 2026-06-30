@@ -19,7 +19,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/supplier-reference")
-@Tag(name = "Supplier Reference", description = "API de gestion des différents votes.")
+@Tag(name = "Supplier Reference", description = "API de gestion des différents référence supplier.")
 @CrossOrigin
 public class SupplierReferenceController {
 

@@ -113,7 +113,7 @@ public class ArticleService implements IArticleService {
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
-        // La catégorie est optionnelle : on ne la recherche que si un categoryId est fourni
+        // La catégorie est optionnelle : on ne la recherche que si une categoryId est fourni
         Category category = null;
         if (dto.categoryId() != null) {
             category = categoryRepository.findById(dto.categoryId())

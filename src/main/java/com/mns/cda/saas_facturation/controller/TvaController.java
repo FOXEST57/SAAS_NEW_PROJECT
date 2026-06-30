@@ -41,7 +41,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/tva")
-@Tag(name = "Tva", description = "Routes de gestion des articles.")
+@Tag(name = "Tva", description = "Routes de gestion des tva.")
 @CrossOrigin
 public class TvaController {
 
