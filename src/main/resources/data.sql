@@ -37,7 +37,7 @@ VALUES
     ('Fabricant 4');
 
 -- 5. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
-INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id, category_id)
+INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id)
 VALUES
     ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1),
     ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, 1),
