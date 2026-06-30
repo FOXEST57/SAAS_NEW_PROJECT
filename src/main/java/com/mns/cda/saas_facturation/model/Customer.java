@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Customer {
 
     @Id
@@ -47,7 +49,6 @@ public class Customer {
     protected LocalDateTime ctmModificationDate;
 
     @ManyToOne
-    @JoinColumn(name = "city_id")
     @NotBlank
     protected City city;
 
