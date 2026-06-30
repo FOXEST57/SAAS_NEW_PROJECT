@@ -122,7 +122,9 @@ public class Article {
      * ({@code nullable = true}).
      * La colonne de jointure en base est {@code category_id}.
      */
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = true)
-    protected Category category;
+    @ManyToMany
+    @JoinTable(name = "article_category",
+            joinColumns = @JoinColumn(name = "article_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    protected List<Category> categories = new ArrayList<>();
 }

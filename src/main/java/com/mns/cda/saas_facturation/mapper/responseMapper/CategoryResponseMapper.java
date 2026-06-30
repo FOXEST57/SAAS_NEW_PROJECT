@@ -40,6 +40,7 @@ public class CategoryResponseMapper {
         return new CategoryResponseDTO(
                 category.getCatId(),
                 category.getCatName(),
+                category.getCatSlug(),
                 catParentName
         );
     }

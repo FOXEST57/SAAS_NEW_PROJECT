@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.DTO.responseDTO;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ArticleResponseSupplierDTO(
         Long artId,
@@ -10,6 +11,6 @@ public record ArticleResponseSupplierDTO(
         BigDecimal artPriceExcludeTaxes,
         int artStock,
         TvaResponseDTO tva,
-        CategoryResponseDTO category
+        List<CategoryResponseDTO> categories
 ) {
 }

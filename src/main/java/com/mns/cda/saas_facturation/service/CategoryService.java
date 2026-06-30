@@ -99,6 +99,7 @@ public class CategoryService implements ICategoryService {
         // L'id n'est pas défini : il sera généré automatiquement par la base via @GeneratedValue
         Category category = new Category();
         category.setCatName(dto.catName());
+        category.setCatSlug(dto.catSlug());
         category.setCatParent(categoryParent); // Association vers la catégorie parente
 
         // INSERT INTO category — save() retourne l'entité avec son id généré, puis conversion en DTO
@@ -147,6 +148,7 @@ public class CategoryService implements ICategoryService {
 
         // Mise à jour des champs — JPA détecte les changements et génère un UPDATE lors du save()
         category.setCatName(categoryToUpdate.catName());
+        category.setCatSlug(categoryToUpdate.catSlug());
         category.setCatParent(categoryParent);
 
         // UPDATE category SET cat_name = ?, cat_parent_id = ? WHERE cat_id = ?
