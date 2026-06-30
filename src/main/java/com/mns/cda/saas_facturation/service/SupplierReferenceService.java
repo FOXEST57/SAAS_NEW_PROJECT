@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class SupplierReferenceReferenceService implements ISupplierReferenceService {
+public class SupplierReferenceService implements ISupplierReferenceService {
 
     protected final SupplierReferenceRepository supplierReferenceRepository;
     protected final SupplierRepository supplierRepository;
