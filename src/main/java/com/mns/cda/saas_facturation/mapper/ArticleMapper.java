@@ -1,10 +1,10 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 
-import com.mns.cda.saas_facturation.mapper.responseMapper.ArticleSupplierResponseMapper;
+import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.CategoryResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.TvaResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
@@ -20,7 +20,7 @@ public class ArticleMapper {
 
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
-    private final ArticleSupplierResponseMapper articleSupplierMapper;
+    private final SupplierReferenceResponseMapper supplierReferenceMapper;
 
     public ArticleDTO toDTO(Article article) {
 
@@ -35,10 +35,10 @@ public class ArticleMapper {
                 ? categoryMapper.toResponseDTO(article.getCategory())
                 : null;
 
-        List<ArticleSupplierResponseDTO> suppliersLinks = article.getSuppliers() != null
+        List<SupplierReferenceResponseDTO> suppliersLinks = article.getSuppliers() != null
                 ? article.getSuppliers()
                 .stream()
-                .map(articleSupplierMapper::toResponseDTO)
+                .map(supplierReferenceMapper::toResponseDTO)
                 .toList()
                 :List.of();
 

@@ -2,13 +2,13 @@ package com.mns.cda.saas_facturation.DTO;
 
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
-import com.mns.cda.saas_facturation.model.ArticleSupplier;
+import com.mns.cda.saas_facturation.model.SupplierReference;
 
-public record ArticleSupplierDTO(
-        ArticleSupplier.ArticleSupplierId artSplId,
+public record SupplierReferenceDTO(
+        SupplierReference.SupplierReferenceId SplRefId,
         ArticleResponseSupplierDTO article,
         SupplierResponseDTO supplier,
-        String artSplReference,
-        int artSplStock
+        String splRefReference,
+        int splRefStock
 ) {
 }

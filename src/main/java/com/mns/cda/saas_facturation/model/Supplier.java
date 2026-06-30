@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,5 +90,5 @@ public class Supplier {
      * les {@code NullPointerException} lors de l'ajout d'articles.
      */
     @OneToMany(mappedBy = "supplier")
-    private List<ArticleSupplier> articles ;
+    private List<SupplierReference> articles ;
 }
