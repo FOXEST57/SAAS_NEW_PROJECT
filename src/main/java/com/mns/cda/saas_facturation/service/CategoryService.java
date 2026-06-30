@@ -2,11 +2,11 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import com.mns.cda.saas_facturation.mapper.CategoryMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.Optional;
  * <p>Ce service est responsable de :</p>
  * <ul>
  *   <li>gérer la structure arborescente des catégories (parent / enfants)</li>
- *   <li>convertir les entités {@link Category} en {@link CategoryDTO} via {@link #toDTO(Category)}
+ *   <li>convertir les entités {@link Category} en {@link CategoryDTO} via
  *       pour éviter les boucles infinies JSON liées à la relation bidirectionnelle
  *       auto-référentielle</li>
  *   <li>vérifier l'existence de la catégorie parente avant toute création ou modification</li>
@@ -42,11 +42,13 @@ public class CategoryService implements ICategoryService {
     // Repository Spring Data JPA : gère tous les accès base de données pour l'entité Category
     protected final CategoryRepository categoryRepository;
 
+    protected final CategoryMapper categoryMapper;
+
     /**
      * Récupère la liste complète de toutes les catégories en base de données.
      *
      * <p>Chaque entité {@link Category} est convertie en {@link CategoryDTO}
-     * via {@link #toDTO(Category)}, ce qui inclut la résolution de la hiérarchie
+     * via , ce qui inclut la résolution de la hiérarchie
      * parent / enfants.</p>
      *
      * @return une {@link List} de {@link CategoryDTO} (vide si aucune catégorie n'existe)
@@ -55,7 +57,7 @@ public class CategoryService implements ICategoryService {
     public List<CategoryDTO> findAll() {
         return categoryRepository.findAll() // SELECT * FROM category
                 .stream()
-                .map(this::toDTO)           // Conversion entité → DTO pour chaque élément
+                .map(categoryMapper::toDTO)           // Conversion entité → DTO pour chaque élément
                 .toList();
     }
 
@@ -71,7 +73,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public Optional<CategoryDTO> findById(Long id) {
         return categoryRepository.findById(id) // SELECT * FROM category WHERE cat_id = ?
-                .map(this::toDTO);             // Conversion entité → DTO si l'Optional n'est pas vide
+                .map(categoryMapper::toDTO);             // Conversion entité → DTO si l'Optional n'est pas vide
     }
 
     /**
@@ -100,7 +102,7 @@ public class CategoryService implements ICategoryService {
         category.setCatParent(categoryParent); // Association vers la catégorie parente
 
         // INSERT INTO category — save() retourne l'entité avec son id généré, puis conversion en DTO
-        return toDTO(categoryRepository.save(category));
+        return categoryMapper.toDTO(categoryRepository.save(category));
     }
 
     /**
@@ -148,7 +150,7 @@ public class CategoryService implements ICategoryService {
         category.setCatParent(categoryParent);
 
         // UPDATE category SET cat_name = ?, cat_parent_id = ? WHERE cat_id = ?
-        return toDTO(categoryRepository.save(category));
+        return categoryMapper.toDTO(categoryRepository.save(category));
     }
 
     /**
@@ -171,53 +173,53 @@ public class CategoryService implements ICategoryService {
      * @return un {@link CategoryDTO} contenant l'id, le nom, le nom du parent
      *         et la liste des enfants convertis
      */
-    @Override
-    public CategoryDTO toDTO(Category category) {
-        return new CategoryDTO(
-                category.getCatId(),
-                category.getCatName(),
-                // Le parent est représenté par son nom uniquement — évite la récursion vers le haut
-                category.getCatParent() != null ? category.getCatParent().getCatName() : null,
-                // Les enfants sont récursivement convertis en DTO — liste vide si null
-                category.getCatChildren() != null
-                        ? category.getCatChildren().stream()
-                        .map(this::toDTO)
-                        .toList()
-                        : List.of()
-        );
-    }
-
-    /**
-     * Convertit une entité {@link Category} en {@link CategoryResponseDTO}.
-     *
-     * <p>Contrairement à {@link #toDTO(Category)}, cette méthode produit une représentation
-     * <b>aplatie</b> de la catégorie : sans liste des enfants et sans récursion.
-     * Elle est utilisée par les autres services (notamment {@link ArticleService})
-     * pour inclure les informations de catégorie dans leurs propres DTOs de réponse,
-     * sans risque de boucle infinie JSON.</p>
-     *
-     * <p>Le nom du parent est résolu conditionnellement : si la catégorie n'a pas de parent
-     * (catégorie racine), le champ {@code catParentName} est {@code null}.</p>
-     *
-     * @param category l'entité catégorie à convertir (ne doit pas être {@code null})
-     * @return un {@link CategoryResponseDTO} contenant l'id, le nom et le nom du parent
-     *         (ou {@code null} si la catégorie est une racine)
-     */
-    @Override
-    public CategoryResponseDTO toResponseDTO(Category category) {
-
-        // Résolution conditionnelle du nom du parent
-        // null si la catégorie est une racine (pas de parent)
-        String catParentName = null;
-        if (category.getCatParent() != null) {
-            catParentName = category.getCatParent().getCatName();
-        }
-
-        // Mapping vers le DTO allégé : id, nom, nom du parent uniquement
-        return new CategoryResponseDTO(
-                category.getCatId(),
-                category.getCatName(),
-                catParentName
-        );
-    }
+//    @Override
+//    public CategoryDTO toDTO(Category category) {
+//        return new CategoryDTO(
+//                category.getCatId(),
+//                category.getCatName(),
+//                // Le parent est représenté par son nom uniquement — évite la récursion vers le haut
+//                category.getCatParent() != null ? category.getCatParent().getCatName() : null,
+//                // Les enfants sont récursivement convertis en DTO — liste vide si null
+//                category.getCatChildren() != null
+//                        ? category.getCatChildren().stream()
+//                        .map(this::toDTO)
+//                        .toList()
+//                        : List.of()
+//        );
+//    }
+//
+//    /**
+//     * Convertit une entité {@link Category} en {@link CategoryResponseDTO}.
+//     *
+//     * <p>Contrairement à {@link #toDTO(Category)}, cette méthode produit une représentation
+//     * <b>aplatie</b> de la catégorie : sans liste des enfants et sans récursion.
+//     * Elle est utilisée par les autres services (notamment {@link ArticleService})
+//     * pour inclure les informations de catégorie dans leurs propres DTOs de réponse,
+//     * sans risque de boucle infinie JSON.</p>
+//     *
+//     * <p>Le nom du parent est résolu conditionnellement : si la catégorie n'a pas de parent
+//     * (catégorie racine), le champ {@code catParentName} est {@code null}.</p>
+//     *
+//     * @param category l'entité catégorie à convertir (ne doit pas être {@code null})
+//     * @return un {@link CategoryResponseDTO} contenant l'id, le nom et le nom du parent
+//     *         (ou {@code null} si la catégorie est une racine)
+//     */
+//    @Override
+//    public CategoryResponseDTO toResponseDTO(Category category) {
+//
+//        // Résolution conditionnelle du nom du parent
+//        // null si la catégorie est une racine (pas de parent)
+//        String catParentName = null;
+//        if (category.getCatParent() != null) {
+//            catParentName = category.getCatParent().getCatName();
+//        }
+//
+//        // Mapping vers le DTO allégé : id, nom, nom du parent uniquement
+//        return new CategoryResponseDTO(
+//                category.getCatId(),
+//                category.getCatName(),
+//                catParentName
+//        );
+//    }
 }

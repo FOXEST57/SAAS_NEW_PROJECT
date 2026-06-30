@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface IArticleSupplierService {
 
-    ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier);
-
-    ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier);
+//    ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier);
+//
+//    ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier);
 
     public static class ArticleSupplierNotFoundException extends Exception {}
 

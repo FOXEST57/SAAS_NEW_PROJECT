@@ -26,9 +26,9 @@ import java.util.Optional;
  */
 public interface IArticleService {
 
-    ArticleDTO toDTO(Article article);
-
-    ArticleResponseSupplierDTO toResponseDTO(Article article);
+//    ArticleDTO toDTO(Article article);
+//
+//    ArticleResponseSupplierDTO toResponseDTO(Article article);
 
     /**
      * Exception levée lorsqu'un article recherché par son identifiant
@@ -58,19 +58,19 @@ public interface IArticleService {
      */
     Optional<ArticleDTO> findById(Long id);
 
-    /**
-     * Récupère la liste des articles associés à un fournisseur spécifique.
-     *
-     * <p>Si le fournisseur identifié par {@code id} n'existe pas en base,
-     * une {@link ISupplierService.SupplierNotFoundException} est levée
-     * avant tout accès aux articles.</p>
-     *
-     * @param id l'identifiant unique du fournisseur dont on veut les articles
-     * @return une {@link List} de {@link ArticleDTO} associés à ce fournisseur
-     *         (vide si le fournisseur n'a aucun article)
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
-     */
-    List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException;
+//    /**
+//     * Récupère la liste des articles associés à un fournisseur spécifique.
+//     *
+//     * <p>Si le fournisseur identifié par {@code id} n'existe pas en base,
+//     * une {@link ISupplierService.SupplierNotFoundException} est levée
+//     * avant tout accès aux articles.</p>
+//     *
+//     * @param id l'identifiant unique du fournisseur dont on veut les articles
+//     * @return une {@link List} de {@link ArticleDTO} associés à ce fournisseur
+//     *         (vide si le fournisseur n'a aucun article)
+//     * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
+//     */
+//    List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException;
 
     /**
      * Crée un nouvel article en base de données à partir d'un DTO de requête.

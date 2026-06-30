@@ -103,7 +103,7 @@ public class Article {
      * La colonne de jointure en base est {@code supplier_id}.
      */
     @OneToMany(mappedBy = "article")
-    protected List<ArticleSupplier> suppliers = new ArrayList<>() ;
+    protected List<ArticleSupplier> suppliers;
 
     /**
      * Catégorie de classement de l'article.

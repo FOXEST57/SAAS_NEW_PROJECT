@@ -2,10 +2,10 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.ArticleSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IArticleSupplierService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.mapper.ArticleSupplierMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.ArticleSupplier;
 import com.mns.cda.saas_facturation.model.Supplier;
@@ -27,22 +27,24 @@ public class ArticleSupplierService implements IArticleSupplierService {
     protected final SupplierRepository supplierRepository;
     protected final ArticleRepository articleRepository;
 
-    protected final SupplierService supplierService;
-    protected final ArticleService articleService;
+    private final ArticleSupplierMapper articleSupplierMapper;
+
+//    protected final SupplierService supplierService;
+//    protected final ArticleService articleService;
 
     //GetAll
     @Override
     public List<ArticleSupplierDTO> findAll() {
         return articleSupplierRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(articleSupplierMapper::toDTO)
                 .toList(); }
 
     //Get By Id
     @Override
     public Optional<ArticleSupplierDTO> findById(ArticleSupplier.ArticleSupplierId id) {
         return articleSupplierRepository.findById(id)
-                .map(this::toDTO);
+                .map(articleSupplierMapper::toDTO);
     }
 
 
@@ -66,7 +68,7 @@ public class ArticleSupplierService implements IArticleSupplierService {
                 dto.artSplStock()
         );
 
-        return toDTO(articleSupplierRepository.save(artSpl));
+        return articleSupplierMapper.toDTO(articleSupplierRepository.save(artSpl));
     }
 
 
@@ -93,7 +95,7 @@ public class ArticleSupplierService implements IArticleSupplierService {
         artSpl.setArtSplStock(dto.artSplStock());
 
         ArticleSupplier saved = articleSupplierRepository.save(artSpl);
-        return toDTO(saved);
+        return articleSupplierMapper.toDTO(saved);
     }
 
     @Override
@@ -101,24 +103,24 @@ public class ArticleSupplierService implements IArticleSupplierService {
         articleSupplierRepository.deleteById(id);
     }
 
-    @Override
-    public ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier) {
-        return new ArticleSupplierDTO(
-                articleSupplier.getArtSplId(),
-                articleService.toResponseDTO(articleSupplier.getArticle()),
-                supplierService.toResponseDTO(articleSupplier.getSupplier()),
-                articleSupplier.getArtSplReference(),
-                articleSupplier.getArtSplStock()
-        );
-    }
-
-    @Override
-    public ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier) {
-        return new ArticleSupplierResponseDTO(
-                articleSupplier.getArtSplId(),
-                supplierService.toResponseDTO(articleSupplier.getSupplier()),
-                articleSupplier.getArtSplReference(),
-                articleSupplier.getArtSplStock()
-        );
-    }
+//    @Override
+//    public ArticleSupplierDTO toDTO(ArticleSupplier articleSupplier) {
+//        return new ArticleSupplierDTO(
+//                articleSupplier.getArtSplId(),
+//                articleService.toResponseDTO(articleSupplier.getArticle()),
+//                supplierService.toResponseDTO(articleSupplier.getSupplier()),
+//                articleSupplier.getArtSplReference(),
+//                articleSupplier.getArtSplStock()
+//        );
+//    }
+//
+//    @Override
+//    public ArticleSupplierResponseDTO toResponseDTO(ArticleSupplier articleSupplier) {
+//        return new ArticleSupplierResponseDTO(
+//                articleSupplier.getArtSplId(),
+//                supplierService.toResponseDTO(articleSupplier.getSupplier()),
+//                articleSupplier.getArtSplReference(),
+//                articleSupplier.getArtSplStock()
+//        );
+//    }
 }

@@ -3,18 +3,15 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
 import com.mns.cda.saas_facturation.model.*;
 import com.mns.cda.saas_facturation.repository.*;
 import lombok.RequiredArgsConstructor;
+import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +27,7 @@ import java.util.Optional;
  *       avant toute création ou modification d'article</li>
  *   <li>construire les entités {@link Article} à partir des DTOs reçus en entrée</li>
  *   <li>calculer le prix TTC dynamiquement lors du mapping vers {@link ArticleDTO}</li>
- *   <li>convertir les entités JPA en DTOs via {@link #toDTO(Article)}
+ *   <li>convertir les entités JPA en DTOs via
  *       avant de les retourner au contrôleur</li>
  * </ul>
  *
@@ -53,16 +50,13 @@ public class ArticleService implements IArticleService {
     private final CategoryRepository categoryRepository;
     private final ArticleSupplierRepository articleSupplierRepository;
 
-    // Services délégués pour le mapping vers leurs DTOs respectifs
-    private final ICategoryService categoryService;
-    private final ITvaService tvaService;
-    private final IArticleSupplierService articleSupplierService;
+    private final ArticleMapper articleMapper;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
      *
      * <p>Chaque entité {@link Article} est convertie en {@link ArticleDTO}
-     * via {@link #toDTO(Article)}, ce qui inclut le calcul du prix TTC.</p>
+     * via , ce qui inclut le calcul du prix TTC.</p>
      *
      * <p><b>Note :</b> à envisager si le volume d'articles devient important,
      * l'usage de {@code Pageable} (page, size) pour limiter les données retournées.</p>
@@ -73,7 +67,7 @@ public class ArticleService implements IArticleService {
     public List<ArticleDTO> findAll() {
         return articleRepository.findAll()  // Récupère toutes les lignes de la table Article
                 .stream()                   // Transforme la liste en flux pour le traitement
-                .map(this::toDTO)           // Convertit chaque entité Article en ArticleDTO
+                .map(articleMapper::toDTO)           // Convertit chaque entité Article en ArticleDTO
                 .toList();                  // Collecte le résultat dans une liste immuable
     }
 
@@ -89,37 +83,37 @@ public class ArticleService implements IArticleService {
     @Override
     public Optional<ArticleDTO> findById(Long id) {
         return articleRepository.findById(id) // Recherche par clé primaire — retourne un Optional
-                .map(this::toDTO);            // Si présent, convertit l'entité en DTO avant retour
+                .map(articleMapper::toDTO);            // Si présent, convertit l'entité en DTO avant retour
     }
 
-    /**
-     * Récupère la liste des articles associés à un fournisseur spécifique.
-     *
-     * <p>L'existence du fournisseur est vérifiée avant toute requête sur les articles.
-     * Si le fournisseur est introuvable, une {@link ISupplierService.SupplierNotFoundException}
-     * est levée immédiatement.</p>
-     *
-     * @param id l'identifiant unique du fournisseur dont on veut récupérer les articles
-     * @return une {@link List} de {@link ArticleDTO} associés à ce fournisseur
-     *         (vide si le fournisseur n'a aucun article)
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
-     */
-    @Override
-    public List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException {
-
-        Optional<Supplier> supplier = supplierRepository.findById(id);
-
-        // Vérification préalable : inutile d'interroger les articles si le fournisseur est inexistant
-        if (supplier.isEmpty()) {
-            throw new ISupplierService.SupplierNotFoundException();
-        }
-
-        // findBySupplierSplId est une méthode dérivée Spring Data : SELECT * FROM article WHERE spl_id = ?
-        return articleRepository.findBySupplierSplId(id)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-    }
+//    /**
+//     * Récupère la liste des articles associés à un fournisseur spécifique.
+//     *
+//     * <p>L'existence du fournisseur est vérifiée avant toute requête sur les articles.
+//     * Si le fournisseur est introuvable, une {@link ISupplierService.SupplierNotFoundException}
+//     * est levée immédiatement.</p>
+//     *
+//     * @param id l'identifiant unique du fournisseur dont on veut récupérer les articles
+//     * @return une {@link List} de {@link ArticleDTO} associés à ce fournisseur
+//     *         (vide si le fournisseur n'a aucun article)
+//     * @throws ISupplierService.SupplierNotFoundException si le fournisseur n'existe pas en base
+//     */
+//    @Override
+//    public List<ArticleResponseSupplierDTO> findBySupplier(Long id) throws ISupplierService.SupplierNotFoundException {
+//
+//        Optional<Supplier> supplier = supplierRepository.findById(id);
+//
+//        // Vérification préalable : inutile d'interroger les articles si le fournisseur est inexistant
+//        if (supplier.isEmpty()) {
+//            throw new ISupplierService.SupplierNotFoundException();
+//        }
+//
+//        // findBySupplierSplId est une méthode dérivée Spring Data : SELECT * FROM article WHERE spl_id = ?
+//        return articleRepository.findBySupplierSplId(id)
+//                .stream()
+//                .map(this::toResponseDTO)
+//                .toList();
+//    }
 
     /**
      * Crée un nouvel article en base de données à partir des données fournies dans le DTO.
@@ -130,7 +124,7 @@ public class ArticleService implements IArticleService {
      *   <li>Vérification de l'existence de la catégorie associée (optionnelle)</li>
      *   <li>Récupération optionnelle du fournisseur si un {@code supplierId} est fourni</li>
      *   <li>Construction et persistance de l'entité {@link Article}</li>
-     *   <li>Mapping de l'entité sauvegardée vers un {@link ArticleDTO} via {@link #toDTO(Article)}</li>
+     *   <li>Mapping de l'entité sauvegardée vers un {@link ArticleDTO} via </li>
      * </ol>
      *
      * @param dto les données de l'article à créer
@@ -193,7 +187,7 @@ public class ArticleService implements IArticleService {
 
 
         // save() persiste l'entité et retourne la version avec l'id généré par la base
-        return toDTO(articleRepository.save(article));
+        return articleMapper.toDTO(articleRepository.save(article));
     }
 
     /**
@@ -264,7 +258,7 @@ public class ArticleService implements IArticleService {
 
         // Persistance des modifications puis conversion en DTO pour la réponse HTTP
         Article saved = articleRepository.save(article);
-        return toDTO(saved);
+        return articleMapper.toDTO(saved);
     }
 
     /**
@@ -284,58 +278,58 @@ public class ArticleService implements IArticleService {
      * @return un {@link ArticleDTO} contenant toutes les informations de l'article,
      *         le prix TTC calculé et le fournisseur mappé en {@link SupplierResponseDTO}
      */
-    @Override
-    public ArticleDTO toDTO(Article article) {
-
-        // Calcul du prix TTC : prixHT × (1 + tauxTVA)
-        // BigDecimal est utilisé à la place de double pour éviter les erreurs d'arrondi monétaires
-        BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
-                .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
-
-//        // Mapping conditionnel du fournisseur : null si l'article n'a pas de fournisseur associé
-//        SupplierResponseDTO supplierResponse = article.getSupplier() != null
-//                ? supplierService.toResponseDTO(article.getSupplier())
+//    @Override
+//    public ArticleDTO toDTO(Article article) {
+//
+//        // Calcul du prix TTC : prixHT × (1 + tauxTVA)
+//        // BigDecimal est utilisé à la place de double pour éviter les erreurs d'arrondi monétaires
+//        BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
+//                .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
+//
+////        // Mapping conditionnel du fournisseur : null si l'article n'a pas de fournisseur associé
+////        SupplierResponseDTO supplierResponse = article.getSupplier() != null
+////                ? supplierService.toResponseDTO(article.getSupplier())
+////                : null;
+//
+//        // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
+//        CategoryResponseDTO categoryResponse = article.getCategory() != null
+//                ? categoryService.toResponseDTO(article.getCategory())
 //                : null;
-
-        // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
-        CategoryResponseDTO categoryResponse = article.getCategory() != null
-                ? categoryService.toResponseDTO(article.getCategory())
-                : null;
-
-        List<ArticleSupplierResponseDTO> suppliersLinks = article.getSuppliers() != null
-                ? article.getSuppliers()
-                .stream()
-                .map(articleSupplierService::toResponseDTO)
-                .toList()
-                :List.of();
-
-        // Construction du DTO de réponse avec toutes les données calculées et mappées
-        return new ArticleDTO(
-                article.getArtId(),
-                article.getArtReference(),
-                article.getArtName(),
-                article.getArtDescription(),
-                article.getArtPriceExcludeTaxes(), // Prix HT
-                article.getArtStock(),
-                tvaService.toResponseDto(article.getTva()),
-                priceTTC,                          // Prix TTC calculé dynamiquement
-                categoryResponse,
-                suppliersLinks
-        );
-    }
-
-    @Override
-    public ArticleResponseSupplierDTO toResponseDTO(Article article) {
-
-        return new ArticleResponseSupplierDTO(
-                article.getArtId(),
-                article.getArtReference(),
-                article.getArtName(),
-                article.getArtDescription(),
-                article.getArtPriceExcludeTaxes(),
-                article.getArtStock(),
-                tvaService.toResponseDto(article.getTva()),
-                categoryService.toResponseDTO(article.getCategory())
-        );
-    }
+//
+//        List<ArticleSupplierResponseDTO> suppliersLinks = article.getSuppliers() != null
+//                ? article.getSuppliers()
+//                .stream()
+//                .map(articleSupplierService::toResponseDTO)
+//                .toList()
+//                :List.of();
+//
+//        // Construction du DTO de réponse avec toutes les données calculées et mappées
+//        return new ArticleDTO(
+//                article.getArtId(),
+//                article.getArtReference(),
+//                article.getArtName(),
+//                article.getArtDescription(),
+//                article.getArtPriceExcludeTaxes(), // Prix HT
+//                article.getArtStock(),
+//                tvaService.toResponseDto(article.getTva()),
+//                priceTTC,                          // Prix TTC calculé dynamiquement
+//                categoryResponse,
+//                suppliersLinks
+//        );
+//    }
+//
+//    @Override
+//    public ArticleResponseSupplierDTO toResponseDTO(Article article) {
+//
+//        return new ArticleResponseSupplierDTO(
+//                article.getArtId(),
+//                article.getArtReference(),
+//                article.getArtName(),
+//                article.getArtDescription(),
+//                article.getArtPriceExcludeTaxes(),
+//                article.getArtStock(),
+//                tvaService.toResponseDto(article.getTva()),
+//                categoryService.toResponseDTO(article.getCategory())
+//        );
+//    }
 }

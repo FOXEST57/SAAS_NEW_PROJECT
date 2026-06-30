@@ -27,9 +27,9 @@ import java.util.Optional;
  */
 public interface ICategoryService {
 
-    CategoryDTO toDTO(Category category);
-
-    CategoryResponseDTO toResponseDTO(Category category);
+//    CategoryDTO toDTO(Category category);
+//
+//    CategoryResponseDTO toResponseDTO(Category category);
 
     /**
      * Exception levée lorsqu'une catégorie recherchée par son identifiant

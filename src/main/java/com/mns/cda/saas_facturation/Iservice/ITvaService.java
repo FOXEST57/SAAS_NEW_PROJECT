@@ -31,7 +31,7 @@ import java.util.Optional;
  */
 public interface ITvaService {
 
-    TvaResponseDTO toResponseDto(Tva tva);
+//    TvaResponseDTO toResponseDto(Tva tva);
 
     /**
      * Exception levée lorsqu'un taux de TVA recherché par son identifiant

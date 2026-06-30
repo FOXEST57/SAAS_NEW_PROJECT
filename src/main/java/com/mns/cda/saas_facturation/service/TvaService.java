@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
+import com.mns.cda.saas_facturation.mapper.responseMapper.TvaResponseMapper;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,8 @@ public class TvaService implements ITvaService {
 
     // Repository Spring Data JPA : gère tous les accès base de données pour l'entité Tva
     protected final TvaRepository tvaRepository;
+
+    protected final TvaResponseMapper tvaResponseMapper;
 
     /**
      * Récupère la liste complète de tous les taux de TVA en base de données.
@@ -176,13 +179,13 @@ public class TvaService implements ITvaService {
      * @param tva l'entité TVA à convertir (ne doit pas être {@code null})
      * @return un {@link TvaResponseDTO} contenant l'id, le libellé et le taux de la TVA
      */
-    @Override
-    public TvaResponseDTO toResponseDto(Tva tva) {
-        // Mapping simple champ par champ — pas de calcul ni de relation à résoudre
-        return new TvaResponseDTO(
-                tva.getTvaId(),
-                tva.getTvaName(),
-                tva.getTvaTaux()
-        );
-    }
+//    @Override
+//    public TvaResponseDTO toResponseDto(Tva tva) {
+//        // Mapping simple champ par champ — pas de calcul ni de relation à résoudre
+//        return new TvaResponseDTO(
+//                tva.getTvaId(),
+//                tva.getTvaName(),
+//                tva.getTvaTaux()
+//        );
+//    }
 }

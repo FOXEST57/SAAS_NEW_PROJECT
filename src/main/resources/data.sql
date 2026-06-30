@@ -29,10 +29,19 @@ VALUES
     ('Logitech France', 'contact@logitech.fr', '+33102030405', '15 Rue du Commerce, Nantes');
 
 -- 4. Table ARTICLE (référence TVA et SUPPLIER, doit donc être insérée en dernier)
-INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id, supplier_id, category_id)
+INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id, category_id)
 VALUES
-    ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1, 1, 1),
-    ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, 2, 1, 1),
-    ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, 1, 2, 1),
-    ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3, 3, 1),
-    ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2, 3,1);
+    ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1, 1),
+    ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, 1, 1),
+    ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, 1, 1),
+    ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3, 1),
+    ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2,1);
+
+-- 5. Table ARTICLE_SUPPLIER (article, supplier, art_spl_reference, art_spl_stock)
+INSERT INTO article_supplier (article_id, supplier_id, art_spl_reference, art_spl_stock)
+VALUES
+        (1, 1, 'TC-USB-64', 120),
+        (1, 2, 'OP-USB-64', 80),
+        (2, 3, 'FP-CHAIR-ERG', 40),
+        (3, 1, 'TC-SCREEN-27', 25),
+        (4, 2, 'OP-PAPER-A4', 400);
