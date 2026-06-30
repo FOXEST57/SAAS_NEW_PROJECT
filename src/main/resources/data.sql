@@ -46,7 +46,7 @@ VALUES
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2, 3);
 
 -- 6. Table ARTICLE_SUPPLIER (clé composite article_id + supplier_id)
-INSERT INTO article_supplier (article_id, supplier_id, art_spl_reference, art_spl_stock)
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_stock)
 VALUES
     (1, 1, 'TC-USB-64', 120),
     (1, 2, 'OP-USB-64', 80),

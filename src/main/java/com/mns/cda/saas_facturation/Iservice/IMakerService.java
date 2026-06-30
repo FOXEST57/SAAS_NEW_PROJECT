@@ -19,9 +19,5 @@ public interface IMakerService {
 
     MakerDTO modify(Long id, MakerRequestDTO dto) throws MakerNotFoundException;
 
-    MakerDTO toDto(Maker maker);
-
-    MakerResponseDTO toResponseDTO(Maker maker);
-
     public static class MakerNotFoundException extends Exception {}
 }

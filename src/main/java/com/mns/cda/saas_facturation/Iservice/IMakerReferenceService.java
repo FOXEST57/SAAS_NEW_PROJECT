@@ -27,5 +27,4 @@ public interface IMakerReferenceService {
 
     void delete(Long artId, Long mkrId) throws MakerReferenceNotFoundException;
 
-    MakerReferenceResponseDTO toResponseDto(MakerReference makerReference);
 }

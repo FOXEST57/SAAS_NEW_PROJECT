@@ -2,12 +2,11 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
+import com.mns.cda.saas_facturation.mapper.responseMapper.MakerReferenceResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Maker;
 import com.mns.cda.saas_facturation.model.MakerReference;
@@ -26,12 +25,13 @@ public class MakerReferenceService implements IMakerReferenceService {
     private final MakerReferenceRepository makerReferenceRepository;
     private final ArticleRepository articleRepository;
     private final MakerRepository makerRepository;
+    private final MakerReferenceResponseMapper makerReferenceResponseMapper;
 
     @Override
     public List<MakerReferenceResponseDTO> findAll() {
         return makerReferenceRepository.findAll()
                 .stream()
-                .map(this::toResponseDto)
+                .map(makerReferenceResponseMapper::toResponseDto)
                 .toList();
     }
 
@@ -39,7 +39,7 @@ public class MakerReferenceService implements IMakerReferenceService {
     public List<MakerReferenceResponseDTO> findAllByArticle(Long artId)  {
         return makerReferenceRepository.findByMkrRefId_ArticleId(artId)
                 .stream()
-                .map(this::toResponseDto)
+                .map(makerReferenceResponseMapper::toResponseDto)
                 .toList();
     }
 
@@ -47,14 +47,14 @@ public class MakerReferenceService implements IMakerReferenceService {
     public List<MakerReferenceResponseDTO> findAllByMaker(Long mkrId)  {
         return makerReferenceRepository.findByMkrRefId_MakerId(mkrId)
                 .stream()
-                .map(this::toResponseDto)
+                .map(makerReferenceResponseMapper::toResponseDto)
                 .toList();
     }
 
     @Override
     public MakerReferenceResponseDTO findById(Long artId, Long mkrId) throws IMakerReferenceService.MakerReferenceNotFoundException {
 
-        return toResponseDto(makerReferenceRepository.findById(
+        return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.findById(
                 new MakerReference.MakerReferenceId(artId,mkrId)
         ).orElseThrow(IMakerReferenceService.MakerReferenceNotFoundException::new));
     }
@@ -76,7 +76,7 @@ public class MakerReferenceService implements IMakerReferenceService {
                 dto.mkrRefReference()
         );
 
-        return toResponseDto(makerReferenceRepository.save(makerReference));
+        return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.save(makerReference));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class MakerReferenceService implements IMakerReferenceService {
 
        makerReference.setMkrRefReference(dto.mkrRefReference());
 
-       return toResponseDto(makerReferenceRepository.save(makerReference));
+       return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.save(makerReference));
 
     }
 
@@ -98,25 +98,5 @@ public class MakerReferenceService implements IMakerReferenceService {
                 makerReferenceRepository.findById(
                         new MakerReference.MakerReferenceId(artId, mkrId)
                 ).orElseThrow(MakerReferenceNotFoundException::new));
-    }
-
-    @Override
-    public MakerReferenceResponseDTO toResponseDto(MakerReference makerReference) {
-
-        ArticleResponseMakerReferenceDTO articleResponseMakerReferenceDTO = new ArticleResponseMakerReferenceDTO(
-                makerReference.getArticle().getArtId(),
-                makerReference.getArticle().getArtName()
-        );
-
-        MakerResponseDTO makerResponseDTO = new MakerResponseDTO(
-                makerReference.getMaker().getMkrId(),
-                makerReference.getMaker().getMkrName()
-        );
-
-        return new MakerReferenceResponseDTO(
-                articleResponseMakerReferenceDTO,
-                makerResponseDTO,
-                makerReference.getMkrRefReference()
-        );
     }
 }
