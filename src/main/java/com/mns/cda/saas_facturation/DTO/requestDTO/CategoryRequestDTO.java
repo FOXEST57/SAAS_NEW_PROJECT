@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record CategoryRequestDTO(
         @NotBlank String catName,
+        @NotBlank String catSlug,
         @Column(unique = true) Long parentId
 ) {
 }

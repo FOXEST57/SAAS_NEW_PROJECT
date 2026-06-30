@@ -28,6 +28,7 @@ import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 public record CategoryResponseDTO(
         Long catId,
         String catName,
+        String catSlug,
         String catParentName
 ) {
 }

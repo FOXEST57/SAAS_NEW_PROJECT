@@ -17,6 +17,7 @@ public class CategoryMapper {
         return new CategoryDTO(
                 category.getCatId(),
                 category.getCatName(),
+                category.getCatSlug(),
                 // Le parent est représenté par son nom uniquement — évite la récursion vers le haut
                 category.getCatParent() != null ? category.getCatParent().getCatName() : null,
                 // Les enfants sont récursivement convertis en DTO — liste vide si null

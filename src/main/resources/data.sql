@@ -8,17 +8,17 @@ VALUES
     ('taux super-réduit', 0.021);
 
 -- 2. Table CATEGORY (référencée par ARTICLE.category_id)
-INSERT INTO category (cat_name, cat_parent_id)
+INSERT INTO category (cat_name,cat_slug, cat_parent_id)
 VALUES
-    ('High-Tech', NULL),
-    ('Mobilier', NULL),
-    ('Accessoire informatique',1),
-    ('Moniteur', 1),
-    ('Mode', NULL),
-    ('Beauté & Santé', NULL),
-    ('Jeux & Jouets', NULL),
-    ('Bricolage', NULL),
-    ('Auto & Moto', NULL);
+    ('High-Tech','high-tech', NULL),
+    ('Mobilier','mobilier', NULL),
+    ('Accessoire informatique','accessoire-informatique',1),
+    ('Moniteur','moniteur', 1),
+    ('Mode','mode', NULL),
+    ('Beauté & Santé','beaute-sante', NULL),
+    ('Jeux & Jouets','jeux-jouets', NULL),
+    ('Bricolage','bricolage', NULL),
+    ('Auto & Moto','auto-moto', NULL);
 
 -- 3. Table SUPPLIER (référencée par ARTICLE.supplier_id)
 INSERT INTO supplier (spl_name, spl_email, spl_phone, spl_address)
@@ -37,8 +37,8 @@ VALUES
     ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3, 1),
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2,1);
 
--- 5. Table ARTICLE_SUPPLIER (article, supplier, art_spl_reference, art_spl_stock)
-INSERT INTO article_supplier (article_id, supplier_id, art_spl_reference, art_spl_stock)
+-- 5. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_stock)
 VALUES
         (1, 1, 'TC-USB-64', 120),
         (1, 2, 'OP-USB-64', 80),

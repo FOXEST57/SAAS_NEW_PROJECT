@@ -52,6 +52,10 @@ public class Category {
     @Column(unique = true)
     protected String catName;
 
+
+    @NotBlank
+    protected String catSlug;
+
     /**
      * Catégorie parente de cette catégorie.
      * Relation {@code @ManyToOne} auto-référentielle optionnelle :
