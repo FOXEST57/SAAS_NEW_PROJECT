@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/Maker")
-@Tag(name = "Fabricant", description = "Routes de gestion des fabricants")
+@Tag(name = "Maker", description = "Routes de gestion des fabricants")
 @CrossOrigin
 public class MakerController {
 
