@@ -92,8 +92,12 @@ public class CategoryService implements ICategoryService {
 
         // Vérification et récupération de la catégorie parente — obligatoire
         // orElseThrow lève CategoryNotFoundException si l'splId est inconnu
-        Category categoryParent = categoryRepository.findById(dto.parentId())
-                .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+        Category categoryParent = null;
+        if (dto.parentId() != null) {
+            categoryParent = categoryRepository.findById(dto.parentId())
+                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+        }
+
 
         // Construction de la nouvelle entité Category à partir du DTO
         // L'splId n'est pas défini : il sera généré automatiquement par la base via @GeneratedValue
