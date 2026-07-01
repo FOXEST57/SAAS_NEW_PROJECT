@@ -104,8 +104,6 @@ VALUES
     (3, 4),
     (4, 3),
     (5, 3);
-    (4, 3, 'MKR-CASQ-004'),
-    (5, 4, 'MKR-HUB-005');
 
 -- 13. Table ADDRESS (référence POSTAL_CODE_CITY)
 INSERT INTO address (add_number, add_street, add_complement, pcode_id, city_id)
