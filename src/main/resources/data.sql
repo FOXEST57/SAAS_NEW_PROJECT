@@ -32,7 +32,7 @@ VALUES
     (5,5),
     (6,1);
 
--- 4. Table TVA (référencée par ARTICLE.tva_id)
+-- 5. Table TVA (référencée par ARTICLE.tva_id)
 INSERT INTO tva (tva_name, tva_taux)
 VALUES
     ('taux normal', 0.2),
@@ -41,7 +41,7 @@ VALUES
     ('taux réduit', 0.055),
     ('taux super-réduit', 0.021);
 
--- 2. Table CATEGORY (référencée par ARTICLE.category_id)
+-- 6. Table CATEGORY (référencée par ARTICLE.category_id)
 INSERT INTO category (cat_name,cat_slug, cat_parent_id)
 VALUES
     ('High-Tech','high-tech', NULL),
@@ -54,7 +54,7 @@ VALUES
     ('Bricolage','bricolage', NULL),
     ('Auto & Moto','auto-moto', NULL);
 
--- 6. Table SUPPLIER (référencée par ARTICLE.supplier_id)
+-- 7. Table SUPPLIER (référencée par ARTICLE.supplier_id)
 INSERT INTO supplier (spl_name, spl_email, spl_phone, spl_address)
 VALUES
     ('HP France', 'contact@hp.fr', '+33102030402', '12 Avenue de la République, Lyon'),
@@ -62,7 +62,7 @@ VALUES
     ('Asus France', 'contact@asus.fr', '+33102030404', '8 Boulevard Victor Hugo, Strasbourg'),
     ('Logitech France', 'contact@logitech.fr', '+33102030405', '15 Rue du Commerce, Nantes');
 
--- 4. Table MAKER (référencée par MAKER_REFERENCE.maker_id)
+-- 8. Table MAKER (référencée par MAKER_REFERENCE.maker_id)
 INSERT INTO maker (mkr_name)
 VALUES
     ('Fabricant 1'),
@@ -70,7 +70,7 @@ VALUES
     ('Fabricant 3'),
     ('Fabricant 4');
 
--- 5. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
+-- 9. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
 INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id)
 VALUES
     ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1),
@@ -79,7 +79,7 @@ VALUES
     ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3),
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2);
 
--- 5. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
+-- 10. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
 INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_stock)
 VALUES
     (1, 1, 'TC-USB-64', 120),
@@ -88,7 +88,7 @@ VALUES
     (3, 1, 'TC-SCREEN-27', 25),
     (4, 2, 'OP-PAPER-A4', 400);
 
--- 7. Table MAKER_REFERENCE (clé composite article_id + maker_id)
+-- 11. Table MAKER_REFERENCE (clé composite article_id + maker_id)
 INSERT INTO maker_reference (article_id, maker_id, mkr_ref_reference)
 VALUES
     (1, 1, 'MKR-CLAV-001'),

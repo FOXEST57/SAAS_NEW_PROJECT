@@ -9,17 +9,18 @@ import java.util.Optional;
 
 public interface ICustomerService {
 
-    CustomerDTO toDTO(Customer customer);
-
     public static class CustomerNotFoundException extends Exception {};
 
     List<CustomerDTO> findAll();
 
     Optional<CustomerDTO> findById(Long ctmId);
 
-    CustomerDTO create(CustomerRequestDTO customer) throws ICityService.CityNotFoundException;
+    CustomerDTO create(CustomerRequestDTO customer) throws IAddressService.AddressNotFoundException;
 
-    CustomerDTO update(Long ctmId, CustomerRequestDTO customer) throws CustomerNotFoundException, ICityService.CityNotFoundException;
+    CustomerDTO update(Long ctmId, CustomerRequestDTO customer) throws CustomerNotFoundException, IAddressService.AddressNotFoundException;
 
     void delete(Long ctmId) throws CustomerNotFoundException;
+
+    CustomerDTO toDTO(Customer customer);
+
 }

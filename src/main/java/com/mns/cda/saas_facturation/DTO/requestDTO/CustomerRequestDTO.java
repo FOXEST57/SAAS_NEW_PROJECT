@@ -9,7 +9,6 @@ public record CustomerRequestDTO(
         @NotBlank String ctmLastName,
         @NotBlank @Email String ctmEmail,
         @NotBlank @ValidPhoneNumber String ctmPhone,
-        @NotBlank String ctmAddress,
-        @NotBlank Long cityId
+        @NotBlank Long addId
 ) {
 }

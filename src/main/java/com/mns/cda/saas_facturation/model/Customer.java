@@ -39,17 +39,14 @@ public class Customer {
     @ValidPhoneNumber
     protected String ctmPhone;
 
+    @ManyToOne
     @NotBlank
-    protected String ctmAddress;
+    protected Address address;
 
     @CreatedDate
     protected LocalDateTime ctmCreationDate;
 
     @LastModifiedDate
     protected LocalDateTime ctmModificationDate;
-
-    @ManyToOne
-    @NotBlank
-    protected City city;
 
 }

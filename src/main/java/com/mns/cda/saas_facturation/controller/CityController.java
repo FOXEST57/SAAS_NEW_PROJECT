@@ -63,7 +63,7 @@ public class CityController {
      * <p>Les villes sont retournées sous forme de {@link CityDTO} afin de ne pas
      * exposer directement les entités JPA au client.</p>
      *
-     * @return une {@link ResponseEntity} contenant la {@link List<CityDTO>} correspondant avec le statut 200 OK si trouvé
+     * @return la {@link List<CityDTO>} correspondant avec le statut 200 OK si trouvé
      */
     @GetMapping("/list")
     @Operation(
@@ -71,7 +71,7 @@ public class CityController {
             description = "Cette route permet de récupérer la liste de toutes les villes dans la base de données."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Liste des articles récupérée avec succès.")
+            @ApiResponse(responseCode = "200", description = "Liste des villes récupérée avec succès.")
     })
     public List<CityDTO> getCities() {
         return cityService.findAll();
@@ -96,7 +96,7 @@ public class CityController {
             description = "Cette route permet de récupérer une ville spécifique par son ID dans la base de données."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Ville récupéré avec succès."),
+            @ApiResponse(responseCode = "200", description = "Ville récupérée avec succès."),
             @ApiResponse(responseCode = "404", description = "Ville non trouvée.")
     })
     public ResponseEntity<CityDTO> getCityById(@PathVariable Long cityId) {

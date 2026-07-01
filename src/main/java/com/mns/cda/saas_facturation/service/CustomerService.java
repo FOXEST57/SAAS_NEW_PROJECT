@@ -2,11 +2,11 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.ICityService;
+import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
-import com.mns.cda.saas_facturation.model.City;
+import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.Customer;
-import com.mns.cda.saas_facturation.repository.CityRepository;
+import com.mns.cda.saas_facturation.repository.AddressRepository;
 import com.mns.cda.saas_facturation.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,8 @@ import java.util.Optional;
 public class CustomerService implements ICustomerService {
 
     private final CustomerRepository customerRepository;
-    private final CityRepository cityRepository;
-    private final CityService cityService;
+    private final AddressRepository addressRepository;
+    private final AddressService addressService;
 
     @Override
     public List<CustomerDTO> findAll() {
@@ -38,36 +38,29 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public CustomerDTO create(CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
+    public CustomerDTO create(CustomerRequestDTO dto) throws IAddressService.AddressNotFoundException {
+        Address address = addressRepository.findById(dto.addId()).orElseThrow(IAddressService.AddressNotFoundException::new);
 
-        Customer customer = new Customer(
-                null,
-                dto.ctmFirstName(),
-                dto.ctmLastName(),
-                dto.ctmEmail(),
-                dto.ctmPhone(),
-                dto.ctmAddress(),
-                null,
-                null,
-                city
-        );
+        Customer customer = new Customer();
+        customer.setCtmFirstName(dto.ctmFirstName());
+        customer.setCtmLastName(dto.ctmLastName());
+        customer.setCtmEmail(dto.ctmEmail());
+        customer.setCtmPhone(dto.ctmPhone());
+        customer.setAddress(address);
 
         return toDTO(customerRepository.save(customer));
     }
 
     @Override
-    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws CustomerNotFoundException, ICityService.CityNotFoundException {
+    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws CustomerNotFoundException, IAddressService.AddressNotFoundException {
         Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
+        Address address = addressRepository.findById(dto.addId()).orElseThrow(IAddressService.AddressNotFoundException::new);
 
         customer.setCtmFirstName(dto.ctmFirstName());
         customer.setCtmLastName(dto.ctmLastName());
         customer.setCtmEmail(dto.ctmEmail());
         customer.setCtmPhone(dto.ctmPhone());
-        customer.setCtmAddress(dto.ctmAddress());
-        customer.setCtmModificationDate(LocalDateTime.now());
-        customer.setCity(city);
+        customer.setAddress(address);
 
         return toDTO(customerRepository.save(customer));
     }
@@ -86,8 +79,7 @@ public class CustomerService implements ICustomerService {
                 customer.getCtmLastName(),
                 customer.getCtmEmail(),
                 customer.getCtmPhone(),
-                customer.getCtmAddress(),
-                cityService.toDTO(customer.getCity())
+                addressService.toDTO(customer.getAddress())
         );
     }
 

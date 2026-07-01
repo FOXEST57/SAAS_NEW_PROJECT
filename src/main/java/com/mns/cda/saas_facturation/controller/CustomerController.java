@@ -36,7 +36,7 @@ import java.util.Optional;
  * qui les transforme en réponse 400 structurée.</p>
  *
  * <p>Les exceptions métier ({@link ICustomerService.CustomerNotFoundException} et
- * {@link ICityService.CityNotFoundException})
+ * {@link IAddressService.AddressNotFoundException})
  * sont propagées vers la couche de gestion globale des erreurs.</p>
  *
  * @see ICustomerService
@@ -63,7 +63,7 @@ public class CustomerController {
      * <p>Les clients sont retournés sous forme de {@link CustomerDTO} afin de ne pas
      * exposer directement les entités JPA au client.</p>
      *
-     * @return une {@link ResponseEntity} de {@link List} de {@link CustomerDTO} (vide si aucun client n'existe),
+     * @return la {@link List} de {@link CustomerDTO} (vide si aucun client n'existe),
      *         avec le statut HTTP 200 OK
      */
     @GetMapping("/list")
@@ -118,14 +118,14 @@ public class CustomerController {
      * {@code GlobalExceptionInterceptor} intercepte l'exception et retourne un 400
      * avec le détail des champs invalides.</p>
      *
-     * <p>Le service peut lever des exceptions la ville référencée dans le DTO
+     * <p>Le service peut lever des exceptions si l'adresse référencée dans le DTO
      * n'existe pas en base de données.</p>
      *
      * @param dto les données du client à créer, désérialisées depuis le corps JSON
      *            de la requête et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link CustomerDTO} du client créé
      *         (avec son ID généré) et le statut HTTP 201 Created
-     * @throws ICityService.CityNotFoundException si la ville référencée n'existe pas
+     * @throws IAddressService.AddressNotFoundException si l'adresse référencée n'existe pas
      */
     @PostMapping
     @Operation(
@@ -136,7 +136,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Client créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) throws ICityService.CityNotFoundException {
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) throws IAddressService.AddressNotFoundException {
         CustomerDTO customerCreated = customerService.create(dto);
 
         return new ResponseEntity<>(customerCreated, HttpStatus.CREATED);
@@ -149,15 +149,15 @@ public class CustomerController {
      * tous les champs du client sont écrasés par les valeurs fournies dans le DTO.</p>
      *
      * <p>Le DTO est validé par Bean Validation avant traitement. Les exceptions métier
-     * sont propagées si le client ou la ville référencée sont introuvables.</p>
+     * sont propagées si le client ou l'adresse référencée sont introuvables.</p>
      *
      * @param ctmId  l'identifiant unique du client à modifier, extrait de l'URL
      * @param dto les nouvelles données du client, désérialisées depuis le corps JSON
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link CustomerDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws ICustomerService.CustomerNotFoundException   si le client ciblé n'existe pas en base
-     * @throws ICityService.CityNotFoundException           si la ville référencée n'existe pas
+     * @throws ICustomerService.CustomerNotFoundException si le client ciblé n'existe pas en base
+     * @throws IAddressService.AddressNotFoundException   si l'adresse référencée n'existe pas
      */
     @PutMapping("/{ctmId}")
     @Operation(
@@ -167,7 +167,7 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Client modifié avec succès.")
     })
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) throws ICustomerService.CustomerNotFoundException, ICityService.CityNotFoundException {
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) throws ICustomerService.CustomerNotFoundException, IAddressService.AddressNotFoundException {
             CustomerDTO customerUpdated = customerService.update(ctmId, dto);
 
             return new ResponseEntity<>(customerUpdated, HttpStatus.OK);

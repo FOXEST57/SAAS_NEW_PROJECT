@@ -5,7 +5,6 @@ public record CustomerDTO(
         String ctmLastName,
         String ctmEmail,
         String ctmPhone,
-        String ctmAddress,
-        CityDTO city
+        AddressDTO address
 ) {
 }
