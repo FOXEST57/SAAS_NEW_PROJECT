@@ -1,6 +1,5 @@
 package com.mns.cda.saas_facturation.service;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
@@ -94,7 +93,7 @@ public class MakerReferenceService implements IMakerReferenceService {
                new MakerReference.MakerReferenceId(artId,mkrId)
        ).orElseThrow(MakerReferenceNotFoundException::new);
 
-       makerReference.setMkrRefReference(dto.mkrRefReference());
+       makerReference.setMkrRefReference(dto.reference());
 
        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
 

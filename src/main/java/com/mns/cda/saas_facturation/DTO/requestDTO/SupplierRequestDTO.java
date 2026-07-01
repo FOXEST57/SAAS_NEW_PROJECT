@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.DTO.requestDTO;
 
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -30,7 +31,7 @@ import jakarta.validation.constraints.NotBlank;
  * @see com.mns.cda.saas_facturation.Iservice.ISupplierService
  */
 public record SupplierRequestDTO(
-        @NotBlank String name,
+        @NotBlank @Column(unique = true) String name,
         @NotBlank @Email String email,
         @NotBlank @ValidPhoneNumber String phoneNumber,
         @NotBlank String address

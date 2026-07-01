@@ -55,6 +55,7 @@ public class SupplierReference {
     protected Supplier supplier;
 
     @NotBlank
+    @Column(unique = true)
     protected String SplRefReference;
 
     @NotNull

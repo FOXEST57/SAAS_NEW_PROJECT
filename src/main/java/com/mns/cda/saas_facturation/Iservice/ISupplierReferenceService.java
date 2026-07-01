@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.model.SupplierReference;
 
 import java.util.List;
@@ -28,10 +29,10 @@ public interface ISupplierReferenceService {
             throws IArticleService.ArticleNotFoundException,
             ISupplierService.SupplierNotFoundException;
 
-    SupplierReferenceDTO update(SupplierReference.SupplierReferenceId id, SupplierReferenceRequestDTO dto)
-            throws SupplierReferenceNotFoundException,
-            IArticleService.ArticleNotFoundException,
-            ISupplierService.SupplierNotFoundException;
+    //PUT
+    SupplierReferenceDTO update(Long artId, Long mkrId, UpdateSupplierReferenceDTO dto)
+            throws SupplierReferenceNotFoundException;
 
-    void deleteById(SupplierReference.SupplierReferenceId id);
+    void deleteById (SupplierReference.SupplierReferenceId id);
 }
+

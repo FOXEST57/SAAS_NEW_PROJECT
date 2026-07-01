@@ -1,12 +1,10 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.MakerReferenceForArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.*;
 
 import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.CategoryResponseMapper;
@@ -29,6 +27,7 @@ public class ArticleMapper {
     private final TvaResponseMapper tvaResponseMapper;
     private final SupplierReferenceResponseMapper supplierReferenceMapper;
     private final ArticleRepository articleRepository;
+    private final MakerReferenceMapper makerReferenceMapper;
 
     public ArticleDTO toDTO(Article article) {
 
@@ -52,6 +51,11 @@ public class ArticleMapper {
                 .toList()
                 :List.of();
 
+        List<MakerReferenceForArticleDTO> makerLinks = article.getMakerReferences()
+                .stream()
+                .map(makerReferenceMapper::referenceToDto)
+                .toList();
+
         // Construction du DTO de réponse avec toutes les données calculées et mappées
         return new ArticleDTO(
                 article.getArtId(),
@@ -65,7 +69,8 @@ public class ArticleMapper {
                 article.getArtCreateDate(),
                 article.getArtUpdateDate(),// Prix TTC calculé dynamiquement
                 categoriesResponse,
-                suppliersLinks
+                suppliersLinks,
+                makerLinks
         );
     }
 
