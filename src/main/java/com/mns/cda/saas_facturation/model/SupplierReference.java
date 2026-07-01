@@ -41,7 +41,7 @@ public class SupplierReference {
     }
 
     @EmbeddedId
-    private SupplierReferenceId artSplId;
+    private SupplierReferenceId splRefId;
 
     @ManyToOne
     @MapsId("articleId")

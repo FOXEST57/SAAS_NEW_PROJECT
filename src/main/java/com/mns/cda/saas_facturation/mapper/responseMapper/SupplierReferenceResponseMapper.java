@@ -13,7 +13,7 @@ public class SupplierReferenceResponseMapper {
 
     public SupplierReferenceResponseDTO toResponseDTO(SupplierReference supplierReference) {
         return new SupplierReferenceResponseDTO(
-                supplierReference.getArtSplId(),
+                supplierReference.getSplRefId(),
                 supplierMapper.toResponseDTO(supplierReference.getSupplier()),
                 supplierReference.getSplRefReference(),
                 supplierReference.getSplRefStock()

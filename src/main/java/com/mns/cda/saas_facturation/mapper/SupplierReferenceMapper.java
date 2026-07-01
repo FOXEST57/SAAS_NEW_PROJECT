@@ -17,7 +17,7 @@ public class SupplierReferenceMapper {
 
     public SupplierReferenceDTO toDTO(SupplierReference supplierReference) {
         return new SupplierReferenceDTO(
-                supplierReference.getArtSplId(),
+                supplierReference.getSplRefId(),
                 articleMapper.toResponseDTO(supplierReference.getArticle()),
                 supplierMapper.toResponseDTO(supplierReference.getSupplier()),
                 supplierReference.getSplRefReference(),
