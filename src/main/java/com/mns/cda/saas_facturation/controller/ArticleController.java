@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -176,7 +177,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "204", description = "Article supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "L'article n'existe pas.")
     })
-    public ResponseEntity<ArticleDTO> delete(@PathVariable Long id) {
+    public ResponseEntity<ArticleDTO> delete(@PathVariable Long id) throws IArticleService.ArticleNotFoundException {
 
         Optional<ArticleDTO> optionalArticle = articleService.findById(id);
 

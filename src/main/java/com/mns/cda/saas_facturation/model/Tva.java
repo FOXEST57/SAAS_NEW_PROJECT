@@ -1,9 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -48,6 +45,7 @@ public class Tva {
      * Ne peut pas être vide ou composé uniquement d'espaces blancs.
      */
     @NotBlank
+    @Column(unique = true)
     private String tvaName;
 
     /**
