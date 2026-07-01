@@ -1,12 +1,12 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
-import com.mns.cda.saas_facturation.mapper.responseMapper.MakerReferenceResponseMapper;
+import com.mns.cda.saas_facturation.mapper.MakerReferenceMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Maker;
 import com.mns.cda.saas_facturation.model.MakerReference;
@@ -25,42 +25,42 @@ public class MakerReferenceService implements IMakerReferenceService {
     private final MakerReferenceRepository makerReferenceRepository;
     private final ArticleRepository articleRepository;
     private final MakerRepository makerRepository;
-    private final MakerReferenceResponseMapper makerReferenceResponseMapper;
+    private final MakerReferenceMapper makerReferenceMapper;
 
     @Override
-    public List<MakerReferenceResponseDTO> findAll() {
+    public List<MakerReferenceDTO> findAll() {
         return makerReferenceRepository.findAll()
                 .stream()
-                .map(makerReferenceResponseMapper::toResponseDto)
+                .map(makerReferenceMapper::toDto)
                 .toList();
     }
 
     @Override
-    public List<MakerReferenceResponseDTO> findAllByArticle(Long artId)  {
+    public List<MakerReferenceDTO> findAllByArticle(Long artId)  {
         return makerReferenceRepository.findByMkrRefId_ArticleId(artId)
                 .stream()
-                .map(makerReferenceResponseMapper::toResponseDto)
+                .map(makerReferenceMapper::toDto)
                 .toList();
     }
 
     @Override
-    public List<MakerReferenceResponseDTO> findAllByMaker(Long mkrId)  {
+    public List<MakerReferenceDTO> findAllByMaker(Long mkrId)  {
         return makerReferenceRepository.findByMkrRefId_MakerId(mkrId)
                 .stream()
-                .map(makerReferenceResponseMapper::toResponseDto)
+                .map(makerReferenceMapper::toDto)
                 .toList();
     }
 
     @Override // Utiliser la clé primaire
-    public MakerReferenceResponseDTO findById(Long artId, Long mkrId) throws IMakerReferenceService.MakerReferenceNotFoundException {
+    public MakerReferenceDTO findById(Long artId, Long mkrId) throws IMakerReferenceService.MakerReferenceNotFoundException {
 
-        return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.findById(
+        return makerReferenceMapper.toDto(makerReferenceRepository.findById(
                 new MakerReference.MakerReferenceId(artId,mkrId)
         ).orElseThrow(IMakerReferenceService.MakerReferenceNotFoundException::new));
     }
 
     @Override
-    public MakerReferenceResponseDTO create(MakerReferenceRequestDTO dto) throws IArticleService.ArticleNotFoundException,
+    public MakerReferenceDTO create(MakerReferenceRequestDTO dto) throws IArticleService.ArticleNotFoundException,
             IMakerService.MakerNotFoundException {
         //
 
@@ -77,11 +77,11 @@ public class MakerReferenceService implements IMakerReferenceService {
                 dto.mkrRefReference()
         );
 
-        return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.save(makerReference));
+        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
     }
 
     @Override
-    public MakerReferenceResponseDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws MakerReferenceNotFoundException {
+    public MakerReferenceDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws MakerReferenceNotFoundException {
 
        MakerReference makerReference = makerReferenceRepository.findById(
                new MakerReference.MakerReferenceId(artId,mkrId)
@@ -89,7 +89,7 @@ public class MakerReferenceService implements IMakerReferenceService {
 
        makerReference.setMkrRefReference(dto.mkrRefReference());
 
-       return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.save(makerReference));
+       return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
 
     }
 
