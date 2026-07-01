@@ -75,7 +75,7 @@ public interface IArticleService {
      *
      * @param id l'identifiant unique de l'article à supprimer
      */
-    void delete(Long id);
+    void delete(Long id) throws ArticleNotFoundException;
 
     /**
      * Met à jour intégralement un article existant à partir de son identifiant.
