@@ -44,6 +44,21 @@ public class SupplierReferenceController {
         return new ResponseEntity<>(supplierReference.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/list/{articleId}")
+    public List<SupplierReferenceDTO> findByArticleId(
+            @PathVariable Long articleId
+    ){
+        return supplierReferenceService.findByArticleId(articleId);
+    }
+
+    @GetMapping("/list/{supplierId}")
+    public List<SupplierReferenceDTO> findBySupplierId(
+            @PathVariable Long supplierId
+    ){
+        return supplierReferenceService.findBySupplierId(supplierId);
+    }
+
+
     @PostMapping
     public ResponseEntity<SupplierReferenceDTO> create(
             @Valid @RequestBody SupplierReferenceRequestDTO supplierReference)

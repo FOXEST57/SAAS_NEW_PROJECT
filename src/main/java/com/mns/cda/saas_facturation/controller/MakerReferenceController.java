@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
@@ -56,6 +57,16 @@ public class MakerReferenceController {
         } catch (IMakerReferenceService.MakerReferenceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/list/{artId}")
+    public List<MakerReferenceResponseDTO> findByArticleId(@PathVariable Long artId) {
+        return makerReferenceService.findAllByArticle(artId);
+    }
+
+    @GetMapping("list/{mkrId}")
+    public List<MakerReferenceResponseDTO> findByMkrId(@PathVariable Long mkrId) {
+        return makerReferenceService.findAllByMaker(mkrId);
     }
 
     @PostMapping("")

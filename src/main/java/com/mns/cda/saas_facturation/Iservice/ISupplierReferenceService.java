@@ -16,6 +16,12 @@ public interface ISupplierReferenceService {
 
     Optional<SupplierReferenceDTO> findById(SupplierReference.SupplierReferenceId id);
 
+    //Get By Id Article
+    List<SupplierReferenceDTO> findByArticleId(Long articleId);
+
+    //Get By ID Supplier
+    List<SupplierReferenceDTO> findBySupplierId(Long supplierId);
+
     SupplierReferenceDTO create(SupplierReferenceRequestDTO dto)
             throws IArticleService.ArticleNotFoundException,
             ISupplierService.SupplierNotFoundException;

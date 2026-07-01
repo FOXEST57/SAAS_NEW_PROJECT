@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.mapper.SupplierReferenceMapper;
+import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.SupplierReference;
 import com.mns.cda.saas_facturation.model.Supplier;
@@ -28,6 +29,7 @@ public class SupplierReferenceService implements ISupplierReferenceService {
     protected final ArticleRepository articleRepository;
 
     private final SupplierReferenceMapper supplierReferenceMapper;
+    private final SupplierReferenceResponseMapper supplierReferenceResponseMapper;
 
 
     //GetAll
@@ -38,11 +40,29 @@ public class SupplierReferenceService implements ISupplierReferenceService {
                 .map(supplierReferenceMapper::toDTO)
                 .toList(); }
 
-    //Get By Id
+    //Get By Id composite
     @Override
     public Optional<SupplierReferenceDTO> findById(SupplierReference.SupplierReferenceId id) {
         return supplierReferenceRepository.findById(id)
                 .map(supplierReferenceMapper::toDTO);
+    }
+
+    //Get By Id Article
+    @Override
+    public List<SupplierReferenceDTO> findByArticleId(Long articleId) {
+        return supplierReferenceRepository.findBySplRefId_ArticleId(articleId)
+                .stream()
+                .map(supplierReferenceMapper::toDTO)
+                .toList();
+    }
+
+    //Get By ID Supplier
+    @Override
+    public List<SupplierReferenceDTO> findBySupplierId(Long supplierId) {
+        return supplierReferenceRepository.findBySplRefId_SupplierId(supplierId)
+                .stream()
+                .map(supplierReferenceMapper::toDTO)
+                .toList();
     }
 
 
@@ -93,7 +113,7 @@ public class SupplierReferenceService implements ISupplierReferenceService {
 
 
         SupplierReference.SupplierReferenceId artSplId = new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
-        artSpl.setArtSplId(artSplId);
+        artSpl.setSplRefId(artSplId);
         artSpl.setSplRefReference(dto.splRefReference());
         artSpl.setSplRefStock(dto.splRefStock());
 
