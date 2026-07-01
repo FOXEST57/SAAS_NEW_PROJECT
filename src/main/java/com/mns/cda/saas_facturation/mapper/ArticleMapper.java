@@ -1,6 +1,10 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
+import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 
@@ -8,6 +12,9 @@ import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceRespo
 import com.mns.cda.saas_facturation.mapper.responseMapper.CategoryResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.TvaResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
+import com.mns.cda.saas_facturation.model.MakerReference;
+import com.mns.cda.saas_facturation.model.SupplierReference;
+import com.mns.cda.saas_facturation.repository.ArticleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +28,7 @@ public class ArticleMapper {
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
     private final SupplierReferenceResponseMapper supplierReferenceMapper;
+    private final ArticleRepository articleRepository;
 
     public ArticleDTO toDTO(Article article) {
 
@@ -58,6 +66,47 @@ public class ArticleMapper {
                 article.getArtUpdateDate(),// Prix TTC calculé dynamiquement
                 categoriesResponse,
                 suppliersLinks
+        );
+    }
+
+    public ArticleResponseMakerReferenceDTO MakerReferenceToDTO(MakerReference makerReference) {
+        Article article = makerReference.getArticle();
+
+        List<SupplierReferenceResponseDTO> suppliers = articleRepository.findById(article.getArtId())
+                .map(art -> art.getSuppliers()
+                        .stream()
+                        .map(supplierReferenceMapper::toResponseDTO)
+                        .toList())
+                .orElse(List.of());
+
+        return new ArticleResponseMakerReferenceDTO(
+                article.getArtId(),
+                article.getArtReference(),
+                article.getArtName(),
+                suppliers
+
+        );
+    }
+
+    public ArticleResponseSupplierDTO supplierReferenceToDTO(SupplierReference supplierReference) {
+        Article article = supplierReference.getArticle();
+
+        List<CategoryResponseDTO> categories = article.getCategories() != null
+                ? article.getCategories()
+                .stream()
+                .map(categoryMapper::toResponseDTO)
+                .toList()
+                :List.of();
+
+        return new ArticleResponseSupplierDTO(
+                article.getArtId(),
+                article.getArtReference(),
+                article.getArtName(),
+                article.getArtDescription(),
+                article.getArtPriceExcludeTaxes(),
+                article.getArtStock(),
+                tvaResponseMapper.toResponseDto(article.getTva()),
+                categories
         );
     }
 

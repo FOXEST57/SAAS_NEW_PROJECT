@@ -1,7 +1,9 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
@@ -44,15 +46,15 @@ public class SupplierReferenceController {
         return new ResponseEntity<>(supplierReference.get(), HttpStatus.OK);
     }
 
-    @GetMapping("/list/{articleId}")
-    public List<SupplierReferenceDTO> findByArticleId(
+    @GetMapping("/list-supplier/{articleId}")
+    public List<SupplierDTO> findByArticleId(
             @PathVariable Long articleId
     ){
         return supplierReferenceService.findByArticleId(articleId);
     }
 
-    @GetMapping("/list/{supplierId}")
-    public List<SupplierReferenceDTO> findBySupplierId(
+    @GetMapping("/list-article/{supplierId}")
+    public List<ArticleResponseSupplierDTO> findBySupplierId(
             @PathVariable Long supplierId
     ){
         return supplierReferenceService.findBySupplierId(supplierId);

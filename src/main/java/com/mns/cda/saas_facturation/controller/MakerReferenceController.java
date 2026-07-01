@@ -1,8 +1,11 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
@@ -59,13 +62,13 @@ public class MakerReferenceController {
         }
     }
 
-    @GetMapping("/list/{artId}")
-    public List<MakerReferenceDTO> findByArticleId(@PathVariable Long artId) {
+    @GetMapping("/list-maker/{artId}")
+    public List<MakerDTO> findByArticleId(@PathVariable Long artId) {
         return makerReferenceService.findAllByArticle(artId);
     }
 
-    @GetMapping("list/{mkrId}")
-    public List<MakerReferenceDTO> findByMkrId(@PathVariable Long mkrId) {
+    @GetMapping("list-article/{mkrId}")
+    public List<ArticleResponseMakerReferenceDTO> findByMkrId(@PathVariable Long mkrId) {
         return makerReferenceService.findAllByMaker(mkrId);
     }
 

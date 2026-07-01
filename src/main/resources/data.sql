@@ -61,3 +61,12 @@ VALUES
     (2, 2, 'MKR-SOUR-002'),
     (3, 1, 'MKR-ECR-003'),
     (4, 3, 'MKR-CASQ-004');
+
+--8. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
+INSERT INTO article_category (article_id, category_id)
+VALUES
+    (1, 3),
+    (2, 3),
+    (3, 4),
+    (4, 3),
+    (5, 3);

@@ -1,11 +1,16 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.mapper.ArticleMapper;
+import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.mapper.SupplierReferenceMapper;
+import com.mns.cda.saas_facturation.mapper.responseMapper.ArticleResponseSupplierMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.SupplierReference;
@@ -30,7 +35,8 @@ public class SupplierReferenceService implements ISupplierReferenceService {
     protected final ArticleRepository articleRepository;
 
     private final SupplierReferenceMapper supplierReferenceMapper;
-    private final SupplierReferenceResponseMapper supplierReferenceResponseMapper;
+    private final SupplierMapper supplierMapper;
+    private final ArticleMapper articleMapper;
 
 
     //GetAll
@@ -50,19 +56,19 @@ public class SupplierReferenceService implements ISupplierReferenceService {
 
     //Get By Id Article
     @Override
-    public List<SupplierReferenceDTO> findByArticleId(Long articleId) {
+    public List<SupplierDTO> findByArticleId(Long articleId) {
         return supplierReferenceRepository.findBySplRefId_ArticleId(articleId)
                 .stream()
-                .map(supplierReferenceMapper::toDTO)
+                .map(supplierMapper::ReferenceToDTO)
                 .toList();
     }
 
     //Get By ID Supplier
     @Override
-    public List<SupplierReferenceDTO> findBySupplierId(Long supplierId) {
+    public List<ArticleResponseSupplierDTO> findBySupplierId(Long supplierId) {
         return supplierReferenceRepository.findBySplRefId_SupplierId(supplierId)
                 .stream()
-                .map(supplierReferenceMapper::toDTO)
+                .map(articleMapper::supplierReferenceToDTO)
                 .toList();
     }
 
@@ -79,17 +85,15 @@ public class SupplierReferenceService implements ISupplierReferenceService {
         Article splRefArticle = articleRepository.findById(dto.articleId())
                 .orElseThrow(IArticleService.ArticleNotFoundException::new);
 
-        SupplierReference.SupplierReferenceId splRefId= new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
-
-        SupplierReference artSpl = new SupplierReference(
-                splRefId,
+        SupplierReference splRef = new SupplierReference(
+                new SupplierReference.SupplierReferenceId(),
                 splRefArticle,
                 splRefSupplier,
                 dto.splRefReference(),
                 dto.splRefStock()
         );
 
-        return supplierReferenceMapper.toDTO(supplierReferenceRepository.save(artSpl));
+        return supplierReferenceMapper.toDTO(supplierReferenceRepository.save(splRef));
     }
 
 

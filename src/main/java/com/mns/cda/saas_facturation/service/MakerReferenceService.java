@@ -1,11 +1,16 @@
 package com.mns.cda.saas_facturation.service;
 
+import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
+import com.mns.cda.saas_facturation.mapper.ArticleMapper;
+import com.mns.cda.saas_facturation.mapper.MakerMapper;
 import com.mns.cda.saas_facturation.mapper.MakerReferenceMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Maker;
@@ -26,6 +31,8 @@ public class MakerReferenceService implements IMakerReferenceService {
     private final ArticleRepository articleRepository;
     private final MakerRepository makerRepository;
     private final MakerReferenceMapper makerReferenceMapper;
+    private final MakerMapper makerMapper;
+    private final ArticleMapper articleMapper;
 
     @Override
     public List<MakerReferenceDTO> findAll() {
@@ -36,18 +43,18 @@ public class MakerReferenceService implements IMakerReferenceService {
     }
 
     @Override
-    public List<MakerReferenceDTO> findAllByArticle(Long artId)  {
+    public List<MakerDTO> findAllByArticle(Long artId)  {
         return makerReferenceRepository.findByMkrRefId_ArticleId(artId)
                 .stream()
-                .map(makerReferenceMapper::toDto)
+                .map(makerMapper::ReferenceToDTO)
                 .toList();
     }
 
     @Override
-    public List<MakerReferenceDTO> findAllByMaker(Long mkrId)  {
+    public List<ArticleResponseMakerReferenceDTO> findAllByMaker(Long mkrId)  {
         return makerReferenceRepository.findByMkrRefId_MakerId(mkrId)
                 .stream()
-                .map(makerReferenceMapper::toDto)
+                .map(articleMapper::MakerReferenceToDTO)
                 .toList();
     }
 
