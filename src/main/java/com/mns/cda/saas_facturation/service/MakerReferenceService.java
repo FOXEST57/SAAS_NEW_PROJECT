@@ -51,7 +51,7 @@ public class MakerReferenceService implements IMakerReferenceService {
                 .toList();
     }
 
-    @Override
+    @Override // Utiliser la clé primaire
     public MakerReferenceResponseDTO findById(Long artId, Long mkrId) throws IMakerReferenceService.MakerReferenceNotFoundException {
 
         return makerReferenceResponseMapper.toResponseDto(makerReferenceRepository.findById(
@@ -62,6 +62,7 @@ public class MakerReferenceService implements IMakerReferenceService {
     @Override
     public MakerReferenceResponseDTO create(MakerReferenceRequestDTO dto) throws IArticleService.ArticleNotFoundException,
             IMakerService.MakerNotFoundException {
+        //
 
         Article article = articleRepository.findById(dto.artId())
                 .orElseThrow(IArticleService.ArticleNotFoundException::new);
