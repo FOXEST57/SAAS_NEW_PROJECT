@@ -3,7 +3,6 @@ package com.mns.cda.saas_facturation.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +16,12 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class ArticleSupplier {
+public class SupplierReference {
 
     @Embeddable
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ArticleSupplierId implements Serializable {
+    public static class SupplierReferenceId implements Serializable {
         @Column(name ="article_id")
         Long articleId;
         @Column(name = "supplier_id")
@@ -31,7 +30,7 @@ public class ArticleSupplier {
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
-            ArticleSupplierId that = (ArticleSupplierId) o;
+            SupplierReferenceId that = (SupplierReferenceId) o;
             return Objects.equals(articleId, that.articleId) && Objects.equals(supplierId, that.supplierId);
         }
 
@@ -42,12 +41,13 @@ public class ArticleSupplier {
     }
 
     @EmbeddedId
-    private ArticleSupplierId artSplId;
+    private SupplierReferenceId splRefId;
 
     @ManyToOne
     @MapsId("articleId")
     @JoinColumn(name = "article_id")
     protected Article article;
+
 
     @ManyToOne
     @MapsId("supplierId")
@@ -55,9 +55,9 @@ public class ArticleSupplier {
     protected Supplier supplier;
 
     @NotBlank
-    protected String artSplReference;
+    protected String SplRefReference;
 
     @NotNull
-    protected int artSplStock;
+    protected int SplRefStock;
 
 }

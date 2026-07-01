@@ -1,10 +1,10 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 
-import com.mns.cda.saas_facturation.mapper.responseMapper.ArticleSupplierResponseMapper;
+import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.CategoryResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.TvaResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
@@ -20,7 +20,7 @@ public class ArticleMapper {
 
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
-    private final ArticleSupplierResponseMapper articleSupplierMapper;
+    private final SupplierReferenceResponseMapper supplierReferenceMapper;
 
     public ArticleDTO toDTO(Article article) {
 
@@ -30,15 +30,17 @@ public class ArticleMapper {
                 .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
 
 
-        // Mapping conditionnel de la catégorie : null si l'article n'a pas de catégorie associée
-        CategoryResponseDTO categoryResponse = article.getCategory() != null
-                ? categoryMapper.toResponseDTO(article.getCategory())
-                : null;
+        List<CategoryResponseDTO> categoriesResponse = article.getCategories() != null
+                ? article.getCategories()
+                .stream()
+                .map(categoryMapper::toResponseDTO)
+                .toList()
+                :List.of();
 
-        List<ArticleSupplierResponseDTO> suppliersLinks = article.getSuppliers() != null
+        List<SupplierReferenceResponseDTO> suppliersLinks = article.getSuppliers() != null
                 ? article.getSuppliers()
                 .stream()
-                .map(articleSupplierMapper::toResponseDTO)
+                .map(supplierReferenceMapper::toResponseDTO)
                 .toList()
                 :List.of();
 
@@ -51,8 +53,10 @@ public class ArticleMapper {
                 article.getArtPriceExcludeTaxes(), // Prix HT
                 article.getArtStock(),
                 tvaResponseMapper.toResponseDto(article.getTva()),
-                priceTTC,                          // Prix TTC calculé dynamiquement
-                categoryResponse,
+                priceTTC,
+                article.getArtCreateDate(),
+                article.getArtUpdateDate(),// Prix TTC calculé dynamiquement
+                categoriesResponse,
                 suppliersLinks
         );
     }

@@ -35,12 +35,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 //     *
 //     * <p>Requête SQL équivalente :</p>
 //     * <pre>{@code
-//     * SELECT * FROM article WHERE supplier_id = :id
+//     * SELECT * FROM article WHERE supplier_id = :splId
 //     * }</pre>
 //     *
-//     * @param id l'identifiant unique du fournisseur dont on veut récupérer les articles
+//     * @param splId l'identifiant unique du fournisseur dont on veut récupérer les articles
 //     * @return une {@link List} d'articles associés à ce fournisseur
 //     *         (vide si le fournisseur n'a aucun article)
 //     */
-//    List<Article> findBySupplierSplId(Long id);
+//    List<Article> findBySupplierSplId(Long splId);
 }

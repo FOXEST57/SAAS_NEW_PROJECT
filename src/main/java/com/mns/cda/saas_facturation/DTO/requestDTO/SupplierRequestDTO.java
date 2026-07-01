@@ -21,7 +21,7 @@ import jakarta.validation.constraints.NotBlank;
  * (ex : {@code +33612345678}).</p>
  *
  * @param name        nom du fournisseur — ne doit pas être vide
- * @param email       adresse email du fournisseur — ne doit pas être vide et doit être au format valide
+ * @param email       adresse splEmail du fournisseur — ne doit pas être vide et doit être au format valide
  * @param phoneNumber numéro de téléphone du fournisseur — ne doit pas être vide et doit respecter le format E.164
  * @param address     adresse postale du fournisseur — ne doit pas être vide
  *

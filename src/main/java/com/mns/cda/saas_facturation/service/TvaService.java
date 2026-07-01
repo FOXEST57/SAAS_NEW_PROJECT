@@ -62,7 +62,7 @@ public class TvaService implements ITvaService {
     /**
      * Recherche un taux de TVA par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucune TVA ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucune TVA ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de la TVA à rechercher
@@ -78,23 +78,23 @@ public class TvaService implements ITvaService {
      * Crée un nouveau taux de TVA en base de données à partir des données fournies dans le DTO.
      *
      * <p>L'identifiant est forcé à {@code null} lors de la construction de l'entité
-     * pour garantir que c'est la base de données qui génère l'id via
+     * pour garantir que c'est la base de données qui génère l'splId via
      * la stratégie {@code @GeneratedValue}.</p>
      *
      * @param tva le DTO contenant le libellé et le taux de la TVA à créer
-     * @return la {@link Tva} créée avec son id généré par la base de données
+     * @return la {@link Tva} créée avec son splId généré par la base de données
      */
     @Override
     public Tva create(TvaRequestDTO tva) {
 
-        // Construction de l'entité à partir du DTO — l'id est null pour forcer la génération en base (@GeneratedValue)
+        // Construction de l'entité à partir du DTO — l'splId est null pour forcer la génération en base (@GeneratedValue)
         Tva tvaEntity = new Tva(
                 null,
                 tva.tvaName(),
                 tva.tvaTaux()
         );
 
-        // INSERT INTO tva — retourne l'entité avec son id généré
+        // INSERT INTO tva — retourne l'entité avec son splId généré
         return tvaRepository.save(tvaEntity);
     }
 
@@ -121,12 +121,12 @@ public class TvaService implements ITvaService {
      * @param id      l'identifiant unique de la TVA à modifier
      * @param tvaTaux la nouvelle valeur du taux à appliquer
      * @return la {@link Tva} après mise à jour du taux
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'id fourni
+     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @Override
     public Tva patchTaux(long id, BigDecimal tvaTaux) throws TvaNotFoundException {
 
-        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'id est inconnu
+        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'splId est inconnu
         Tva tvaEntity = tvaRepository.findById(id)
                 .orElseThrow(TvaNotFoundException::new);
 
@@ -149,12 +149,12 @@ public class TvaService implements ITvaService {
      * @param id  l'identifiant unique de la TVA à modifier
      * @param dto le DTO contenant le nouveau libellé et le nouveau taux
      * @return la {@link Tva} après mise à jour complète
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'id fourni
+     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @Override
     public Tva update(long id, TvaRequestDTO dto) throws TvaNotFoundException {
 
-        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'id est inconnu
+        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'splId est inconnu
         Tva tvaEntity = tvaRepository.findById(id)
                 .orElseThrow(TvaNotFoundException::new);
 

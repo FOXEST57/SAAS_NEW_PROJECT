@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * le taux d'une TVA existante.
  *
  * <p>Ce record est utilisé exclusivement dans le cadre d'une mise à jour partielle
- * (sémantique HTTP PATCH sur {@code PATCH /tva/{id}}) : seul le champ {@code tvaTaux}
+ * (sémantique HTTP PATCH sur {@code PATCH /tva/{splId}}) : seul le champ {@code tvaTaux}
  * est transmis, les autres champs de l'entité {@code Tva} restant inchangés.</p>
  *
  * <p>Il se distingue de {@link TvaRequestDTO} qui lui est utilisé pour un remplacement

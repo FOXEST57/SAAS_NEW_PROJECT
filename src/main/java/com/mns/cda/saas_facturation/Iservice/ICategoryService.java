@@ -46,7 +46,7 @@ public interface ICategoryService {
     /**
      * Recherche une catégorie par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucune catégorie ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucune catégorie ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de la catégorie à rechercher
@@ -58,7 +58,7 @@ public interface ICategoryService {
      * Crée une nouvelle catégorie en base de données à partir d'un DTO de requête.
      *
      * @param dto les données de la catégorie à créer
-     * @return la {@link Category} créée avec son id généré
+     * @return la {@link Category} créée avec son splId généré
      */
     CategoryDTO create(CategoryRequestDTO dto) throws CategoryNotFoundException;
 
@@ -81,7 +81,7 @@ public interface ICategoryService {
      * @param id      l'identifiant unique de la catégorie à modifier
      * @param categoryToUpdate le nouveau nom à appliquer à la catégorie
      * @return la {@link Category} après mise à jour
-     * @throws CategoryNotFoundException si aucune catégorie ne correspond à l'id fourni
+     * @throws CategoryNotFoundException si aucune catégorie ne correspond à l'splId fourni
      */
     CategoryDTO update(long id, CategoryRequestDTO categoryToUpdate) throws CategoryNotFoundException;
 }

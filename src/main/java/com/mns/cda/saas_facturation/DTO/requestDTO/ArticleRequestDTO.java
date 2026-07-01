@@ -1,6 +1,5 @@
 package com.mns.cda.saas_facturation.DTO.requestDTO;
 
-import com.mns.cda.saas_facturation.model.ArticleSupplier;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 
@@ -37,6 +36,7 @@ import java.util.List;
  * @see com.mns.cda.saas_facturation.controller.ArticleController
  * @see com.mns.cda.saas_facturation.Iservice.IArticleService
  */
+
 public record ArticleRequestDTO(
         @NotBlank @Column(unique = true) String artReference,
         @NotBlank String artName,
@@ -44,6 +44,6 @@ public record ArticleRequestDTO(
         @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
         @Min(0) int artStock,
         @NotNull @Min(1) Long tvaId,
-        @Positive Long categoryId,
-        List<ArticleSupplierRequestDTO> suppliers
+        List<Long> categoryIds,
+        List<SupplierReferenceRequestDTO> suppliers
 ) {}

@@ -2,9 +2,7 @@ package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
-import com.mns.cda.saas_facturation.model.Article;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +45,7 @@ public interface IArticleService {
     /**
      * Recherche un article par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de l'article à rechercher
@@ -63,7 +61,7 @@ public interface IArticleService {
      * existent bien en base avant de persister l'article.</p>
      *
      * @param dto les données de l'article à créer
-     * @return l'{@link ArticleDTO} de l'article créé, avec son id généré
+     * @return l'{@link ArticleDTO} de l'article créé, avec son splId généré
      * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
      * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
      */

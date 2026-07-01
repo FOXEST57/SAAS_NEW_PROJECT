@@ -71,8 +71,8 @@ public class SupplierController {
     }
 
     /**
-     * Retourne un fournisseur identifié par son id.
-     * GET /supplier/{id}
+     * Retourne un fournisseur identifié par son splId.
+     * GET /supplier/{splId}
      *
      * <p>La {@link ISupplierService.SupplierNotFoundException} est interceptée localement
      * car ce contrôleur ne délègue pas les 404 au {@code GlobalExceptionInterceptor}.</p>
@@ -85,7 +85,7 @@ public class SupplierController {
      *         </ul>
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Récupérer un fournisseur par id")
+    @Operation(summary = "Récupérer un fournisseur par splId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
@@ -100,31 +100,31 @@ public class SupplierController {
 
 //    /**
 //     * Récupère la liste des articles associés à un fournisseur spécifique.
-//     * GET /supplier/{id}/articles
+//     * GET /supplier/{splId}/articles
 //     *
 //     * <p>Cette route permet d'obtenir tous les articles liés à un fournisseur
-//     * identifié par son id. Si le fournisseur n'existe pas, une réponse 404 est retournée.</p>
+//     * identifié par son splId. Si le fournisseur n'existe pas, une réponse 404 est retournée.</p>
 //     *
-//     * @param id l'identifiant du fournisseur dont on veut récupérer les articles
+//     * @param splId l'identifiant du fournisseur dont on veut récupérer les articles
 //     * @return une {@link ResponseEntity} contenant :
 //     *         <ul>
 //     *           <li>200 OK avec la liste des {@link ArticleDTO} si le fournisseur existe</li>
-//     *           <li>404 Not Found si aucun fournisseur ne correspond à cet id</li>
+//     *           <li>404 Not Found si aucun fournisseur ne correspond à cet splId</li>
 //     *         </ul>
 //     */
-//    @GetMapping("/{id}/articles")
-//    @Operation(summary = "Récupérer une liste d'article par id fournisseur")
+//    @GetMapping("/{splId}/articles")
+//    @Operation(summary = "Récupérer une liste d'article par splId fournisseur")
 //    @ApiResponses(value = {
 //            @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
 //            @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
 //    })
-//    public ResponseEntity<List<ArticleResponseSupplierDTO>> findArticleBySupplierId(@PathVariable Long id) {
+//    public ResponseEntity<List<ArticleResponseSupplierDTO>> findArticleBySupplierId(@PathVariable Long splId) {
 //        try {
 //            // Délègue la récupération des articles au service
 //            // Le service vérifie d'abord que le fournisseur existe avant de retourner ses articles
-//            return ResponseEntity.ok(articleService.findBySupplier(id));
+//            return ResponseEntity.ok(articleService.findBySupplier(splId));
 //        } catch (ISupplierService.SupplierNotFoundException e) {
-//            // Levée par le service si aucun fournisseur ne correspond à l'id fourni
+//            // Levée par le service si aucun fournisseur ne correspond à l'splId fourni
 //            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //        }
 //    }
@@ -143,7 +143,7 @@ public class SupplierController {
      * @param dto les données du fournisseur à créer, désérialisées depuis le corps JSON
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant le {@link SupplierDTO} créé
-     *         avec son id généré et le statut HTTP 201 Created
+     *         avec son splId généré et le statut HTTP 201 Created
      */
     @PostMapping("")
     @Operation(summary = "Créer un fournisseur")
@@ -158,8 +158,8 @@ public class SupplierController {
     }
 
     /**
-     * Supprime le fournisseur correspondant à l'id.
-     * DELETE /supplier/{id}
+     * Supprime le fournisseur correspondant à l'splId.
+     * DELETE /supplier/{splId}
      *
      * @param id l'identifiant unique du fournisseur à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec :
@@ -187,7 +187,7 @@ public class SupplierController {
 
     /**
      * Met à jour les informations d'un fournisseur existant.
-     * PUT /supplier/update/{id}
+     * PUT /supplier/modify/{splId}
      *
      * <p>Tous les champs du fournisseur sont remplacés par les valeurs fournies dans le DTO
      * (sémantique HTTP PUT — remplacement complet).</p>
@@ -200,12 +200,12 @@ public class SupplierController {
      * @param dto le DTO contenant les nouvelles valeurs, validé par {@code @Valid}
      * @return une {@link ResponseEntity} contenant le {@link SupplierDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws ISupplierService.SupplierNotFoundException si aucun fournisseur ne correspond à l'id fourni
+     * @throws ISupplierService.SupplierNotFoundException si aucun fournisseur ne correspond à l'splId fourni
      */
     @PutMapping("/modify/{id}")
     @Operation(summary = "Modifier un fournisseur")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Fournisseur modifié"),
+            @ApiResponse(responseCode = "200", description = "Fournisseur modifié"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable"),
             @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant en BDD portant le même nom")
     })

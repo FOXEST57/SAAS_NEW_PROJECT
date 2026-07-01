@@ -1,12 +1,13 @@
 package com.mns.cda.saas_facturation.DTO;
 
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleSupplierResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
 import com.mns.cda.saas_facturation.model.Tva;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -47,6 +48,8 @@ public record ArticleDTO(
         int artStock,
         TvaResponseDTO tva,
         BigDecimal artPriceTTC,
-        CategoryResponseDTO category,
-        List<ArticleSupplierResponseDTO> suppliers) {
+        LocalDateTime  artCreatedDate,
+        LocalDateTime  artUpdatedDate,
+        List<CategoryResponseDTO> categories,
+        List<SupplierReferenceResponseDTO> suppliers) {
 }

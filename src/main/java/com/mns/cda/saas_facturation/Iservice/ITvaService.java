@@ -51,7 +51,7 @@ public interface ITvaService {
     /**
      * Recherche un taux de TVA par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucune TVA ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucune TVA ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de la TVA à rechercher
@@ -63,7 +63,7 @@ public interface ITvaService {
      * Crée un nouveau taux de TVA en base de données à partir d'un DTO de requête.
      *
      * @param tva les données de la TVA à créer
-     * @return la {@link Tva} créée avec son id généré
+     * @return la {@link Tva} créée avec son splId généré
      */
     Tva create(TvaRequestDTO tva);
 
@@ -87,7 +87,7 @@ public interface ITvaService {
      * @param id      l'identifiant unique de la TVA à modifier
      * @param tvaTaux la nouvelle valeur du taux à appliquer
      * @return la {@link Tva} après mise à jour du taux
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'id fourni
+     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     Tva patchTaux(long id, BigDecimal tvaTaux) throws TvaNotFoundException;
 
@@ -101,7 +101,7 @@ public interface ITvaService {
      * @param id  l'identifiant unique de la TVA à modifier
      * @param tva le DTO contenant les nouvelles valeurs
      * @return la {@link Tva} après mise à jour complète
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'id fourni
+     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     Tva update(long id, TvaRequestDTO tva) throws TvaNotFoundException;
 }

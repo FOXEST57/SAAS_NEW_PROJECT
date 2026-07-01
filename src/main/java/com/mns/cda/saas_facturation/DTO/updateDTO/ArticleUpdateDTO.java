@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ArticleUpdateDTO(
         @NotBlank @Column(unique = true) String artReference,
@@ -12,6 +13,6 @@ public record ArticleUpdateDTO(
         @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
         @Min(0) int artStock,
         @NotNull @Min(1) Long tvaId,
-        @Positive Long categoryId
+        List<Long> categoryIds
 ) {
 }

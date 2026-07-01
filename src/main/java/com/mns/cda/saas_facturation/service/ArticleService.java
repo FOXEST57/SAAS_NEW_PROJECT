@@ -2,7 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleSupplierRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
 import com.mns.cda.saas_facturation.model.*;
@@ -47,7 +47,7 @@ public class ArticleService implements IArticleService {
     private final TvaRepository tvaRepository;
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
-    private final ArticleSupplierRepository articleSupplierRepository;
+    private final SupplierReferenceRepository supplierReferenceRepository;
 
     private final ArticleMapper articleMapper;
 
@@ -73,7 +73,7 @@ public class ArticleService implements IArticleService {
     /**
      * Recherche un article par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de l'article à rechercher
@@ -107,57 +107,74 @@ public class ArticleService implements IArticleService {
      */
     @Override
     public ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException,
-            ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
+            ISupplierService.SupplierNotFoundException,
+            ICategoryService.CategoryNotFoundException {
 
-        // La TVA est obligatoire : orElseThrow lève l'exception si l'id est inconnu
+        // La TVA est obligatoire : orElseThrow lève l'exception si l'splId est inconnu
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
-        // La catégorie est optionnelle : on ne la recherche que si un categoryId est fourni
-        Category category = null;
-        if (dto.categoryId() != null) {
-            category = categoryRepository.findById(dto.categoryId())
-                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
-        }
+        // La catégorie est optionnelle : on ne la recherche que si une categoryId est fourni
+//        Category category = null;
+//        if (dto.categoryId() != null) {
+//            category = categoryRepository.findById(dto.categoryId())
+//                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+//        }
 
-        // Construction de l'entité Article : l'id est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
-        Article article = new Article(
-                null,
-                dto.artReference(),
-                dto.artName(),
-                dto.artDescription(),
-                dto.artPriceExcludeTaxes(),
-                dto.artStock(),
-                articleTva,
-                List.of(),
-                category
-        );
+        // Construction de l'entité Article : l'splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
+        Article article = new Article();
+
+                article.setArtReference(dto.artReference());
+                article.setArtName(dto.artName());
+                article.setArtDescription(dto.artDescription());
+                article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
+                article.setArtStock(dto.artStock());
+                article.setTva(articleTva);
+
+
         // Création de l'article tel qu'il est pour créer l'entité et lui associer une ID
         article = articleRepository.save(article);
+
+        if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
+            List<Category> categories = dto.categoryIds()
+                    .stream()
+                    .map(catId -> {
+                        try {
+                            return categoryRepository.findById(catId)
+                                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+                        } catch (ICategoryService.CategoryNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+
+            article.setCategories(categories);
+        }
+
 
         //Vérification si la request contient ou non des relations article_supplier ajouter ou non si elle n'en contient pas on laisse la liste a vide sinon
         // on boucle pour chaque supplier ajouter pour crée la relation article_supplier nécessite donc le stock et la référence produit fournisseur.
         if (dto.suppliers() != null) {
-            for (ArticleSupplierRequestDTO artSpl : dto.suppliers()) {
+            for (SupplierReferenceRequestDTO splRef : dto.suppliers()) {
 
-                Supplier supplier = supplierRepository.findById(artSpl.supplierId())
+                Supplier supplier = supplierRepository.findById(splRef.supplierId())
                         .orElseThrow(ISupplierService.SupplierNotFoundException::new);
 
-                ArticleSupplier link = new ArticleSupplier(
-                        new ArticleSupplier.ArticleSupplierId(article.getArtId(), supplier.getSplId()),
+                SupplierReference link = new SupplierReference(
+                        new SupplierReference.SupplierReferenceId(article.getArtId(), supplier.getSplId()),
                         article,
                         supplier,
-                        artSpl.artSplReference(),
-                        artSpl.artSplStock()
+                        splRef.splRefReference(),
+                        splRef.splRefStock()
 
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer
-                articleSupplierRepository.save(link);
+                supplierReferenceRepository.save(link);
             }
         }
 
 
-        // save() persiste l'entité et retourne la version avec l'id généré par la base
+        // save() persiste l'entité et retourne la version avec l'splId généré par la base
         return articleMapper.toDTO(articleRepository.save(article));
     }
 
@@ -197,11 +214,12 @@ public class ArticleService implements IArticleService {
      * @throws ICategoryService.CategoryNotFoundException si la catégorie référencée n'existe pas en base
      */
     @Override
-    public ArticleDTO update(long id, ArticleUpdateDTO dto) throws ArticleNotFoundException,
+    public ArticleDTO update(long id, ArticleUpdateDTO dto)
+            throws ArticleNotFoundException,
             ITvaService.TvaNotFoundException,
             ICategoryService.CategoryNotFoundException {
 
-        // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son id
+        // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son splId
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
@@ -218,14 +236,22 @@ public class ArticleService implements IArticleService {
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
         article.setTva(tva);
 
-        // La catégorie est optionnelle : on ne met à jour la relation que si un id est fourni
+        // La catégorie est optionnelle : on ne met à jour la relation que si un splId est fourni
         Category category = null;
-        if (dto.categoryId() != null) {
-            category = categoryRepository.findById(dto.categoryId())
-                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
-            article.setCategory(category);
+        if (dto.categoryIds() != null) {
+            List<Category> categories = dto.categoryIds().stream()
+                    .map(catId -> {
+                        try {
+                            return categoryRepository.findById(catId)
+                                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+                        } catch (ICategoryService.CategoryNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+
+            article.setCategories(categories);
         }
-        article.setSuppliers(article.getSuppliers());
 
         // Persistance des modifications puis conversion en DTO pour la réponse HTTP
         Article saved = articleRepository.save(article);

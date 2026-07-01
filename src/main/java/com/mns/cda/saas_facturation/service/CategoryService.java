@@ -64,7 +64,7 @@ public class CategoryService implements ICategoryService {
     /**
      * Recherche une catégorie par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucune catégorie ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucune catégorie ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de la catégorie à rechercher
@@ -79,29 +79,30 @@ public class CategoryService implements ICategoryService {
     /**
      * Crée une nouvelle catégorie en base de données à partir des données fournies dans le DTO.
      *
-     * <p>La catégorie parente est obligatoire : si l'id {@code parentId} fourni dans le DTO
+     * <p>La catégorie parente est obligatoire : si l'splId {@code parentId} fourni dans le DTO
      * ne correspond à aucune catégorie existante, une {@link CategoryNotFoundException}
      * est levée avant toute persistance.</p>
      *
-     * @param dto les données de la catégorie à créer (nom et id de la catégorie parente)
-     * @return le {@link CategoryDTO} de la catégorie créée avec son id généré
+     * @param dto les données de la catégorie à créer (nom et splId de la catégorie parente)
+     * @return le {@link CategoryDTO} de la catégorie créée avec son splId généré
      * @throws CategoryNotFoundException si la catégorie parente référencée n'existe pas en base
      */
     @Override
     public CategoryDTO create(CategoryRequestDTO dto) throws CategoryNotFoundException {
 
         // Vérification et récupération de la catégorie parente — obligatoire
-        // orElseThrow lève CategoryNotFoundException si l'id est inconnu
+        // orElseThrow lève CategoryNotFoundException si l'splId est inconnu
         Category categoryParent = categoryRepository.findById(dto.parentId())
                 .orElseThrow(ICategoryService.CategoryNotFoundException::new);
 
         // Construction de la nouvelle entité Category à partir du DTO
-        // L'id n'est pas défini : il sera généré automatiquement par la base via @GeneratedValue
+        // L'splId n'est pas défini : il sera généré automatiquement par la base via @GeneratedValue
         Category category = new Category();
         category.setCatName(dto.catName());
+        category.setCatSlug(dto.catSlug());
         category.setCatParent(categoryParent); // Association vers la catégorie parente
 
-        // INSERT INTO category — save() retourne l'entité avec son id généré, puis conversion en DTO
+        // INSERT INTO category — save() retourne l'entité avec son splId généré, puis conversion en DTO
         return categoryMapper.toDTO(categoryRepository.save(category));
     }
 
@@ -127,7 +128,7 @@ public class CategoryService implements ICategoryService {
      * une {@link CategoryNotFoundException} est levée.</p>
      *
      * @param id               l'identifiant unique de la catégorie à modifier
-     * @param categoryToUpdate le DTO contenant le nouveau nom et le nouvel id de catégorie parente
+     * @param categoryToUpdate le DTO contenant le nouveau nom et le nouvel splId de catégorie parente
      * @return le {@link CategoryDTO} de la catégorie après mise à jour
      * @throws CategoryNotFoundException si la catégorie ciblée ou la catégorie parente
      *                                   référencée n'existe pas en base
@@ -141,12 +142,13 @@ public class CategoryService implements ICategoryService {
                 .orElseThrow(CategoryNotFoundException::new);
 
         // Vérification et récupération de la nouvelle catégorie parente
-        // lève CategoryNotFoundException si l'id est inconnu
+        // lève CategoryNotFoundException si l'splId est inconnu
         Category categoryParent = categoryRepository.findById(categoryToUpdate.parentId())
                 .orElseThrow(CategoryNotFoundException::new);
 
         // Mise à jour des champs — JPA détecte les changements et génère un UPDATE lors du save()
         category.setCatName(categoryToUpdate.catName());
+        category.setCatSlug(categoryToUpdate.catSlug());
         category.setCatParent(categoryParent);
 
         // UPDATE category SET cat_name = ?, cat_parent_id = ? WHERE cat_id = ?
