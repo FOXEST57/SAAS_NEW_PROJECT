@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.DTO;
 import jakarta.validation.constraints.NotNull;
 
 public record AddressDTO(
-        Integer addNumber,
+        String addNumber,
         String addStreet,
         String addComplement,
         PostalCodeDTO postalCode,

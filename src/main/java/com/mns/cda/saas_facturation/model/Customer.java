@@ -5,6 +5,7 @@ import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,7 +41,8 @@ public class Customer {
     protected String ctmPhone;
 
     @ManyToOne
-    @NotBlank
+    @JoinColumn(name = "add_id")
+    @NotNull
     protected Address address;
 
     @CreatedDate

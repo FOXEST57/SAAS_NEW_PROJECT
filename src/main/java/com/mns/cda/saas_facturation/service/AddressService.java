@@ -4,12 +4,15 @@ import com.mns.cda.saas_facturation.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.AddressRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
+import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.City;
 import com.mns.cda.saas_facturation.model.PostalCode;
+import com.mns.cda.saas_facturation.model.PostalCodeCity;
 import com.mns.cda.saas_facturation.repository.AddressRepository;
 import com.mns.cda.saas_facturation.repository.CityRepository;
+import com.mns.cda.saas_facturation.repository.PostalCodeCityRepository;
 import com.mns.cda.saas_facturation.repository.PostalCodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class AddressService implements IAddressService {
     private final PostalCodeService postalCodeService;
     private final CityRepository cityRepository;
     private final CityService cityService;
+    private final PostalCodeCityRepository postalCodeCityRepository;
 
     @Override
     public List<AddressDTO> findAll() {
@@ -41,9 +45,10 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressDTO create(AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
+    public AddressDTO create(AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
         PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
         City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
 
         Address address = new Address(
                 null,
@@ -58,10 +63,11 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressDTO update(Long addId, AddressRequestDTO dto) throws AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
+    public AddressDTO update(Long addId, AddressRequestDTO dto) throws AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
         Address address = addressRepository.findById(addId).orElseThrow(AddressNotFoundException::new);
         PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
-        City city = cityRepository.findById(dto.pcodeId()).orElseThrow(ICityService.CityNotFoundException::new);
+        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
 
         address.setAddNumber(dto.addNumber());
         address.setAddStreet(dto.addStreet());

@@ -15,9 +15,9 @@ public interface IAddressService {
 
     Optional<AddressDTO> findById(Long addressId);
 
-    AddressDTO create(AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException;
+    AddressDTO create(AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException;
 
-    AddressDTO update(Long addressId, AddressRequestDTO dto) throws AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException;
+    AddressDTO update(Long addressId, AddressRequestDTO dto) throws AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException;
 
     void delete(Long addressId) throws AddressNotFoundException;
 

@@ -96,3 +96,17 @@ VALUES
     (3, 1, 'MKR-ECR-003'),
     (4, 3, 'MKR-CASQ-004'),
     (5, 4, 'MKR-HUB-005');
+
+-- 12. Table ADDRESS (référence POSTAL_CODE_CITY)
+INSERT INTO address (add_number, add_street, add_complement, pcode_id, city_id)
+VALUES
+    ('12', 'rue de la paix', '', '1', '1'),
+    ('6', 'rue des lilas', '', '5', '5'),
+    ('33 bis', 'avenue de Paris', '', '3', '3');
+
+-- 13. Table CUSTOMER (référence ADDRESS)
+INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, ctm_phone, add_id)
+VALUES
+    ('John', 'Doe', 'john.doe@email.com', '+33754156322', 1),
+    ('Jane', 'Doe', 'jane.doe@email.com', '+33758965410', 1),
+    ('Lily', 'Smith', 'lily.smith@email.com', '0654125532', 2);

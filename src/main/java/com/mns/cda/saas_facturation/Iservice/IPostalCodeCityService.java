@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
 import com.mns.cda.saas_facturation.model.PostalCodeCity;
 
@@ -10,14 +11,16 @@ public interface IPostalCodeCityService {
 
     public static class PostalCodeCityNotFoundException extends Exception {}
 
-    List<PostalCodeCity> findAll();
+    List<PostalCodeCityDTO> findAll();
 
-    Optional<PostalCodeCity> findById(PostalCodeCity.PostalCodeCityId id);
+    Optional<PostalCodeCityDTO> findById(PostalCodeCity.PostalCodeCityId id);
 
-    PostalCodeCity create(PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException;
+    PostalCodeCityDTO create(PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException;
 
-    PostalCodeCity update(PostalCodeCity.PostalCodeCityId id, PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException;
+    PostalCodeCityDTO update(PostalCodeCity.PostalCodeCityId id, PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException;
 
     void delete(PostalCodeCity.PostalCodeCityId id) throws PostalCodeCityNotFoundException;
+
+    PostalCodeCityDTO toDTO(PostalCodeCity postalCodeCity);
 
 }

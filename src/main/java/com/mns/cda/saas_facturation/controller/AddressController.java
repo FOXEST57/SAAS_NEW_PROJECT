@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.AddressRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
+import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -137,7 +138,7 @@ public class AddressController {
             @ApiResponse(responseCode = "201", description = "Adresse créée avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<AddressDTO> createAddress(@RequestBody @Valid AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
+    public ResponseEntity<AddressDTO> createAddress(@RequestBody @Valid AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
         AddressDTO addressCreated = addressService.create(dto);
 
         return new ResponseEntity<>(addressCreated, HttpStatus.CREATED);
@@ -170,7 +171,7 @@ public class AddressController {
             @ApiResponse(responseCode = "200", description = "Adresse modifiée avec succès."),
             @ApiResponse(responseCode = "404", description = "L'adresse n'existe pas.")
     })
-    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addId, @RequestBody @Valid AddressRequestDTO dto) throws IAddressService.AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addId, @RequestBody @Valid AddressRequestDTO dto) throws IAddressService.AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
         AddressDTO addressUpdated = addressService.update(addId, dto);
 
         return new ResponseEntity<>(addressUpdated, HttpStatus.OK);

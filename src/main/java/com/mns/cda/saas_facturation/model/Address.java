@@ -18,17 +18,19 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long addId;
 
-    protected Integer addNumber;
+    protected String addNumber;
 
     protected String addStreet;
 
     protected String addComplement;
 
     @ManyToOne
+    @JoinColumn(name = "pcode_id")
     @NotNull
     protected PostalCode postalCode;
 
     @ManyToOne
+    @JoinColumn(name = "city_id")
     @NotNull
     protected City city;
 

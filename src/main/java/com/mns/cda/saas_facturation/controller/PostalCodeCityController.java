@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
@@ -73,7 +74,7 @@ public class PostalCodeCityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des liens entre code postal et ville récupérée avec succès.")
     })
-    public List<PostalCodeCity> getPostalCodeCities() {
+    public List<PostalCodeCityDTO> getPostalCodeCities() {
         return postalCodeCityService.findAll();
     }
 
@@ -100,9 +101,9 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "200", description = "Lien entre code postal et ville récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Lien entre code postal et ville non trouvé.")
     })
-    public ResponseEntity<PostalCodeCity> getPostalCodeCityById(@PathVariable Long pcodeId, @PathVariable Long cityId) {
+    public ResponseEntity<PostalCodeCityDTO> getPostalCodeCityById(@PathVariable Long pcodeId, @PathVariable Long cityId) {
         PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pcodeId, cityId);
-        Optional<PostalCodeCity> optionalPostalCodeCity = postalCodeCityService.findById(id);
+        Optional<PostalCodeCityDTO> optionalPostalCodeCity = postalCodeCityService.findById(id);
 
         if (optionalPostalCodeCity.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -133,8 +134,8 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "201", description = "Lien entre code postal et ville créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<PostalCodeCity> createPostalCodeCity(@RequestBody @Valid PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
-        PostalCodeCity postalCodeCityCreated = postalCodeCityService.create(dto);
+    public ResponseEntity<PostalCodeCityDTO> createPostalCodeCity(@RequestBody @Valid PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
+        PostalCodeCityDTO postalCodeCityCreated = postalCodeCityService.create(dto);
 
         return new ResponseEntity<>(postalCodeCityCreated, HttpStatus.CREATED);
     }
@@ -165,9 +166,9 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "200", description = "Lien entre code postal et ville modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "Le lien entre code postal et ville n'existe pas.")
     })
-    public ResponseEntity<PostalCodeCity> updatePostalCodeCity(@PathVariable Long pcodeId, @PathVariable Long cityId, @RequestBody @Valid PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
+    public ResponseEntity<PostalCodeCityDTO> updatePostalCodeCity(@PathVariable Long pcodeId, @PathVariable Long cityId, @RequestBody @Valid PostalCodeCityRequestDTO dto) throws IPostalCodeCityService.PostalCodeCityNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
         PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pcodeId, cityId);
-        PostalCodeCity postalCodeCityUpdated = postalCodeCityService.update(id, dto);
+        PostalCodeCityDTO postalCodeCityUpdated = postalCodeCityService.update(id, dto);
 
         return new ResponseEntity<>(postalCodeCityUpdated, HttpStatus.OK);
     }
