@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
@@ -90,14 +91,11 @@ public class SupplierReferenceController {
     public ResponseEntity<SupplierReferenceDTO> update(
             @PathVariable Long articleId,
             @PathVariable Long supplierId,
-            @Valid @RequestBody SupplierReferenceRequestDTO dto
-    ) throws ISupplierService.SupplierNotFoundException,
-            IArticleService.ArticleNotFoundException,
-            ISupplierReferenceService.SupplierReferenceNotFoundException {
+            @Valid @RequestBody UpdateSupplierReferenceDTO dto
+    ) throws
+            ISupplierReferenceService.SupplierReferenceNotFoundException, ISupplierService.SupplierNotFoundException, IArticleService.ArticleNotFoundException {
 
-        SupplierReference.SupplierReferenceId artSplId = new SupplierReference.SupplierReferenceId(articleId, supplierId);
-
-        SupplierReferenceDTO updated = supplierReferenceService.update(artSplId, dto);
+        SupplierReferenceDTO updated = supplierReferenceService.update(articleId,supplierId, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 }

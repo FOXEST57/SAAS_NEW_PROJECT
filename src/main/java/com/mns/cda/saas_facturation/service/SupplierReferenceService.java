@@ -4,21 +4,19 @@ import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.mapper.SupplierReferenceMapper;
-import com.mns.cda.saas_facturation.mapper.responseMapper.ArticleResponseSupplierMapper;
-import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.SupplierReference;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.ArticleRepository;
 import com.mns.cda.saas_facturation.repository.SupplierReferenceRepository;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -100,25 +98,13 @@ public class SupplierReferenceService implements ISupplierReferenceService {
 
     //PUT
     @Override
-    public SupplierReferenceDTO update(SupplierReference.SupplierReferenceId id, SupplierReferenceRequestDTO dto)
-            throws SupplierReferenceNotFoundException,
-            ISupplierService.SupplierNotFoundException,
-            IArticleService.ArticleNotFoundException {
+    public SupplierReferenceDTO update(Long artId, Long mkrId, UpdateSupplierReferenceDTO dto)
+            throws SupplierReferenceNotFoundException{
 
-        SupplierReference splRef = supplierReferenceRepository.findById(id)
-                .orElseThrow(SupplierReferenceNotFoundException::new);
+        SupplierReference splRef = supplierReferenceRepository.findById(
+                new SupplierReference.SupplierReferenceId(artId,mkrId)
+        ).orElseThrow(ISupplierReferenceService.SupplierReferenceNotFoundException::new);
 
-        Supplier supplier = supplierRepository.findById(dto.supplierId())
-                .orElseThrow(ISupplierService.SupplierNotFoundException::new);
-        splRef.setSupplier(supplier);
-
-        Article article = articleRepository.findById(dto.articleId())
-                .orElseThrow(IArticleService.ArticleNotFoundException::new);
-        splRef.setArticle(article);
-
-
-        SupplierReference.SupplierReferenceId splRefId = new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
-        splRef.setSplRefId(splRefId);
         splRef.setSplRefReference(dto.splRefReference());
         splRef.setSplRefStock(dto.splRefStock());
 
