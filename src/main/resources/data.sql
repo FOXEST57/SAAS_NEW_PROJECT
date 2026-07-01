@@ -37,13 +37,13 @@ VALUES
     ('Fabricant 4');
 
 -- 5. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
-INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock, tva_id)
+INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock,art_create_date, art_update_date, tva_id)
 VALUES
-    ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25, 1),
-    ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, 1),
-    ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, 1),
-    ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, 3),
-    ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, 2);
+    ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25,current_date, current_date, 1),
+    ('REF-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, 40, current_date, current_date, 1),
+    ('REF-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, 12, current_date, current_date, 1),
+    ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, current_date, current_date, 3),
+    ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, current_date, current_date, 2);
 
 -- 5. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
 INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_stock)
@@ -60,5 +60,4 @@ VALUES
     (1, 1, 'MKR-CLAV-001'),
     (2, 2, 'MKR-SOUR-002'),
     (3, 1, 'MKR-ECR-003'),
-    (4, 3, 'MKR-CASQ-004'),
-    (5, 4, 'MKR-HUB-005');
+    (4, 3, 'MKR-CASQ-004');

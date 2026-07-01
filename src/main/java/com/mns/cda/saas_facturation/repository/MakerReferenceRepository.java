@@ -10,4 +10,6 @@ public interface MakerReferenceRepository extends JpaRepository<MakerReference, 
     List<MakerReference> findByMkrRefId_ArticleId(Long artMkrIdArticleId);
 
     List<MakerReference> findByMkrRefId_MakerId(Long artMkrIdMakerId);
+
+    void deleteByMkrRefId_ArticleId(Long artMkrIdArticleId);
 }

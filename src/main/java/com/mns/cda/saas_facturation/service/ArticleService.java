@@ -7,12 +7,14 @@ import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
 import com.mns.cda.saas_facturation.model.*;
 import com.mns.cda.saas_facturation.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service métier gérant la logique liée aux articles ({@link Article}).
@@ -50,6 +52,7 @@ public class ArticleService implements IArticleService {
     private final SupplierReferenceRepository supplierReferenceRepository;
 
     private final ArticleMapper articleMapper;
+    private final MakerReferenceRepository makerReferenceRepository;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
@@ -106,6 +109,7 @@ public class ArticleService implements IArticleService {
      * @throws ICategoryService.CategoryNotFoundException si la catégorie référencée n'existe pas en base
      */
     @Override
+    @Transactional(rollbackOn = {ITvaService.TvaNotFoundException.class, ISupplierService.SupplierNotFoundException.class, ICategoryService.CategoryNotFoundException.class})
     public ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException,
             ISupplierService.SupplierNotFoundException,
             ICategoryService.CategoryNotFoundException {
@@ -114,12 +118,6 @@ public class ArticleService implements IArticleService {
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
-        // La catégorie est optionnelle : on ne la recherche que si une categoryId est fourni
-//        Category category = null;
-//        if (dto.categoryId() != null) {
-//            category = categoryRepository.findById(dto.categoryId())
-//                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
-//        }
 
         // Construction de l'entité Article : l'splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
         Article article = new Article();
@@ -146,7 +144,7 @@ public class ArticleService implements IArticleService {
                             throw new RuntimeException(e);
                         }
                     })
-                    .toList();
+                    .collect(Collectors.toList());
 
             article.setCategories(categories);
         }
@@ -187,7 +185,17 @@ public class ArticleService implements IArticleService {
      * @param id l'identifiant unique de l'article à supprimer
      */
     @Override
-    public void delete(Long id) {
+    @Transactional(rollbackOn = {ArticleNotFoundException.class})
+    public void delete(Long id) throws ArticleNotFoundException {
+        Article article = articleRepository.findById(id)
+                .orElseThrow(ArticleNotFoundException::new);
+
+        supplierReferenceRepository.deleteBySplRefId_ArticleId(id);
+        makerReferenceRepository.deleteByMkrRefId_ArticleId(id);
+
+        article.getCategories().clear();
+        articleRepository.save(article);
+
         // deleteById génère un DELETE FROM article WHERE art_id = ?
         articleRepository.deleteById(id);
     }
@@ -248,7 +256,7 @@ public class ArticleService implements IArticleService {
                             throw new RuntimeException(e);
                         }
                     })
-                    .toList();
+                    .collect(Collectors.toList());
 
             article.setCategories(categories);
         }

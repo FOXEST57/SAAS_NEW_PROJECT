@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.DTO.requestDTO;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 
@@ -29,6 +30,6 @@ import java.math.BigDecimal;
  * @see com.mns.cda.saas_facturation.Iservice.ITvaService
  */
 public record TvaRequestDTO(
-        @NotBlank String tvaName,
+        @NotBlank @Column(unique = true) String tvaName,
         @DecimalMin(value = "0.0") BigDecimal tvaTaux) {
 }

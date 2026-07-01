@@ -13,6 +13,7 @@ import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.ArticleRepository;
 import com.mns.cda.saas_facturation.repository.SupplierReferenceRepository;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -72,18 +73,18 @@ public class SupplierReferenceService implements ISupplierReferenceService {
             throws IArticleService.ArticleNotFoundException,
             ISupplierService.SupplierNotFoundException {
 
-        Supplier artSplSupplier = supplierRepository.findById(dto.supplierId())
+        Supplier splRefSupplier = supplierRepository.findById(dto.supplierId())
                 .orElseThrow(ISupplierService.SupplierNotFoundException::new);
 
-        Article artSplArticle = articleRepository.findById(dto.articleId())
+        Article splRefArticle = articleRepository.findById(dto.articleId())
                 .orElseThrow(IArticleService.ArticleNotFoundException::new);
 
-        SupplierReference.SupplierReferenceId artSplId= new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
+        SupplierReference.SupplierReferenceId splRefId= new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
 
         SupplierReference artSpl = new SupplierReference(
-                artSplId,
-                artSplArticle,
-                artSplSupplier,
+                splRefId,
+                splRefArticle,
+                splRefSupplier,
                 dto.splRefReference(),
                 dto.splRefStock()
         );
@@ -100,24 +101,24 @@ public class SupplierReferenceService implements ISupplierReferenceService {
             ISupplierService.SupplierNotFoundException,
             IArticleService.ArticleNotFoundException {
 
-        SupplierReference artSpl = supplierReferenceRepository.findById(id)
+        SupplierReference splRef = supplierReferenceRepository.findById(id)
                 .orElseThrow(SupplierReferenceNotFoundException::new);
 
         Supplier supplier = supplierRepository.findById(dto.supplierId())
                 .orElseThrow(ISupplierService.SupplierNotFoundException::new);
-        artSpl.setSupplier(supplier);
+        splRef.setSupplier(supplier);
 
         Article article = articleRepository.findById(dto.articleId())
                 .orElseThrow(IArticleService.ArticleNotFoundException::new);
-        artSpl.setArticle(article);
+        splRef.setArticle(article);
 
 
-        SupplierReference.SupplierReferenceId artSplId = new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
-        artSpl.setSplRefId(artSplId);
-        artSpl.setSplRefReference(dto.splRefReference());
-        artSpl.setSplRefStock(dto.splRefStock());
+        SupplierReference.SupplierReferenceId splRefId = new SupplierReference.SupplierReferenceId(dto.articleId(), dto.supplierId());
+        splRef.setSplRefId(splRefId);
+        splRef.setSplRefReference(dto.splRefReference());
+        splRef.setSplRefStock(dto.splRefStock());
 
-        SupplierReference saved = supplierReferenceRepository.save(artSpl);
+        SupplierReference saved = supplierReferenceRepository.save(splRef);
         return supplierReferenceMapper.toDTO(saved);
     }
 

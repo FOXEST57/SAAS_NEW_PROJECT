@@ -12,4 +12,6 @@ public interface SupplierReferenceRepository extends JpaRepository<SupplierRefer
     List<SupplierReference> findBySplRefId_ArticleId(Long splRefIdArticleId);
 
     List<SupplierReference> findBySplRefId_SupplierId(Long splRefIdSupplierId);
+
+    void deleteBySplRefId_ArticleId(Long splRefIdArticleId);
 }
