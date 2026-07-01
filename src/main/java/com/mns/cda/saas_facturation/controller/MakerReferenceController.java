@@ -37,7 +37,7 @@ public class MakerReferenceController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des références fabricants récupérée avec succès.")
     })
-    public List<MakerReferenceResponseDTO> getAll() {
+    public List<MakerReferenceDTO> getAll() {
         return makerReferenceService.findAll();
     }
 
@@ -50,7 +50,7 @@ public class MakerReferenceController {
             @ApiResponse(responseCode = "200", description = "Liste des références fabricant par article récupérée avec succès."),
             @ApiResponse(responseCode = "404", description = "Association article,fabricant non trouvé.")
     })
-    public ResponseEntity<MakerReferenceResponseDTO> getById(@PathVariable Long artId,
+    public ResponseEntity<MakerReferenceDTO> getById(@PathVariable Long artId,
                                                              @PathVariable Long mkrId) {
         try {
             return new ResponseEntity<>(makerReferenceService.findById(artId, mkrId), HttpStatus.OK);
@@ -60,12 +60,12 @@ public class MakerReferenceController {
     }
 
     @GetMapping("/list/{artId}")
-    public List<MakerReferenceResponseDTO> findByArticleId(@PathVariable Long artId) {
+    public List<MakerReferenceDTO> findByArticleId(@PathVariable Long artId) {
         return makerReferenceService.findAllByArticle(artId);
     }
 
     @GetMapping("list/{mkrId}")
-    public List<MakerReferenceResponseDTO> findByMkrId(@PathVariable Long mkrId) {
+    public List<MakerReferenceDTO> findByMkrId(@PathVariable Long mkrId) {
         return makerReferenceService.findAllByMaker(mkrId);
     }
 
@@ -79,7 +79,7 @@ public class MakerReferenceController {
             @ApiResponse(responseCode = "404", description = "Article ou fabricant non trouvé."),
             @ApiResponse(responseCode = "400", description = "Données invalides (référence vide, stock manquant, identifiants manquants).")
     })
-    public ResponseEntity<MakerReferenceResponseDTO> create(@Valid @RequestBody MakerReferenceRequestDTO dto) {
+    public ResponseEntity<MakerReferenceDTO> create(@Valid @RequestBody MakerReferenceRequestDTO dto) {
         try {
             return new ResponseEntity<>(makerReferenceService.create(dto), HttpStatus.CREATED);
         } catch (IArticleService.ArticleNotFoundException | IMakerService.MakerNotFoundException e) {
@@ -97,7 +97,7 @@ public class MakerReferenceController {
             @ApiResponse(responseCode = "404", description = "Association article/fabricant non trouvée."),
             @ApiResponse(responseCode = "400", description = "Données invalides (référence vide ou stock manquant).")
     })
-    public ResponseEntity<MakerReferenceResponseDTO> update(
+    public ResponseEntity<MakerReferenceDTO> update(
             @PathVariable Long artId,
             @PathVariable Long mkrId,
             @Valid @RequestBody UpdateMakerReferenceDTO dto) {
