@@ -10,18 +10,18 @@ import com.mns.cda.saas_facturation.model.Supplier;
  *
  * <p>Champs exposés :
  * <ul>
- *   <li>{@code id} — identifiant unique du fournisseur en base de données</li>
- *   <li>{@code name} — nom du fournisseur</li>
- *   <li>{@code email} — adresse email du fournisseur</li>
- *   <li>{@code phoneNumber} — numéro de téléphone au format international E.164 (ex: +33612345678)</li>
- *   <li>{@code address} — adresse postale du fournisseur</li>
+ *   <li>{@code splId} — identifiant unique du fournisseur en base de données</li>
+ *   <li>{@code splName} — nom du fournisseur</li>
+ *   <li>{@code splEmail} — adresse splEmail du fournisseur</li>
+ *   <li>{@code splPhone} — numéro de téléphone au format international E.164 (ex: +33612345678)</li>
+ *   <li>{@code splAddress} — adresse postale du fournisseur</li>
  * </ul>
  */
 public record SupplierDTO(
-        Long id,
-        String name,
-        String email,
-        String phoneNumber,
-        String address
+        Long splId,
+        String splName,
+        String splEmail,
+        String splPhone,
+        String splAddress
 ) {
 }

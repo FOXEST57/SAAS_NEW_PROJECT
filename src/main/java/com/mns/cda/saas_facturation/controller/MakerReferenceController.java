@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/MakerReference")
+@RequestMapping("/maker-reference")
 @Tag(name = "Maker Reference", description = "Routes de gestion des références fabricants")
 @CrossOrigin
 public class MakerReferenceController {

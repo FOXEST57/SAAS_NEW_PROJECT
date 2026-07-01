@@ -15,7 +15,7 @@ import java.util.List;
  * qui en dépendent, garantissant le découplage entre les couches controller et service.</p>
  *
  * <p>Contrairement à {@link IArticleService} qui utilise un {@link java.util.Optional}
- * pour les recherches par id, ce service lève directement une {@link SupplierNotFoundException}
+ * pour les recherches par splId, ce service lève directement une {@link SupplierNotFoundException}
  * lorsqu'un fournisseur est introuvable.</p>
  *
  * <p>La gestion des doublons de nom est assurée par la contrainte {@code unique = true}
@@ -52,7 +52,7 @@ public interface ISupplierService {
      *
      * @param id l'identifiant unique du fournisseur à rechercher
      * @return le {@link SupplierDTO} correspondant au fournisseur trouvé
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     SupplierDTO findById(Long id) throws SupplierNotFoundException;
 
@@ -64,7 +64,7 @@ public interface ISupplierService {
      * interceptée par le {@code GlobalExceptionInterceptor} en réponse HTTP 409.</p>
      *
      * @param dto les données du fournisseur à créer
-     * @return le {@link SupplierDTO} du fournisseur créé avec son id généré
+     * @return le {@link SupplierDTO} du fournisseur créé avec son splId généré
      */
     SupplierDTO create(SupplierRequestDTO dto);
 
@@ -74,7 +74,7 @@ public interface ISupplierService {
      * <p>Le service vérifie que le fournisseur existe avant toute tentative de suppression.</p>
      *
      * @param id l'identifiant unique du fournisseur à supprimer
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     void delete(Long id) throws SupplierNotFoundException;
 
@@ -88,7 +88,7 @@ public interface ISupplierService {
      * @param id  l'identifiant unique du fournisseur à modifier
      * @param dto les nouvelles données du fournisseur
      * @return le {@link SupplierDTO} du fournisseur après mise à jour
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException;
 }

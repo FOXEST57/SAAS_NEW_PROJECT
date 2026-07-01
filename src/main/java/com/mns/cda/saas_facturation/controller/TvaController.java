@@ -26,8 +26,8 @@ import java.util.Optional;
  *
  * <p>Ce contrôleur propose deux types de mise à jour :</p>
  * <ul>
- *   <li>{@code PUT /{id}} — remplacement complet de la TVA (tous les champs)</li>
- *   <li>{@code PATCH /{id}} — mise à jour partielle du taux uniquement</li>
+ *   <li>{@code PUT /{splId}} — remplacement complet de la TVA (tous les champs)</li>
+ *   <li>{@code PATCH /{splId}} — mise à jour partielle du taux uniquement</li>
  * </ul>
  *
  * <p>La logique métier est entièrement déléguée à {@link ITvaService}.
@@ -68,7 +68,7 @@ public class TvaController {
 
     /**
      * Récupère un taux de TVA spécifique à partir de son identifiant unique.
-     * GET /tva/{id}
+     * GET /tva/{splId}
      *
      * @param id l'identifiant unique de la TVA à récupérer, extrait de l'URL
      * @return une {@link ResponseEntity} contenant :
@@ -122,7 +122,7 @@ public class TvaController {
 
     /**
      * Supprime un taux de TVA existant à partir de son identifiant unique.
-     * DELETE /tva/{id}
+     * DELETE /tva/{splId}
      *
      * <p>L'existence de la TVA est vérifiée avant toute tentative de suppression.
      * Si elle est introuvable, une réponse 404 est retournée immédiatement.</p>
@@ -155,7 +155,7 @@ public class TvaController {
 
     /**
      * Met à jour intégralement un taux de TVA existant à partir de son identifiant.
-     * PUT /tva/{id}
+     * PUT /tva/{splId}
      *
      * <p>Cette opération correspond à un remplacement complet (sémantique HTTP PUT) :
      * tous les champs de la TVA sont écrasés par les valeurs fournies dans le DTO.</p>
@@ -164,13 +164,13 @@ public class TvaController {
      * @param tva le DTO contenant les nouvelles valeurs, désérialisé depuis le corps JSON
      * @return une {@link ResponseEntity} contenant la {@link Tva} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws ITvaService.TvaNotFoundException si aucune TVA ne correspond à l'id fourni
+     * @throws ITvaService.TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @PutMapping("/{id}")
     @Operation(summary = "Modifie une Tva en base de données.",
             description = "Cette route permet de modifier une Tva en base de données.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Tva modifié avec succès."),
+            @ApiResponse(responseCode = "200", description = "Tva modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "La Tva n'existe pas.")
     })
     public ResponseEntity<Tva> update(
@@ -182,7 +182,7 @@ public class TvaController {
 
     /**
      * Met à jour uniquement le taux d'une TVA existante.
-     * PATCH /tva/{id}
+     * PATCH /tva/{splId}
      *
      * <p>Contrairement au {@code PUT}, cette opération est une mise à jour partielle
      * (sémantique HTTP PATCH) : seul le champ {@code tvaTaux} est modifié,
@@ -195,13 +195,13 @@ public class TvaController {
      * @param tvaTauxDTO le DTO contenant le nouveau taux, désérialisé depuis le corps JSON
      * @return une {@link ResponseEntity} contenant la {@link Tva} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws ITvaService.TvaNotFoundException si aucune TVA ne correspond à l'id fourni
+     * @throws ITvaService.TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @PatchMapping("/{id}")
     @Operation(summary = "Modifie le taux d'une Tva en base de données.",
             description = "Cette route permet de modifier le taux de Tva en base de données.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Tva modifié avec succès."),
+            @ApiResponse(responseCode = "200", description = "Tva modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "La Tva n'existe pas.")
     })
     public ResponseEntity<Tva> patchTaux(

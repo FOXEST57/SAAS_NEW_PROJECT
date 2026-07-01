@@ -23,7 +23,7 @@ public class CategoryResponseMapper {
      * (catégorie racine), le champ {@code catParentName} est {@code null}.</p>
      *
      * @param category l'entité catégorie à convertir (ne doit pas être {@code null})
-     * @return un {@link CategoryResponseDTO} contenant l'id, le nom et le nom du parent
+     * @return un {@link CategoryResponseDTO} contenant l'splId, le nom et le nom du parent
      *         (ou {@code null} si la catégorie est une racine)
      */
 
@@ -36,7 +36,7 @@ public class CategoryResponseMapper {
             catParentName = category.getCatParent().getCatName();
         }
 
-        // Mapping vers le DTO allégé : id, nom, nom du parent uniquement
+        // Mapping vers le DTO allégé : splId, nom, nom du parent uniquement
         return new CategoryResponseDTO(
                 category.getCatId(),
                 category.getCatName(),

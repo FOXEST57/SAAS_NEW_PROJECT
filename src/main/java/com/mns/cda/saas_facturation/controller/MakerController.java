@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/Maker")
+@RequestMapping("/maker")
 @Tag(name = "Maker", description = "Routes de gestion des fabricants")
 @CrossOrigin
 public class MakerController {
@@ -48,8 +48,7 @@ public class MakerController {
     public ResponseEntity<MakerDTO> getMakerById(@PathVariable Long id) throws IMakerService.MakerNotFoundException {
 
         try {
-            makerService.findById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(makerService.findById(id),HttpStatus.OK);
         } catch (IMakerService.MakerNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -101,7 +100,7 @@ public class MakerController {
             @Valid @RequestBody MakerRequestDTO dto) throws IMakerService.MakerNotFoundException {
 
         try {
-            return new ResponseEntity<>(makerService.modify(id, dto),HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(makerService.modify(id, dto),HttpStatus.OK);
         } catch (IMakerService.MakerNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

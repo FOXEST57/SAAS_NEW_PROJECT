@@ -46,7 +46,7 @@ public class GlobalExceptionInterceptor {
      * <p>Exemple de réponse JSON retournée :</p>
      * <pre>{@code
      * {
-     *   "email": "doit être une adresse email valide",
+     *   "splEmail": "doit être une adresse splEmail valide",
      *   "nom": "ne doit pas être vide"
      * }
      * }</pre>
@@ -67,7 +67,7 @@ public class GlobalExceptionInterceptor {
 
         // On itère sur chaque erreur de champ détectée par le moteur de validation
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            // Clé   = nom du champ du DTO (ex : "email", "telephone")
+            // Clé   = nom du champ du DTO (ex : "splEmail", "telephone")
             // Valeur = message défini dans l'annotation de contrainte (ex : "doit être une adresse valide")
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }

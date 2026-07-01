@@ -73,7 +73,7 @@ public class ArticleService implements IArticleService {
     /**
      * Recherche un article par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'id fourni,
+     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de l'article à rechercher
@@ -110,7 +110,7 @@ public class ArticleService implements IArticleService {
             ISupplierService.SupplierNotFoundException,
             ICategoryService.CategoryNotFoundException {
 
-        // La TVA est obligatoire : orElseThrow lève l'exception si l'id est inconnu
+        // La TVA est obligatoire : orElseThrow lève l'exception si l'splId est inconnu
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
 
@@ -121,7 +121,7 @@ public class ArticleService implements IArticleService {
 //                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
 //        }
 
-        // Construction de l'entité Article : l'id est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
+        // Construction de l'entité Article : l'splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
         Article article = new Article();
 
                 article.setArtReference(dto.artReference());
@@ -174,7 +174,7 @@ public class ArticleService implements IArticleService {
         }
 
 
-        // save() persiste l'entité et retourne la version avec l'id généré par la base
+        // save() persiste l'entité et retourne la version avec l'splId généré par la base
         return articleMapper.toDTO(articleRepository.save(article));
     }
 
@@ -219,7 +219,7 @@ public class ArticleService implements IArticleService {
             ITvaService.TvaNotFoundException,
             ICategoryService.CategoryNotFoundException {
 
-        // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son id
+        // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son splId
         Article article = articleRepository.findById(id)
                 .orElseThrow(ArticleNotFoundException::new);
 
@@ -236,7 +236,7 @@ public class ArticleService implements IArticleService {
                 .orElseThrow(ITvaService.TvaNotFoundException::new);
         article.setTva(tva);
 
-        // La catégorie est optionnelle : on ne met à jour la relation que si un id est fourni
+        // La catégorie est optionnelle : on ne met à jour la relation que si un splId est fourni
         Category category = null;
         if (dto.categoryIds() != null) {
             List<Category> categories = dto.categoryIds().stream()

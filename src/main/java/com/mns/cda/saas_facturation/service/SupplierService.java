@@ -60,13 +60,13 @@ public class SupplierService implements ISupplierService {
     /**
      * Recherche un fournisseur par son identifiant unique.
      *
-     * <p>Si aucun fournisseur ne correspond à l'id fourni, une {@link SupplierNotFoundException}
+     * <p>Si aucun fournisseur ne correspond à l'splId fourni, une {@link SupplierNotFoundException}
      * est levée. Elle sera interceptée soit localement dans le contrôleur,
      * soit par le {@code GlobalExceptionInterceptor}.</p>
      *
      * @param id l'identifiant du fournisseur à rechercher
      * @return le {@link SupplierDTO} correspondant au fournisseur trouvé
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     @Override
     public SupplierDTO findById(Long id) throws SupplierNotFoundException {
@@ -78,16 +78,16 @@ public class SupplierService implements ISupplierService {
      * Crée un nouveau fournisseur en base de données à partir d'un DTO de requête.
      *
      * <p>L'identifiant est forcé à {@code null} lors de la construction de l'entité
-     * pour garantir que c'est la base de données qui génère l'id via
+     * pour garantir que c'est la base de données qui génère l'splId via
      * la stratégie {@code @GeneratedValue}, et non le client.</p>
      *
      * @param dto le DTO contenant les données du fournisseur à créer
-     * @return le {@link SupplierDTO} du fournisseur créé, avec son id généré
+     * @return le {@link SupplierDTO} du fournisseur créé, avec son splId généré
      */
     @Override
     public SupplierDTO create(SupplierRequestDTO dto) {
 
-        // Construction de l'entité à partir du DTO — l'id est null pour forcer la génération en base
+        // Construction de l'entité à partir du DTO — l'splId est null pour forcer la génération en base
         Supplier supplier = new Supplier(
                 null,
                 dto.name(),
@@ -104,11 +104,11 @@ public class SupplierService implements ISupplierService {
      * Supprime un fournisseur par son identifiant.
      *
      * <p>L'existence du fournisseur est vérifiée avant toute tentative de suppression.
-     * Si l'id est introuvable, une {@link SupplierNotFoundException} est levée
+     * Si l'splId est introuvable, une {@link SupplierNotFoundException} est levée
      * pour éviter un appel inutile à {@code deleteById}.</p>
      *
      * @param id l'identifiant du fournisseur à supprimer
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet id
+     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     @Override
     public void delete(Long id) throws SupplierNotFoundException {
@@ -124,7 +124,7 @@ public class SupplierService implements ISupplierService {
     /**
      * Met à jour un fournisseur existant avec les nouvelles données fournies.
      *
-     * <p>Le fournisseur est d'abord récupéré en base via son id. Si introuvable,
+     * <p>Le fournisseur est d'abord récupéré en base via son splId. Si introuvable,
      * une {@link SupplierNotFoundException} est levée immédiatement.</p>
      *
      * <p>Les champs de l'entité sont ensuite mis à jour un par un via les setters
@@ -134,7 +134,7 @@ public class SupplierService implements ISupplierService {
      * @param id  l'identifiant du fournisseur à mettre à jour
      * @param dto le DTO contenant les nouvelles valeurs
      * @return le {@link SupplierDTO} du fournisseur après mise à jour
-     * @throws SupplierNotFoundException  si aucun fournisseur ne correspond à cet id
+     * @throws SupplierNotFoundException  si aucun fournisseur ne correspond à cet splId
      */
     @Override
     public SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException {
