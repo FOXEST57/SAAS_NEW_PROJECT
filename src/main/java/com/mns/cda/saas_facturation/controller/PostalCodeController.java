@@ -20,7 +20,7 @@ import java.util.Optional;
  * Contrôleur REST exposant les endpoints de gestion des codes postaux.
  *
  * <p>Ce contrôleur prend en charge les opérations CRUD sur la ressource {@code PostalCode}.
- * Toutes les routes sont préfixées par {@code /postalCode} et retournent des données
+ * Toutes les routes sont préfixées par {@code /postalcode} et retournent des données
  * au format JSON.</p>
  *
  * <p>La logique métier est entièrement déléguée à {@link IPostalCodeService}.
@@ -43,7 +43,7 @@ import java.util.Optional;
  * @see PostalCodeRequestDTO
  */
 @RequiredArgsConstructor
-@RequestMapping("/postalCode")
+@RequestMapping("/postalcode")
 @Tag(name = "PostalCode", description = "Routes de gestion des codes postaux.")
 @RestController
 @CrossOrigin

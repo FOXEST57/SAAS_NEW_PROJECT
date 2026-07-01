@@ -4,6 +4,6 @@ import java.util.List;
 
 public record CityDTO(
         String cityName,
-        List<PostalCodeDTO> postalCodes
+        CountryDTO country
 ) {
 }

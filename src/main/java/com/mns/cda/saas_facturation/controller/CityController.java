@@ -36,7 +36,7 @@ import java.util.Optional;
  * qui les transforme en réponse 400 structurée.</p>
  *
  * <p>Les exceptions métier ({@link ICityService.CityNotFoundException},
- * {@link IPostalCodeService.PostalCodeNotFoundException})
+ * {@link ICountryService.CountryNotFoundException})
  * sont propagées vers la couche de gestion globale des erreurs.</p>
  *
  * @see ICityService
@@ -117,13 +117,13 @@ public class CityController {
      * {@code GlobalExceptionInterceptor} intercepte l'exception et retourne un 400
      * avec le détail des champs invalides.</p>
      *
-     * <p>Le service peut lever des exceptions si le code postal référencé
+     * <p>Le service peut lever des exceptions si le pays référencé
      * dans le DTO n'existe pas en base de données.</p>
      *
      * @param dto les données de la ville à créer, désérialisées depuis le corps JSON
      *            de la requête et validées par {@code @Valid}
      * @return une {@link ResponseEntity} vide avec le statut HTTP 201 Created
-     * @throws IPostalCodeService.PostalCodeNotFoundException si le code postal référencé n'existe pas
+     * @throws ICountryService.CountryNotFoundException si le pays référencé n'existe pas
      */
     @PostMapping()
     @Operation(
@@ -134,7 +134,7 @@ public class CityController {
             @ApiResponse(responseCode = "201", description = "Ville créée avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<CityDTO> createCity(@RequestBody @Valid CityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
+    public ResponseEntity<CityDTO> createCity(@RequestBody @Valid CityRequestDTO dto) throws ICountryService.CountryNotFoundException {
         CityDTO cityCreated = cityService.create(dto);
 
         return new ResponseEntity<>(cityCreated, HttpStatus.CREATED);
@@ -147,7 +147,7 @@ public class CityController {
      * tous les champs de la ville sont écrasés par les valeurs fournies dans le DTO.</p>
      *
      * <p>Le DTO est validé par Bean Validation avant traitement. Les exceptions métier
-     * sont propagées si la ville ou le code postal référencé sont introuvables.</p>
+     * sont propagées si la ville ou le pays référencé sont introuvables.</p>
      *
      * @param cityId  l'identifiant unique de la ville à modifier, extrait de l'URL
      * @param dto les nouvelles données de la ville, désérialisées depuis le corps JSON
@@ -155,7 +155,7 @@ public class CityController {
      * @return une {@link ResponseEntity} contenant la {@link CityDTO} mise à jour
      *         avec le statut HTTP 200 OK
      * @throws ICityService.CityNotFoundException             si la ville ciblée n'existe pas en base
-     * @throws IPostalCodeService.PostalCodeNotFoundException si le code postal référencé n'existe pas
+     * @throws ICountryService.CountryNotFoundException si le pays référencé n'existe pas
      */
     @PutMapping("/{cityId}")
     @Operation(
@@ -166,7 +166,7 @@ public class CityController {
             @ApiResponse(responseCode = "200", description = "Ville modifiée avec succès."),
             @ApiResponse(responseCode = "404", description = "La ville n'existe pas.")
     })
-    public ResponseEntity<CityDTO> updateCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) throws ICityService.CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
+    public ResponseEntity<CityDTO> updateCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) throws ICityService.CityNotFoundException, ICountryService.CountryNotFoundException {
         CityDTO cityUpdated = cityService.update(cityId, dto);
 
         return new ResponseEntity<>(cityUpdated, HttpStatus.OK);

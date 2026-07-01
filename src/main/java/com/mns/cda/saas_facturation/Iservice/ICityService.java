@@ -17,9 +17,9 @@ public interface ICityService {
 
     Optional<CityDTO> findById(Long cityId);
 
-    CityDTO create(CityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException;
+    CityDTO create(CityRequestDTO dto) throws ICountryService.CountryNotFoundException;
 
-    CityDTO update(Long cityId, CityRequestDTO dto) throws CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException;
+    CityDTO update(Long cityId, CityRequestDTO dto) throws CityNotFoundException, ICountryService.CountryNotFoundException;
 
     void delete(Long cityId) throws CityNotFoundException;
 }

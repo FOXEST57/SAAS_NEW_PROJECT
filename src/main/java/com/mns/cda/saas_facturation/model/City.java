@@ -2,12 +2,11 @@ package com.mns.cda.saas_facturation.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -24,8 +23,9 @@ public class City {
     @Column(unique = true)
     protected String cityName;
 
-    @ManyToMany
-    @NotBlank
-    protected List<PostalCode> postalCodes;
+    @ManyToOne
+    @NotNull
+    @JoinColumn(name = "cnt_id")
+    protected Country country;
 
 }

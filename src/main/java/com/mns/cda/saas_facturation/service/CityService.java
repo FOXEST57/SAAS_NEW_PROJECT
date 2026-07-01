@@ -3,11 +3,11 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.CityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.Iservice.ICountryService;
 import com.mns.cda.saas_facturation.model.City;
-import com.mns.cda.saas_facturation.model.PostalCode;
+import com.mns.cda.saas_facturation.model.Country;
 import com.mns.cda.saas_facturation.repository.CityRepository;
-import com.mns.cda.saas_facturation.repository.PostalCodeRepository;
+import com.mns.cda.saas_facturation.repository.CountryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +19,8 @@ import java.util.Optional;
 public class CityService implements ICityService {
 
     private final CityRepository cityRepository;
-    private final PostalCodeRepository postalCodeRepository;
-    private final PostalCodeService postalCodeService;
+    private final CountryRepository countryRepository;
+    private final CountryService countryService;
 
     @Override
     public List<CityDTO> findAll() {
@@ -36,25 +36,25 @@ public class CityService implements ICityService {
     }
 
     @Override
-    public CityDTO create(CityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
-        List<PostalCode> postalCodes = postalCodeRepository.findAllById(dto.postalCodeIds());
+    public CityDTO create(CityRequestDTO dto) throws ICountryService.CountryNotFoundException {
+        Country country = countryRepository.findById(dto.cntId()).orElseThrow(ICountryService.CountryNotFoundException::new);
 
         City city = new City(
                 null,
                 dto.cityName(),
-                postalCodes
+                country
         );
 
         return toDTO(cityRepository.save(city));
     }
 
     @Override
-    public CityDTO update(Long cityId, CityRequestDTO dto) throws CityNotFoundException, IPostalCodeService.PostalCodeNotFoundException {
+    public CityDTO update(Long cityId, CityRequestDTO dto) throws CityNotFoundException, ICountryService.CountryNotFoundException {
         City city = cityRepository.findById(cityId).orElseThrow(CityNotFoundException::new);
-        List<PostalCode> postalCodes = postalCodeRepository.findAllById(dto.postalCodeIds());
+        Country country = countryRepository.findById(dto.cntId()).orElseThrow(ICountryService.CountryNotFoundException::new);
 
         city.setCityName(dto.cityName());
-        city.setPostalCodes(postalCodes);
+        city.setCountry(country);
 
         return toDTO(cityRepository.save(city));
     }
@@ -70,7 +70,7 @@ public class CityService implements ICityService {
     public CityDTO toDTO(City city) {
         return new CityDTO(
             city.getCityName(),
-            city.getPostalCodes().stream().map((postalCode) -> postalCodeService.toDTO(postalCode)).toList()
+            countryService.toDTO(city.getCountry())
         );
     }
 
