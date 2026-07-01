@@ -127,4 +127,7 @@ public class Article {
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     protected List<Category> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article")
+    protected List<MakerReference> makerReferences = new ArrayList<>();
 }
