@@ -87,7 +87,7 @@ public class MakerReferenceService implements IMakerReferenceService {
                new MakerReference.MakerReferenceId(artId,mkrId)
        ).orElseThrow(MakerReferenceNotFoundException::new);
 
-       makerReference.setMkrRefReference(dto.mkrRefReference());
+       makerReference.setMkrRefReference(dto.reference());
 
        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
 
