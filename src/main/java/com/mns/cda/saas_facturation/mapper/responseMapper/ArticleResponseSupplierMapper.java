@@ -14,6 +14,7 @@ public class ArticleResponseSupplierMapper {
 
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
+    private final MakerReferenceResponseMapper makerReferenceResponseMapper;
 
     public ArticleResponseSupplierDTO toResponseDTO(Article article) {
 
@@ -32,7 +33,11 @@ public class ArticleResponseSupplierMapper {
                 article.getArtPriceExcludeTaxes(),
                 article.getArtStock(),
                 tvaResponseMapper.toResponseDto(article.getTva()),
-                categoriesResponse
+                categoriesResponse,
+                article.getMakerReferences()
+                        .stream()
+                        .map(makerReferenceResponseMapper::toResponseDto)
+                        .toList()
         );
     }
 }

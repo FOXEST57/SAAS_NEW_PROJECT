@@ -21,7 +21,7 @@ public class MakerReferenceResponseMapper {
     public MakerReferenceResponseDTO toResponseDto(MakerReference makerReference) {
 
         return new MakerReferenceResponseDTO(
-                articleResponseMakerReferenceMapper.toResponseDto(makerReference.getArticle()),
+                makerReference.getMkrRefId(),
                 makerResponseMapper.toResponseDTO(makerReference.getMaker()),
                 makerReference.getMkrRefReference()
         );

@@ -1,7 +1,9 @@
 package com.mns.cda.saas_facturation.DTO.responseDTO;
 
+import com.mns.cda.saas_facturation.model.MakerReference;
+
 public record MakerReferenceResponseDTO(
-        ArticleResponseMakerReferenceDTO article,
+        MakerReference.MakerReferenceId makerReferenceId,
         MakerResponseDTO maker,
         String reference
 ) {
