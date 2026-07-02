@@ -78,7 +78,7 @@ public class OrderLineService implements IOrderLineService {
         new InsufficientStockException("La quantité en stock de l'article " + article.getArtName() + " n'est pas suffisante pour cette commande");
 
         OrderLine orderLine = new OrderLine(
-                null,
+                new OrderLine.OrderLineId(),
                 article,
                 cart,
                 dto.quantity()
