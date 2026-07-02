@@ -1,8 +1,11 @@
 package com.mns.cda.saas_facturation.DTO;
 
-public record OrderLineDTO(
-        Long id,
-        Integer quantity
+import com.mns.cda.saas_facturation.DTO.responseDTO.CartResponseDTO;
+import com.mns.cda.saas_facturation.model.OrderLine;
 
+public record OrderLineDTO(
+        OrderLine.OrderLineId id,
+        Integer quantity,
+        ArticleLightDTO article
 ) {
 }

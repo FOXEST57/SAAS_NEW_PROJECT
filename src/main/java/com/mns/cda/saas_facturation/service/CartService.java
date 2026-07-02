@@ -40,7 +40,7 @@ public class CartService implements ICartService {
     @Override
     public CartDTO create(CartRequestDTO dto) throws ICustomerService.CustomerNotFoundException {
 
-        Customer customer = customerRepository.findById(dto.customerId())
+        Customer customer = customerRepository.findById(dto.ctmId())
                 .orElseThrow(ICustomerService.CustomerNotFoundException::new);
 
         Cart cart = new Cart();
@@ -57,7 +57,7 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(ICartService.CartNotFoundException::new);
 
-        Customer customer = customerRepository.findById(dto.customerId())
+        Customer customer = customerRepository.findById(dto.ctmId())
                 .orElseThrow(ICustomerService.CustomerNotFoundException::new);
 
         cart.setCrtRef(dto.crtRef());

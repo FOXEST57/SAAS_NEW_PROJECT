@@ -39,5 +39,5 @@ public class OrderLine {
 
     @Column(nullable = false)
     @NotBlank
-    protected String ordLnQuantity;
+    protected Integer ordLnQuantity;
 }

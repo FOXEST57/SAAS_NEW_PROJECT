@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 public record CartRequestDTO (
         @NotBlank @Column(unique = true,nullable = false) String crtRef,
         @NotBlank @Column(nullable = false) String crtStatus,
-        @NotNull Long customerId
+        @NotNull Long ctmId
 
 ){
 
