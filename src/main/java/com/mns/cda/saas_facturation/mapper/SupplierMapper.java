@@ -10,13 +10,15 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class SupplierMapper {
 
+    private final AddressMapper addressMapper;
+
     public SupplierDTO toDTO(Supplier supplier) {
         return new SupplierDTO(
                 supplier.getSplId(),
                 supplier.getSplName(),
                 supplier.getSplEmail(),
                 supplier.getSplPhone(),
-                supplier.getSplAddress()
+               addressMapper.toDTO(supplier.getAddress())
         );
     }
 
@@ -26,7 +28,8 @@ public class SupplierMapper {
                 supplier.getSplId(),
                 supplier.getSplName(),
                 supplier.getSplEmail(),
-                supplier.getSplPhone()
+                supplier.getSplPhone(),
+                addressMapper.toDTO(supplier.getAddress())
         );
     }
 }

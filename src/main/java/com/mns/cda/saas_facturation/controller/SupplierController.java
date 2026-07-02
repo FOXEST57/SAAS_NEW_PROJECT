@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -151,10 +152,15 @@ public class SupplierController {
             @ApiResponse(responseCode = "201", description = "Fournisseur créé"),
             @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant en BDD portant le même nom")
     })
-    public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierRequestDTO dto) {
-        // @RequestBody : Spring désérialise automatiquement le JSON reçu en SupplierRequestDTO
-        SupplierDTO response = supplierService.create(dto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
+    public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierRequestDTO dto) throws IAddressService.AddressNotFoundException {
+
+        try {
+            // @RequestBody : Spring désérialise automatiquement le JSON reçu en SupplierRequestDTO
+            SupplierDTO response = supplierService.create(dto);
+            return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
+        } catch (IAddressService.AddressNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
@@ -212,9 +218,14 @@ public class SupplierController {
     public ResponseEntity<SupplierDTO> update(@PathVariable long id,
                                               @Valid
                                               @RequestBody SupplierRequestDTO dto)
-            throws ISupplierService.SupplierNotFoundException {
+            throws ISupplierService.SupplierNotFoundException,
+            IAddressService.AddressNotFoundException {
 
-        SupplierDTO updated = supplierService.modify(id, dto);
-        return new ResponseEntity<>(updated, HttpStatus.OK);
+        try {
+            SupplierDTO updated = supplierService.modify(id, dto);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+        } catch (IAddressService.AddressNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

@@ -66,7 +66,7 @@ public interface ISupplierService {
      * @param dto les données du fournisseur à créer
      * @return le {@link SupplierDTO} du fournisseur créé avec son splId généré
      */
-    SupplierDTO create(SupplierRequestDTO dto);
+    SupplierDTO create(SupplierRequestDTO dto) throws IAddressService.AddressNotFoundException;
 
     /**
      * Supprime un fournisseur par son identifiant unique.
@@ -90,5 +90,5 @@ public interface ISupplierService {
      * @return le {@link SupplierDTO} du fournisseur après mise à jour
      * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
      */
-    SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException;
+    SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException, IAddressService.AddressNotFoundException;
 }

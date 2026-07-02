@@ -2,9 +2,13 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
+import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
+import com.mns.cda.saas_facturation.model.Address;
+import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Supplier;
+import com.mns.cda.saas_facturation.repository.AddressRepository;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +42,8 @@ import java.util.Optional;
 public class SupplierService implements ISupplierService {
 
     private final SupplierRepository supplierRepository;
+
+    private final AddressRepository addressRepository;
 
     private final SupplierMapper supplierMapper;
 
@@ -85,7 +91,10 @@ public class SupplierService implements ISupplierService {
      * @return le {@link SupplierDTO} du fournisseur créé, avec son splId généré
      */
     @Override
-    public SupplierDTO create(SupplierRequestDTO dto) {
+    public SupplierDTO create(SupplierRequestDTO dto) throws IAddressService.AddressNotFoundException {
+
+        Address address = addressRepository.findById(dto.addressId())
+                .orElseThrow(IAddressService.AddressNotFoundException::new);
 
         // Construction de l'entité à partir du DTO — l'splId est null pour forcer la génération en base
         Supplier supplier = new Supplier(
@@ -93,8 +102,8 @@ public class SupplierService implements ISupplierService {
                 dto.name(),
                 dto.email(),
                 dto.phoneNumber(),
-                dto.address(),
-                null
+                null,
+                address
         );
 
         return supplierMapper.toDTO(supplierRepository.save(supplier));
@@ -137,21 +146,21 @@ public class SupplierService implements ISupplierService {
      * @throws SupplierNotFoundException  si aucun fournisseur ne correspond à cet splId
      */
     @Override
-    public SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException {
+    public SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException, IAddressService.AddressNotFoundException {
 
         // Récupération de l'entité existante — lève SupplierNotFoundException si absente
         Supplier supplier = supplierRepository.findById(id)
                 .orElseThrow(ISupplierService.SupplierNotFoundException::new);
 
+        Address address = addressRepository.findById(dto.addressId())
+                .orElseThrow(IAddressService.AddressNotFoundException::new);
+
         // Mise à jour des champs de l'entité avec les valeurs du DTO
         supplier.setSplName(dto.name());
         supplier.setSplEmail(dto.email());
         supplier.setSplPhone(dto.phoneNumber());
-        supplier.setSplAddress(dto.address());
+        supplier.setAddress(address);
 
         return supplierMapper.toDTO(supplierRepository.save(supplier));
     }
-
-
-
 }

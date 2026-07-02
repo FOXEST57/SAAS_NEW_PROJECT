@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
+import com.mns.cda.saas_facturation.mapper.AddressMapper;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.Customer;
 import com.mns.cda.saas_facturation.repository.AddressRepository;
@@ -11,7 +12,6 @@ import com.mns.cda.saas_facturation.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +21,7 @@ public class CustomerService implements ICustomerService {
 
     private final CustomerRepository customerRepository;
     private final AddressRepository addressRepository;
-    private final AddressService addressService;
+    private final AddressMapper addressMapper;
 
     @Override
     public List<CustomerDTO> findAll() {
@@ -79,7 +79,7 @@ public class CustomerService implements ICustomerService {
                 customer.getCtmLastName(),
                 customer.getCtmEmail(),
                 customer.getCtmPhone(),
-                addressService.toDTO(customer.getAddress())
+                addressMapper.toDTO(customer.getAddress())
         );
     }
 

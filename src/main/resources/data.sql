@@ -54,15 +54,22 @@ VALUES
     ('Bricolage','bricolage', NULL),
     ('Auto & Moto','auto-moto', NULL);
 
--- 7. Table SUPPLIER (référencée par ARTICLE.supplier_id)
-INSERT INTO supplier (spl_name, spl_email, spl_phone, spl_address)
+-- 7. Table ADDRESS (référence POSTAL_CODE_CITY)
+INSERT INTO address (add_number, add_street, add_complement, pcode_id, city_id)
 VALUES
-    ('HP France', 'contact@hp.fr', '+33102030402', '12 Avenue de la République, Lyon'),
-    ('Lenovo France', 'contact@lenovo.fr', '+33102030403', '25 Rue Nationale, Lille'),
-    ('Asus France', 'contact@asus.fr', '+33102030404', '8 Boulevard Victor Hugo, Strasbourg'),
-    ('Logitech France', 'contact@logitech.fr', '+33102030405', '15 Rue du Commerce, Nantes');
+    ('12', 'rue de la paix', '', '1', '1'),
+    ('6', 'rue des lilas', '', '5', '5'),
+    ('33 bis', 'avenue de Paris', '', '3', '3');
 
--- 8. Table MAKER (référencée par MAKER_REFERENCE.maker_id)
+-- 8. Table SUPPLIER (référencée par ARTICLE.supplier_id)
+INSERT INTO supplier (spl_name, spl_email, spl_phone, address_id)
+VALUES
+    ('HP France', 'contact@hp.fr', '+33102030402', 1),
+    ('Lenovo France', 'contact@lenovo.fr', '+33102030403', 2),
+    ('Asus France', 'contact@asus.fr', '+33102030404', 2),
+    ('Logitech France', 'contact@logitech.fr', '+33102030405', 1);
+
+-- 9. Table MAKER (référencée par MAKER_REFERENCE.maker_id)
 INSERT INTO maker (mkr_name)
 VALUES
     ('Fabricant 1'),
@@ -70,7 +77,7 @@ VALUES
     ('Fabricant 3'),
     ('Fabricant 4');
 
--- 9. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
+-- 10. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
 INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock,art_create_date, art_update_date, tva_id)
 VALUES
     ('REF-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99, 25,current_date, current_date, 1),
@@ -79,7 +86,7 @@ VALUES
     ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, current_date, current_date, 3),
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, current_date, current_date, 2);
 
--- 10. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
+-- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
 INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_stock)
 VALUES
     (1, 1, 'TC-USB-64', 120),
@@ -88,7 +95,7 @@ VALUES
     (3, 1, 'TC-SCREEN-27', 25),
     (4, 2, 'OP-PAPER-A4', 400);
 
--- 11. Table MAKER_REFERENCE (clé composite article_id + maker_id)
+-- 12. Table MAKER_REFERENCE (clé composite article_id + maker_id)
 INSERT INTO maker_reference (article_id, maker_id, mkr_ref_reference)
 VALUES
     (1, 1, 'MKR-CLAV-001'),
@@ -96,7 +103,7 @@ VALUES
     (3, 1, 'MKR-ECR-003'),
     (4, 3, 'MKR-CASQ-004');
 
---12. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
+--13. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
 INSERT INTO article_category (article_id, category_id)
 VALUES
     (1, 3),
@@ -105,12 +112,6 @@ VALUES
     (4, 3),
     (5, 3);
 
--- 13. Table ADDRESS (référence POSTAL_CODE_CITY)
-INSERT INTO address (add_number, add_street, add_complement, pcode_id, city_id)
-VALUES
-    ('12', 'rue de la paix', '', '1', '1'),
-    ('6', 'rue des lilas', '', '5', '5'),
-    ('33 bis', 'avenue de Paris', '', '3', '3');
 
 -- 14. Table CUSTOMER (référence ADDRESS)
 INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, ctm_phone, add_id)
