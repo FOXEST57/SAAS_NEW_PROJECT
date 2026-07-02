@@ -21,6 +21,4 @@ public interface IAddressService {
 
     void delete(Long addressId) throws AddressNotFoundException;
 
-    AddressDTO toDTO(Address address);
-
 }

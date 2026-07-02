@@ -76,15 +76,7 @@ public class Supplier {
     @ValidPhoneNumber
     private String splPhone;
 
-    /**
-     * Adresse postale du fournisseur.
-     * Limité à 50 caractères, ne peut pas être {@code null} ni vide.
-     */
-    @Column(length = 50, nullable = false)
-    @NotBlank(message = "L'adresse est obligatoire")
-    private String splAddress;
-
-    /**
+        /**
      * Liste des articles associés à ce fournisseur.
      * Relation {@code @OneToMany} bidirectionnelle mappée par le champ {@code supplier}
      * de l'entité {@link Article}. Initialisée à une liste vide pour éviter

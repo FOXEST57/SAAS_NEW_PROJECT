@@ -26,8 +26,7 @@ public class SupplierMapper {
                 supplier.getSplId(),
                 supplier.getSplName(),
                 supplier.getSplEmail(),
-                supplier.getSplPhone(),
-                supplier.getSplAddress()
+                supplier.getSplPhone()
         );
     }
 }

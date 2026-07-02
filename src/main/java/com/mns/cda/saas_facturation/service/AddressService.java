@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.mapper.AddressMapper;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.City;
 import com.mns.cda.saas_facturation.model.PostalCode;
@@ -26,22 +27,21 @@ public class AddressService implements IAddressService {
 
     private final AddressRepository addressRepository;
     private final PostalCodeRepository postalCodeRepository;
-    private final PostalCodeService postalCodeService;
     private final CityRepository cityRepository;
-    private final CityService cityService;
     private final PostalCodeCityRepository postalCodeCityRepository;
+    private final AddressMapper addressMapper;
 
     @Override
     public List<AddressDTO> findAll() {
         return addressRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(addressMapper::toDTO)
                 .toList();
     }
 
     @Override
     public Optional<AddressDTO> findById(Long addId) {
-        return addressRepository.findById(addId).map(this::toDTO);
+        return addressRepository.findById(addId).map(addressMapper::toDTO);
     }
 
     @Override
@@ -56,10 +56,11 @@ public class AddressService implements IAddressService {
                 dto.addStreet(),
                 dto.addComplement(),
                 postalCode,
-                city
+                city,
+                null
         );
 
-        return toDTO(addressRepository.save(address));
+        return addressMapper.toDTO(addressRepository.save(address));
     }
 
     @Override
@@ -75,7 +76,7 @@ public class AddressService implements IAddressService {
         address.setPostalCode(postalCode);
         address.setCity(city);
 
-        return toDTO(addressRepository.save(address));
+        return addressMapper.toDTO(addressRepository.save(address));
     }
 
     @Override
@@ -84,16 +85,4 @@ public class AddressService implements IAddressService {
         
         addressRepository.delete(address);
     }
-
-    @Override
-    public AddressDTO toDTO(Address address) {
-        return new AddressDTO(
-            address.getAddNumber(),
-            address.getAddStreet(),
-            address.getAddComplement(),
-            postalCodeService.toDTO(address.getPostalCode()),
-            cityService.toDTO(address.getCity())
-        );
-    }
-
 }

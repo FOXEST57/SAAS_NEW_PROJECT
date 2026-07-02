@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * DTO d'entrée représentant les données reçues par l'API pour créer ou modifier un fournisseur.
@@ -24,7 +25,6 @@ import jakarta.validation.constraints.NotBlank;
  * @param name        nom du fournisseur — ne doit pas être vide
  * @param email       adresse splEmail du fournisseur — ne doit pas être vide et doit être au format valide
  * @param phoneNumber numéro de téléphone du fournisseur — ne doit pas être vide et doit respecter le format E.164
- * @param address     adresse postale du fournisseur — ne doit pas être vide
  *
  * @see ValidPhoneNumber
  * @see com.mns.cda.saas_facturation.controller.SupplierController
@@ -34,6 +34,6 @@ public record SupplierRequestDTO(
         @NotBlank @Column(unique = true) String name,
         @NotBlank @Email String email,
         @NotBlank @ValidPhoneNumber String phoneNumber,
-        @NotBlank String address
+        @NotNull Long addressId
 )
 {}

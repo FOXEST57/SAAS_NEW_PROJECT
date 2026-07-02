@@ -22,6 +22,6 @@ public record SupplierDTO(
         String splName,
         String splEmail,
         String splPhone,
-        String splAddress
+        AddressDTO address
 ) {
 }
