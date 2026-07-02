@@ -2,7 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
