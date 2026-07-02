@@ -56,8 +56,7 @@ public class AddressService implements IAddressService {
                 dto.addStreet(),
                 dto.addComplement(),
                 postalCode,
-                city,
-                null
+                city
         );
 
         return addressMapper.toDTO(addressRepository.save(address));
