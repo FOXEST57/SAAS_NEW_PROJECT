@@ -1,6 +1,8 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.OrderLineDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CartResponseDTO;
+import com.mns.cda.saas_facturation.mapper.responseMapper.CartResponseMapper;
 import com.mns.cda.saas_facturation.model.OrderLine;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,12 +12,15 @@ import org.springframework.stereotype.Service;
 public class OrderLineMapper {
 
     private final ArticleMapper articleMapper;
+    private final CartResponseMapper cartMapper;
 
     public OrderLineDTO toDTO(OrderLine orderLine) {
         return new OrderLineDTO(
                 orderLine.getOrdLnId(),
                 orderLine.getOrdLnQuantity(),
-                articleMapper.toLightDTO(orderLine.getArticle())
+                articleMapper.toLightDTO(orderLine.getArticle()),
+                cartMapper.toResponseDTO(orderLine.getCart())
+
         );
     }
 }

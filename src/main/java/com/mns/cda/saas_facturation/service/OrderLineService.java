@@ -1,7 +1,5 @@
 package com.mns.cda.saas_facturation.service;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.ArticleLightDTO;
 import com.mns.cda.saas_facturation.DTO.CartDTO;
 import com.mns.cda.saas_facturation.DTO.OrderLineDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.OrderLineRequestDTO;
@@ -10,6 +8,7 @@ import com.mns.cda.saas_facturation.Iservice.ICartService;
 import com.mns.cda.saas_facturation.Iservice.IOrderLineService;
 import com.mns.cda.saas_facturation.exception.InsufficientStockException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.mapper.CartMapper;
 import com.mns.cda.saas_facturation.mapper.OrderLineMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Cart;
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,18 +27,20 @@ public class OrderLineService implements IOrderLineService {
 
     private final OrderLineRepository orderLineRepository;
     private final OrderLineMapper orderLineMapper;
+    private final CartMapper cartMapper;
     private final ICartService cartService;
     private final ArticleRepository articleRepository;
+
     private final CartRepository cartRepository;
     private final ArticleService articleService;
 
     @Override
-    public OrderLineDTO findById(Long artId, Long crtId) {
-        OrderLine.OrderLineId key = new OrderLine.OrderLineId(artId,crtId);
+    public OrderLineDTO findById(Long articleId, Long cartId) {
+        OrderLine.OrderLineId key = new OrderLine.OrderLineId(articleId,cartId);
         return orderLineMapper.toDTO( orderLineRepository.findById(key)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(
-                                "Ligne de panier introuvable pour articleId=" + artId + ", cartId=" + crtId)));
+                                "Ligne de panier introuvable pour l'article avec l'id " + articleId + " et le panier avec l'id " + cartId)));
     }
 
     @Override
@@ -54,28 +54,31 @@ public class OrderLineService implements IOrderLineService {
     }
 
     @Override
-    public List<OrderLineDTO> findByArtId(Long articleId) {
+    public List<CartDTO> findByArtId(Long articleId) {
         articleService.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + articleId + " n'existe pas"));
 
         return orderLineRepository.findByOrdLnId_ArticleId(articleId)
                 .stream()
-                .map(orderLineMapper::toDTO)
+                .map(OrderLine::getCart)
+                .map(cartMapper::toDTO)
                 .toList();
     }
 
     @Override
     public OrderLineDTO create(OrderLineRequestDTO dto) {
-        Cart cart = cartRepository.findById(dto.crtId())
-                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " + dto.crtId() + " n'existe pas"));
+        Cart cart = cartRepository.findById(dto.cartId())
+                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " + dto.cartId() + " n'existe pas"));
 
-        Article article = articleRepository.findById(dto.artId())
-                .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + dto.artId() + " n'existe pas"));
+        Article article = articleRepository.findById(dto.articleId())
+                .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + dto.articleId() + " n'existe pas"));
+
+
         if(article.getArtStock() < dto.quantity()) throw
-        new InsufficientStockException("La quantité en stock de l'article" + article.getArtName() + "n'est pas suffisant pour cette commande");
+        new InsufficientStockException("La quantité en stock de l'article " + article.getArtName() + " n'est pas suffisante pour cette commande");
 
         OrderLine orderLine = new OrderLine(
-                new OrderLine.OrderLineId(dto.artId(), dto.crtId()),
+                null,
                 article,
                 cart,
                 dto.quantity()
@@ -86,11 +89,31 @@ public class OrderLineService implements IOrderLineService {
 
     @Override
     public OrderLineDTO update(Long artId, Long crtId, UpdateOrderLineDTO dto) {
-        return null;
+        OrderLine.OrderLineId key = new OrderLine.OrderLineId(artId,crtId);
+        OrderLine orderLine = orderLineRepository.findById(key)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(
+                                "Ligne de panier introuvable pour articleId=" + artId + ", cartId=" + crtId));
+
+
+        if(orderLine.getArticle().getArtStock() < dto.quantity()) {
+            throw
+                    new InsufficientStockException("La quantité en stock de l'article " + orderLine.getArticle().getArtName() + " n'est pas suffisante pour cette commande");
+        }
+
+        orderLine.setOrdLnQuantity(dto.quantity());
+
+        return orderLineMapper.toDTO(orderLineRepository.save(orderLine));
     }
 
     @Override
-    public void delete(Long artId, Long cartId) {
+    public void delete(Long articleId, Long cartId) {
+        OrderLine.OrderLineId key = new OrderLine.OrderLineId(articleId,cartId);
+        OrderLine orderLine = orderLineRepository.findById(key)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(
+                                "Ligne de panier introuvable pour articleId=" + articleId + ", cartId=" + cartId));
 
+        orderLineRepository.delete(orderLine);
     }
 }

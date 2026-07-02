@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public record OrderLineRequestDTO(
-        @NotNull Long crtId,
-        @NotNull Long artId,
+        @NotNull Long cartId,
+        @NotNull Long articleId,
         @NotNull @Min(1) Integer quantity
 ) {
 }

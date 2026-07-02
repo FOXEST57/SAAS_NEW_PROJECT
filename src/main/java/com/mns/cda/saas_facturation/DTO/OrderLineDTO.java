@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.model.OrderLine;
 public record OrderLineDTO(
         OrderLine.OrderLineId id,
         Integer quantity,
-        ArticleLightDTO article
+        ArticleLightDTO article,
+        CartResponseDTO cart
 ) {
 }

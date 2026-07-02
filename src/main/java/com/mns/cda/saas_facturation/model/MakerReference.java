@@ -15,6 +15,8 @@ import java.io.Serializable;
 public class MakerReference {
 
     @Embeddable
+    @Setter
+    @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode

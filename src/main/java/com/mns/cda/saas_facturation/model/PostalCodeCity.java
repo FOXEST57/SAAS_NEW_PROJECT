@@ -17,6 +17,8 @@ import java.io.Serializable;
 public class PostalCodeCity {
 
     @Embeddable
+    @Setter
+    @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PostalCodeCityId implements Serializable {

@@ -16,7 +16,7 @@ import java.util.List;
  * <p>Les paramètres génériques précisent :</p>
  * <ul>
  *   <li>{@link Article} — le type de l'entité gérée</li>
- *   <li>{@link Long} — le type de la clé primaire ({@code artId})</li>
+ *   <li>{@link Long} — le type de la clé primaire ({@code articleId})</li>
  * </ul>
  *
  * @see Article

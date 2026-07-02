@@ -91,7 +91,7 @@ public class MakerReferenceController {
     @PutMapping("/{artId}/{mkrId}")
     @Operation(
             summary = "Met à jour la référence et le stock d'une association article/fabricant.",
-            description = "Cette route permet de modifier la référence fabricant et le stock pour une association article/fabricant existante, identifiée par son artId et son mkrId."
+            description = "Cette route permet de modifier la référence fabricant et le stock pour une association article/fabricant existante, identifiée par son articleId et son mkrId."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Association mise à jour avec succès."),
@@ -112,7 +112,7 @@ public class MakerReferenceController {
     @DeleteMapping("/{artId}/{mkrId}")
     @Operation(
             summary = "Supprime une association article/fabricant.",
-            description = "Cette route permet de supprimer une association entre un article et un fabricant, identifiée par son artId et son mkrId."
+            description = "Cette route permet de supprimer une association entre un article et un fabricant, identifiée par son articleId et son mkrId."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Association supprimée avec succès."),

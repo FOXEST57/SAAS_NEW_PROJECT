@@ -14,6 +14,8 @@ import java.io.Serializable;
 public class OrderLine {
 
     @Embeddable
+    @Setter
+    @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode

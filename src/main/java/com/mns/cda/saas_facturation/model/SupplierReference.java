@@ -20,6 +20,8 @@ import java.util.Objects;
 public class SupplierReference {
 
     @Embeddable
+    @Setter
+    @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SupplierReferenceId implements Serializable {
