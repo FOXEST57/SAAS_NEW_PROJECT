@@ -70,9 +70,9 @@ public class AddressService implements IAddressService {
     @Override
     public AddressDTO update(Long addId, AddressRequestDTO dto) throws ResourceNotFoundException {
         Address address = addressRepository.findById(addId)
-                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existente"));
+                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Code postal non exitant"));
+                .orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
         City city = cityRepository.findById(dto.cityId()).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
         postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPCodeId(),city.getCityId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
