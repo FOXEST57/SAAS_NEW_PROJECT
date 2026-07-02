@@ -37,7 +37,4 @@ public class Address {
     @NotNull
     protected City city;
 
-    @OneToMany(mappedBy = "address")
-    private List<Supplier> suppliers = new ArrayList<>();
-
 }
