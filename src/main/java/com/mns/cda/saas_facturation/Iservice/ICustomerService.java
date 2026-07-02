@@ -21,6 +21,4 @@ public interface ICustomerService {
 
     void delete(Long ctmId) throws CustomerNotFoundException;
 
-    CustomerDTO toDTO(Customer customer);
-
 }

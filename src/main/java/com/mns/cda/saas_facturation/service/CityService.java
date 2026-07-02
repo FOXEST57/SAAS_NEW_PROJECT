@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.CityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.Iservice.ICountryService;
+import com.mns.cda.saas_facturation.mapper.CityMapper;
 import com.mns.cda.saas_facturation.model.City;
 import com.mns.cda.saas_facturation.model.Country;
 import com.mns.cda.saas_facturation.repository.CityRepository;
@@ -19,20 +20,20 @@ import java.util.Optional;
 public class CityService implements ICityService {
 
     private final CityRepository cityRepository;
+    private final CityMapper cityMapper;
     private final CountryRepository countryRepository;
-    private final CountryService countryService;
 
     @Override
     public List<CityDTO> findAll() {
         return cityRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(cityMapper::toDTO)
                 .toList();
     }
 
     @Override
     public Optional<CityDTO> findById(Long cityId) {
-        return cityRepository.findById(cityId).map(this::toDTO);
+        return cityRepository.findById(cityId).map(cityMapper::toDTO);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class CityService implements ICityService {
                 country
         );
 
-        return toDTO(cityRepository.save(city));
+        return cityMapper.toDTO(cityRepository.save(city));
     }
 
     @Override
@@ -56,7 +57,7 @@ public class CityService implements ICityService {
         city.setCityName(dto.cityName());
         city.setCountry(country);
 
-        return toDTO(cityRepository.save(city));
+        return cityMapper.toDTO(cityRepository.save(city));
     }
 
     @Override
@@ -64,14 +65,6 @@ public class CityService implements ICityService {
         City city = cityRepository.findById(cityId).orElseThrow(CityNotFoundException::new);
         
         cityRepository.delete(city);
-    }
-
-    @Override
-    public CityDTO toDTO(City city) {
-        return new CityDTO(
-            city.getCityName(),
-            countryService.toDTO(city.getCountry())
-        );
     }
 
 }

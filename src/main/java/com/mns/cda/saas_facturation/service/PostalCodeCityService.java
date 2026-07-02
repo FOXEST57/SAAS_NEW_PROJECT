@@ -5,6 +5,7 @@ import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
+import com.mns.cda.saas_facturation.mapper.PostalCodeCityMapper;
 import com.mns.cda.saas_facturation.model.PostalCode;
 import com.mns.cda.saas_facturation.model.PostalCodeCity;
 import com.mns.cda.saas_facturation.model.City;
@@ -23,10 +24,9 @@ import java.util.Optional;
 public class PostalCodeCityService implements IPostalCodeCityService {
 
     private final PostalCodeCityRepository postalCodeCityRepository;
+    private final PostalCodeCityMapper postalCodeCityMapper;
     private final PostalCodeRepository postalCodeRepository;
-    private final PostalCodeService postalCodeService;
     private final CityRepository cityRepository;
-    private final CityService cityService;
 
     //GetAll
     @Override
@@ -34,14 +34,14 @@ public class PostalCodeCityService implements IPostalCodeCityService {
 
         return postalCodeCityRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(postalCodeCityMapper::toDTO)
                 .toList();
     }
 
     //Get By Id
     @Override
     public Optional<PostalCodeCityDTO> findById(PostalCodeCity.PostalCodeCityId id) {
-        return postalCodeCityRepository.findById(id).map(this::toDTO);
+        return postalCodeCityRepository.findById(id).map(postalCodeCityMapper::toDTO);
     }
 
 
@@ -60,9 +60,8 @@ public class PostalCodeCityService implements IPostalCodeCityService {
                 city
         );
 
-        return toDTO(postalCodeCityRepository.save(postalCodeCity));
+        return postalCodeCityMapper.toDTO(postalCodeCityRepository.save(postalCodeCity));
     }
-
 
 
     //PUT
@@ -76,21 +75,13 @@ public class PostalCodeCityService implements IPostalCodeCityService {
         postalCodeCity.setPostalCode(postalCode);
         postalCodeCity.setCity(city);
 
-        return toDTO(postalCodeCityRepository.save(postalCodeCity));
+        return postalCodeCityMapper.toDTO(postalCodeCityRepository.save(postalCodeCity));
     }
 
     @Override
     public void delete(PostalCodeCity.PostalCodeCityId id) throws PostalCodeCityNotFoundException {
         postalCodeCityRepository.findById(id).orElseThrow(PostalCodeCityNotFoundException::new);
         postalCodeCityRepository.deleteById(id);
-    }
-
-    @Override
-    public PostalCodeCityDTO toDTO(PostalCodeCity postalCodeCity) {
-        return new PostalCodeCityDTO(
-                postalCodeService.toDTO(postalCodeCity.getPostalCode()),
-                cityService.toDTO(postalCodeCity.getCity())
-        );
     }
 
 }

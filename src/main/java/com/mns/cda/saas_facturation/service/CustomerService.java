@@ -4,7 +4,7 @@ import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
-import com.mns.cda.saas_facturation.mapper.AddressMapper;
+import com.mns.cda.saas_facturation.mapper.CustomerMapper;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.Customer;
 import com.mns.cda.saas_facturation.repository.AddressRepository;
@@ -20,21 +20,21 @@ import java.util.Optional;
 public class CustomerService implements ICustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
-    private final AddressMapper addressMapper;
 
     @Override
     public List<CustomerDTO> findAll() {
         return customerRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(customerMapper::toDTO)
                 .toList();
     }
 
     @Override
     public Optional<CustomerDTO> findById(Long ctmId) {
         return customerRepository.findById(ctmId)
-                .map(this::toDTO);
+                .map(customerMapper::toDTO);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class CustomerService implements ICustomerService {
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
 
-        return toDTO(customerRepository.save(customer));
+        return customerMapper.toDTO(customerRepository.save(customer));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class CustomerService implements ICustomerService {
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
 
-        return toDTO(customerRepository.save(customer));
+        return customerMapper.toDTO(customerRepository.save(customer));
     }
 
     @Override
@@ -70,17 +70,6 @@ public class CustomerService implements ICustomerService {
         Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
 
         customerRepository.delete(customer);
-    }
-
-    @Override
-    public CustomerDTO toDTO(Customer customer) {
-        return new CustomerDTO(
-                customer.getCtmFirstName(),
-                customer.getCtmLastName(),
-                customer.getCtmEmail(),
-                customer.getCtmPhone(),
-                addressMapper.toDTO(customer.getAddress())
-        );
     }
 
 }

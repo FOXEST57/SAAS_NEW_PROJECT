@@ -21,6 +21,4 @@ public interface ICountryService {
 
     void delete(Long cntId) throws CountryNotFoundException;
 
-    CountryDTO toDTO(Country country);
-
 }

@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.CountryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CountryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICountryService;
+import com.mns.cda.saas_facturation.mapper.CountryMapper;
 import com.mns.cda.saas_facturation.model.Country;
 import com.mns.cda.saas_facturation.repository.CountryRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,19 @@ import java.util.Optional;
 public class CountryService implements ICountryService {
 
     private final CountryRepository countryRepository;
+    private final CountryMapper countryMapper;
 
     @Override
     public List<CountryDTO> findAll() {
         return countryRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(countryMapper::toDTO)
                 .toList();
     }
 
     @Override
     public Optional<CountryDTO> findById(Long cntId) {
-        return countryRepository.findById(cntId).map(this::toDTO);
+        return countryRepository.findById(cntId).map(countryMapper::toDTO);
     }
 
     @Override
@@ -37,7 +39,7 @@ public class CountryService implements ICountryService {
                 dto.cntName()
         );
 
-        return toDTO(countryRepository.save(country));
+        return countryMapper.toDTO(countryRepository.save(country));
     }
 
     @Override
@@ -46,7 +48,7 @@ public class CountryService implements ICountryService {
 
         country.setCntName(dto.cntName());
 
-        return toDTO(countryRepository.save(country));
+        return countryMapper.toDTO(countryRepository.save(country));
     }
 
     @Override
@@ -54,13 +56,6 @@ public class CountryService implements ICountryService {
         Country country = countryRepository.findById(cntId).orElseThrow(CountryNotFoundException::new);
 
         countryRepository.delete(country);
-    }
-
-    @Override
-    public CountryDTO toDTO(Country country) {
-        return new CountryDTO(
-                country.getCntName()
-        );
     }
 
 }

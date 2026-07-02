@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public interface ICityService {
 
-    CityDTO toDTO(City city);
-
     public static class CityNotFoundException extends Exception {};
 
     List<CityDTO> findAll();
@@ -22,4 +20,5 @@ public interface ICityService {
     CityDTO update(Long cityId, CityRequestDTO dto) throws CityNotFoundException, ICountryService.CountryNotFoundException;
 
     void delete(Long cityId) throws CityNotFoundException;
+
 }

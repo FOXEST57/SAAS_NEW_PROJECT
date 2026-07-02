@@ -21,6 +21,4 @@ public interface IPostalCodeCityService {
 
     void delete(PostalCodeCity.PostalCodeCityId id) throws PostalCodeCityNotFoundException;
 
-    PostalCodeCityDTO toDTO(PostalCodeCity postalCodeCity);
-
 }

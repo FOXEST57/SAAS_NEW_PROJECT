@@ -21,6 +21,4 @@ public interface IPostalCodeService {
 
     void delete(Long pcodeId) throws PostalCodeNotFoundException;
 
-    PostalCodeDTO toDTO(PostalCode postalCode);
-
 }

@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.mapper.PostalCodeMapper;
 import com.mns.cda.saas_facturation.model.PostalCode;
 import com.mns.cda.saas_facturation.repository.PostalCodeRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,19 @@ import java.util.Optional;
 public class PostalCodeService implements IPostalCodeService {
 
     private final PostalCodeRepository postalCodeRepository;
+    private final PostalCodeMapper postalCodeMapper;
 
     @Override
     public List<PostalCodeDTO> findAll() {
         return postalCodeRepository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(postalCodeMapper::toDTO)
                 .toList();
     }
 
     @Override
     public Optional<PostalCodeDTO> findById(Long pcodeId) {
-        return postalCodeRepository.findById(pcodeId).map(this::toDTO);
+        return postalCodeRepository.findById(pcodeId).map(postalCodeMapper::toDTO);
     }
 
     @Override
@@ -37,7 +39,7 @@ public class PostalCodeService implements IPostalCodeService {
                 dto.pcodeName()
         );
 
-        return toDTO(postalCodeRepository.save(postalCode));
+        return postalCodeMapper.toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
@@ -46,7 +48,7 @@ public class PostalCodeService implements IPostalCodeService {
 
         postalCode.setPcodeName(dto.pcodeName());
 
-        return toDTO(postalCodeRepository.save(postalCode));
+        return postalCodeMapper.toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
@@ -54,13 +56,6 @@ public class PostalCodeService implements IPostalCodeService {
         PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(PostalCodeNotFoundException::new);
 
         postalCodeRepository.delete(postalCode);
-    }
-
-    @Override
-    public PostalCodeDTO toDTO(PostalCode postalCode) {
-        return new PostalCodeDTO(
-                postalCode.getPcodeName()
-        );
     }
 
 }

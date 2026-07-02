@@ -35,9 +35,12 @@ public class Customer {
     protected String ctmLastName;
 
     @Email
+    @NotBlank
+    @Column(unique = true)
     protected String ctmEmail;
 
     @ValidPhoneNumber
+    @NotBlank
     protected String ctmPhone;
 
     @ManyToOne
