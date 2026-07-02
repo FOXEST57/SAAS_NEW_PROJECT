@@ -11,13 +11,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Order {
+public class OrderLine {
 
     @Embeddable
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode
-    public static class OrderId implements Serializable {
+    public static class OrderLineId implements Serializable {
         @Column(name = "article_id")
         private Long articleId;
         @Column(name = "cart_id")
@@ -25,7 +25,7 @@ public class Order {
     }
 
     @EmbeddedId
-    private OrderId ordId;
+    private OrderLineId ordLnId;
 
     @ManyToOne
     @MapsId("articleId")
@@ -39,5 +39,5 @@ public class Order {
 
     @Column(nullable = false)
     @NotBlank
-    protected String ordQuantity;
+    protected String ordLnQuantity;
 }
