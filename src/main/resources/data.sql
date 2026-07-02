@@ -119,3 +119,11 @@ VALUES
     ('John', 'Doe', 'john.doe@email.com', '+33754156322', 1),
     ('Jane', 'Doe', 'jane.doe@email.com', '+33758965410', 1),
     ('Lily', 'Smith', 'lily.smith@email.com', '0654125532', 2);
+
+-- 15. Table CART (référence CUSTOMER)
+INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, customer_id)
+VALUES
+    ('CART-0001', 'OPEN', current_date, current_date, 1),
+    ('CART-0002', 'VALIDATED', current_date, current_date, 1),
+    ('CART-0003', 'OPEN', current_date, current_date, 2),
+    ('CART-0004', 'ABANDONED', current_date, current_date, 3);

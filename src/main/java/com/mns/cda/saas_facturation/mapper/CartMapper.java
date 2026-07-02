@@ -9,12 +9,17 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CartMapper {
 
+    protected final CustomerMapper customerMapper;
+
     public CartDTO toDTO(Cart cart) {
 
        return new CartDTO(
-        cart.getCrtId(),
-        cart.getCrtRef(),
-        cart.getCrtStatus()
+               cart.getCrtId(),
+               cart.getCrtRef(),
+               cart.getCrtCreateDate(),
+               cart.getCrtLastModifieDate(),
+               cart.getCrtStatus(),
+               customerMapper.toDTO(cart.getCustomer())
        );
 
     }
