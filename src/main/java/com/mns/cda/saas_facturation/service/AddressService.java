@@ -41,14 +41,24 @@ public class AddressService implements IAddressService {
 
     @Override
     public Optional<AddressDTO> findById(Long addId) {
-        return addressRepository.findById(addId).map(addressMapper::toDTO);
+        return addressRepository.findById(addId)
+                .map(addressMapper::toDTO);
     }
 
     @Override
-    public AddressDTO create(AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
-        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
+    public AddressDTO create(AddressRequestDTO dto)
+            throws IPostalCodeService.PostalCodeNotFoundException,
+            ICityService.CityNotFoundException,
+            IPostalCodeCityService.PostalCodeCityNotFoundException {
+
+        PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId())
+                .orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
+
+        City city = cityRepository.findById(dto.cityId())
+                .orElseThrow(ICityService.CityNotFoundException::new);
+
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPCodeId(),city.getCityId()))
+                .orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
 
         Address address = new Address(
                 null,
@@ -64,11 +74,23 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressDTO update(Long addId, AddressRequestDTO dto) throws AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
-        Address address = addressRepository.findById(addId).orElseThrow(AddressNotFoundException::new);
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
-        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
+    public AddressDTO update(Long addId, AddressRequestDTO dto)
+            throws AddressNotFoundException,
+            IPostalCodeService.PostalCodeNotFoundException,
+            ICityService.CityNotFoundException,
+            IPostalCodeCityService.PostalCodeCityNotFoundException {
+
+        Address address = addressRepository.findById(addId)
+                .orElseThrow(AddressNotFoundException::new);
+
+        PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId())
+                .orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
+
+        City city = cityRepository.findById(dto.cityId())
+                .orElseThrow(ICityService.CityNotFoundException::new);
+
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPCodeId(),city.getCityId()))
+                .orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
 
         address.setAddNumber(dto.addNumber());
         address.setAddStreet(dto.addStreet());
@@ -81,7 +103,8 @@ public class AddressService implements IAddressService {
 
     @Override
     public void delete(Long addId) throws AddressNotFoundException {
-        Address address = addressRepository.findById(addId).orElseThrow(AddressNotFoundException::new);
+        Address address = addressRepository.findById(addId)
+                .orElseThrow(AddressNotFoundException::new);
         
         addressRepository.delete(address);
     }

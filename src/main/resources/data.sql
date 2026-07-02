@@ -4,7 +4,7 @@ VALUES
     ('France');
 
 -- 2. Table POSTAL_CODE
-INSERT INTO postal_code (pcode_name)
+INSERT INTO postal_code (p_code_name)
 VALUES
     ('69000'),
     ('59000'),

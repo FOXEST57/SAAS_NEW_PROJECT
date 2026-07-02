@@ -11,7 +11,8 @@ public class PostalCodeMapper {
 
     public PostalCodeDTO toDTO(PostalCode postalCode) {
         return new PostalCodeDTO(
-                postalCode.getPcodeName()
+                postalCode.getPCodeId(),
+                postalCode.getPCodeName()
         );
     }
 

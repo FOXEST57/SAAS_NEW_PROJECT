@@ -49,12 +49,12 @@ public class PostalCodeCityService implements IPostalCodeCityService {
     @Override
     public PostalCodeCityDTO create(PostalCodeCityRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
 
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
+        PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
 
         City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
 
         PostalCodeCity postalCodeCity = new PostalCodeCity(
-                dto.pcodeId(),
+                dto.pCodeId(),
                 dto.cityId(),
                 postalCode,
                 city
@@ -69,7 +69,7 @@ public class PostalCodeCityService implements IPostalCodeCityService {
     public PostalCodeCityDTO update(PostalCodeCity.PostalCodeCityId id, PostalCodeCityRequestDTO dto) throws PostalCodeCityNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException {
         PostalCodeCity postalCodeCity = postalCodeCityRepository.findById(id).orElseThrow(PostalCodeCityNotFoundException::new);
 
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
+        PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
         City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
 
         postalCodeCity.setPostalCode(postalCode);

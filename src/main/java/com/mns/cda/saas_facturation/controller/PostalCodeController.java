@@ -99,8 +99,8 @@ public class PostalCodeController {
             @ApiResponse(responseCode = "200", description = "Code postal récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Code postal non trouvé.")
     })
-    public ResponseEntity<PostalCodeDTO> getPostalCodeById(@PathVariable Long pcodeId) {
-        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pcodeId);
+    public ResponseEntity<PostalCodeDTO> getPostalCodeById(@PathVariable Long pCodeId) {
+        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pCodeId);
 
         if (optionalPostalCode.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -162,8 +162,8 @@ public class PostalCodeController {
             @ApiResponse(responseCode = "200", description = "Code postal modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "Le code postal n'existe pas.")
     })
-    public ResponseEntity<PostalCodeDTO> updatePostalCode(@PathVariable Long pcodeId, @RequestBody @Valid PostalCodeRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
-        PostalCodeDTO postalCodeUpdated = postalCodeService.update(pcodeId, dto);
+    public ResponseEntity<PostalCodeDTO> updatePostalCode(@PathVariable Long pCodeId, @RequestBody @Valid PostalCodeRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
+        PostalCodeDTO postalCodeUpdated = postalCodeService.update(pCodeId, dto);
 
         return new ResponseEntity<>(postalCodeUpdated, HttpStatus.OK);
     }
@@ -186,8 +186,8 @@ public class PostalCodeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Code postal supprimé avec succès.")
     })
-    public ResponseEntity<Void> deletePostalCode(@PathVariable Long pcodeId) throws IPostalCodeService.PostalCodeNotFoundException {
-        postalCodeService.delete(pcodeId);
+    public ResponseEntity<Void> deletePostalCode(@PathVariable Long pCodeId) throws IPostalCodeService.PostalCodeNotFoundException {
+        postalCodeService.delete(pCodeId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

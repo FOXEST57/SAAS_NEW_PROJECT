@@ -6,7 +6,7 @@ public record AddressRequestDTO(
         String addNumber,
         String addStreet,
         String addComplement,
-        @NotNull Long pcodeId,
+        @NotNull Long pCodeId,
         @NotNull Long cityId
 ) {
 }

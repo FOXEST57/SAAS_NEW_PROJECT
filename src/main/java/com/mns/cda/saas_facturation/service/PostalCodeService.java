@@ -28,32 +28,32 @@ public class PostalCodeService implements IPostalCodeService {
     }
 
     @Override
-    public Optional<PostalCodeDTO> findById(Long pcodeId) {
-        return postalCodeRepository.findById(pcodeId).map(postalCodeMapper::toDTO);
+    public Optional<PostalCodeDTO> findById(Long pCodeId) {
+        return postalCodeRepository.findById(pCodeId).map(postalCodeMapper::toDTO);
     }
 
     @Override
     public PostalCodeDTO create(PostalCodeRequestDTO dto) {
         PostalCode postalCode = new PostalCode(
                 null,
-                dto.pcodeName()
+                dto.pCodeName()
         );
 
         return postalCodeMapper.toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
-    public PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO dto) throws PostalCodeNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(PostalCodeNotFoundException::new);
+    public PostalCodeDTO update(Long pCodeId, PostalCodeRequestDTO dto) throws PostalCodeNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(pCodeId).orElseThrow(PostalCodeNotFoundException::new);
 
-        postalCode.setPcodeName(dto.pcodeName());
+        postalCode.setPCodeName(dto.pCodeName());
 
         return postalCodeMapper.toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
-    public void delete(Long pcodeId) throws PostalCodeNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(PostalCodeNotFoundException::new);
+    public void delete(Long pCodeId) throws PostalCodeNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(pCodeId).orElseThrow(PostalCodeNotFoundException::new);
 
         postalCodeRepository.delete(postalCode);
     }

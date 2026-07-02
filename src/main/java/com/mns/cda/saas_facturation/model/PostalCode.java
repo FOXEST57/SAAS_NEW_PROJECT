@@ -19,9 +19,9 @@ public class PostalCode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long pcodeId;
+    protected Long pCodeId;
 
     @NotBlank
-    protected String pcodeName;
+    protected String pCodeName;
 
 }
