@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 public record OrderLineRequestDTO(
         @NotNull Long crtId,
         @NotNull Long artId,
-        @NotNull @Min(1) Long quantity
+        @NotNull @Min(1) Integer quantity
 ) {
 }

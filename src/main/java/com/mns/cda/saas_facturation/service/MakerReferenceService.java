@@ -77,7 +77,7 @@ public class MakerReferenceService implements IMakerReferenceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Fabricant non existant"));
 
         MakerReference makerReference = new MakerReference(
-                new MakerReference.MakerReferenceId(),
+                new MakerReference.MakerReferenceId(dto.artId(), dto.mkrId()),
                 article,
                 maker,
                 dto.mkrRefReference()

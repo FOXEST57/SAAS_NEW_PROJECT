@@ -10,6 +10,8 @@ import java.util.List;
 public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLine.OrderLineId> {
 
     //Retourne une liste de OrderLine par CrtId
-    List<OrderLine> findByOrdLnId_CartId(Long crtId);
+    List<OrderLine> findByOrdLnId_CartId(Long cartId);
+
+    List<OrderLine> findByOrdLnId_ArticleId(Long articleId);
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public interface IOrderLineService {
 
     OrderLineDTO findById(Long artId, Long crtId);
-    List<OrderLineDTO> findByCartId(Long crtId) throws ICartService.CartNotFoundException;
+    List<OrderLineDTO> findByCartId(Long crtId);
     List<OrderLineDTO> findByArtId (Long artId);
     OrderLineDTO create(OrderLineRequestDTO dto);
     OrderLineDTO update(Long artId, Long crtId, UpdateOrderLineDTO dto);
