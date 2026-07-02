@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Setter
@@ -57,6 +58,9 @@ public class SupplierReference {
     @NotBlank
     @Column(unique = true)
     protected String SplRefReference;
+
+    @NotNull
+    protected BigDecimal supplierPrice;
 
     @NotNull
     protected int SplRefStock;

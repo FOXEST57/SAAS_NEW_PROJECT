@@ -163,6 +163,7 @@ public class ArticleService implements IArticleService {
                         article,
                         supplier,
                         splRef.splRefReference(),
+                        splRef.supplierPrice(),
                         splRef.splRefStock()
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer

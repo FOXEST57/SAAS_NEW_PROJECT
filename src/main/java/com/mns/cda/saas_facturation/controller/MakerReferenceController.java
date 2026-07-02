@@ -1,16 +1,13 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.UpdateMakerReferenceDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
-import com.mns.cda.saas_facturation.service.MakerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

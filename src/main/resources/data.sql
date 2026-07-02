@@ -86,14 +86,14 @@ VALUES
     ('REF-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, 18, current_date, current_date, 3),
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, current_date, current_date, 2);
 
--- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference, spl_ref_stock)
-INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_stock)
+-- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference,supplier_price, spl_ref_stock)
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, supplier_price, spl_ref_stock)
 VALUES
-    (1, 1, 'TC-USB-64', 120),
-    (1, 2, 'OP-USB-64', 80),
-    (2, 3, 'FP-CHAIR-ERG', 40),
-    (3, 1, 'TC-SCREEN-27', 25),
-    (4, 2, 'OP-PAPER-A4', 400);
+    (1, 1, 'TC-USB-64', 120.00, 120),
+    (1, 2, 'OP-USB-64', 80.00, 120),
+    (2, 3, 'FP-CHAIR-ERG', 40.00, 120),
+    (3, 1, 'TC-SCREEN-27', 25.00, 120),
+    (4, 2, 'OP-PAPER-A4', 400.00, 120);
 
 -- 12. Table MAKER_REFERENCE (clé composite article_id + maker_id)
 INSERT INTO maker_reference (article_id, maker_id, mkr_ref_reference)

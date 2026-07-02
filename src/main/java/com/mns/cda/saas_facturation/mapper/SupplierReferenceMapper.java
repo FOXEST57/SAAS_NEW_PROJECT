@@ -21,6 +21,7 @@ public class SupplierReferenceMapper {
                 articleMapper.toResponseDTO(supplierReference.getArticle()),
                 supplierMapper.toResponseDTO(supplierReference.getSupplier()),
                 supplierReference.getSplRefReference(),
+                supplierReference.getSupplierPrice(),
                 supplierReference.getSplRefStock()
         );
     }

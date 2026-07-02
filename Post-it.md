@@ -1,4 +1,3 @@
--	Ajouter connexion entre Supplier et address 
 -	Ajouter Table Cart et table associative Order
 -	Ajouter connexion entre Customer et Cart
 -	Ajouter connexion Cart Article
