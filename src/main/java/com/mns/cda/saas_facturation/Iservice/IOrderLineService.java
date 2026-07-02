@@ -1,9 +1,19 @@
 package com.mns.cda.saas_facturation.Iservice;
 
+import com.mns.cda.saas_facturation.DTO.OrderLineDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.OrderLineRequestDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateOrderLineDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+
+import java.util.List;
+
 public interface IOrderLineService {
 
-    public static class OrderLineNotFoundException extends Exception {}
-
-    public  static class InsufficientStockException extends Exception {}
+    OrderLineDTO findById(Long artId, Long crtId);
+    List<OrderLineDTO> findByCartId(Long crtId) throws ICartService.CartNotFoundException;
+    List<OrderLineDTO> findByArtId (Long artId);
+    OrderLineDTO create(OrderLineRequestDTO dto);
+    OrderLineDTO update(Long artId, Long crtId, UpdateOrderLineDTO dto);
+    void delete(Long artId, Long cartId);
 
 }

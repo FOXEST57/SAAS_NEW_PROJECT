@@ -50,11 +50,7 @@ public class CartController {
             @ApiResponse(responseCode = "404", description = "Panier introuvable")
     })
     public ResponseEntity<CartDTO> findById(@PathVariable Long id) {
-        try {
             return ResponseEntity.ok(cartService.findById(id));
-        } catch (ICartService.CartNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @PostMapping("")
@@ -63,15 +59,10 @@ public class CartController {
             @ApiResponse(responseCode = "201", description = "Panier créé"),
             @ApiResponse(responseCode = "409", description = "Pannier déjà existant en BDD portant la même référence")
     })
-    public ResponseEntity<CartDTO> create(@Valid @RequestBody CartRequestDTO dto) throws ICustomerService.CustomerNotFoundException {
+    public ResponseEntity<CartDTO> create(@Valid @RequestBody CartRequestDTO dto) {
 
-        try {
-            // @RequestBody : Spring désérialise automatiquement le JSON reçu en CartRequestDTO
             CartDTO response = cartService.create(dto);
             return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
-        } catch (ICustomerService.CustomerNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @DeleteMapping("/{id}")
@@ -80,13 +71,9 @@ public class CartController {
             @ApiResponse(responseCode = "204", description = "Panier supprimé"),
             @ApiResponse(responseCode = "404", description = "Panier introuvable")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws ICartService.CartNotFoundException {
-        try {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
             cartService.delete(id);
             return ResponseEntity.noContent().build(); // 204 : succès sans contenu retourné
-        } catch (ICartService.CartNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404
-        }
     }
 
     @PutMapping("/modify/{id}")
@@ -98,16 +85,8 @@ public class CartController {
     })
     public ResponseEntity<CartDTO> update(@PathVariable Long id,
                                               @Valid
-                                              @RequestBody CartRequestDTO dto)
-            throws ICartService.CartNotFoundException, ICustomerService.CustomerNotFoundException {
-
-        try {
+                                              @RequestBody CartRequestDTO dto) {
             CartDTO updated = cartService.modify(id, dto);
             return new ResponseEntity<>(updated, HttpStatus.OK);
-        } catch (ICartService.CartNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (ICustomerService.CustomerNotFoundException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 }

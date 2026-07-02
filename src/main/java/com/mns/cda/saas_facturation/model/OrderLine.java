@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
@@ -21,7 +21,7 @@ public class OrderLine {
         @Column(name = "article_id")
         private Long articleId;
         @Column(name = "cart_id")
-        private Long makerId;
+        private Long cartId;
     }
 
     @EmbeddedId
@@ -35,9 +35,9 @@ public class OrderLine {
     @ManyToOne
     @MapsId("cartId")
     @JoinColumn(name = "cart_id")
-    protected Maker maker;
+    protected Cart cart;
 
     @Column(nullable = false)
-    @NotBlank
+    @NotNull
     protected Integer ordLnQuantity;
 }

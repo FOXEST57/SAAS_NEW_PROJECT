@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.CartDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CartRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICartService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CartMapper;
 import com.mns.cda.saas_facturation.model.Cart;
 import com.mns.cda.saas_facturation.model.Customer;
@@ -31,17 +32,17 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CartDTO findById(Long id) throws ICartService.CartNotFoundException {
+    public CartDTO findById(Long id) {
         return cartRepository.findById(id).map(cartMapper::toDTO)
-                .orElseThrow(ICartService.CartNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
 
     }
 
     @Override
-    public CartDTO create(CartRequestDTO dto) throws ICustomerService.CustomerNotFoundException {
+    public CartDTO create(CartRequestDTO dto) {
 
         Customer customer = customerRepository.findById(dto.ctmId())
-                .orElseThrow(ICustomerService.CustomerNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
         Cart cart = new Cart();
         cart.setCrtRef(dto.crtRef());
@@ -52,13 +53,13 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CartDTO modify(Long id, CartRequestDTO dto) throws ICartService.CartNotFoundException, ICustomerService.CustomerNotFoundException {
+    public CartDTO modify(Long id, CartRequestDTO dto) {
 
         Cart cart = cartRepository.findById(id)
-                .orElseThrow(ICartService.CartNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
 
         Customer customer = customerRepository.findById(dto.ctmId())
-                .orElseThrow(ICustomerService.CustomerNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
         cart.setCrtRef(dto.crtRef());
         cart.setCrtStatus(dto.crtStatus());
@@ -68,9 +69,9 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public void delete(Long id) throws ICartService.CartNotFoundException {
+    public void delete(Long id) {
         cartRepository.delete(cartRepository.findById(id)
-                .orElseThrow(ICartService.CartNotFoundException::new));
+                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" )));
     }
 
 }

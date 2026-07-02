@@ -8,13 +8,12 @@ import java.util.List;
 public interface ICartService {
     List<CartDTO> findAll();
 
-    CartDTO findById(Long id) throws CartNotFoundException;
+    CartDTO findById(Long id);
 
-    CartDTO create(CartRequestDTO dto) throws ICustomerService.CustomerNotFoundException;
+    CartDTO create(CartRequestDTO dto);
 
-    CartDTO modify(Long id, CartRequestDTO dto) throws CartNotFoundException, ICustomerService.CustomerNotFoundException;
+    CartDTO modify(Long id, CartRequestDTO dto);
 
-    void delete(Long id) throws CartNotFoundException;
+    void delete(Long id);
 
-    public static class CartNotFoundException extends Exception {}
 }

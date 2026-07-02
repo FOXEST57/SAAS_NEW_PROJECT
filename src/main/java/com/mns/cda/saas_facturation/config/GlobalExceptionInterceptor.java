@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.config;
 
 import com.mns.cda.saas_facturation.DTO.GlobalExceptionInterceptorDTO;
+import com.mns.cda.saas_facturation.exception.InsufficientStockException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -113,5 +114,11 @@ public class GlobalExceptionInterceptor {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public GlobalExceptionInterceptorDTO resourceNotFoundInterceptor(ResourceNotFoundException ex) {
         return new GlobalExceptionInterceptorDTO(404, "NOT FOUND", ex.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public GlobalExceptionInterceptorDTO insufficientStockException(InsufficientStockException ex) {
+        return new GlobalExceptionInterceptorDTO(409, "CONFLICT", ex.getMessage());
     }
 }

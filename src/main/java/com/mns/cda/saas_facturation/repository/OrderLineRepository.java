@@ -4,6 +4,12 @@ import com.mns.cda.saas_facturation.model.OrderLine;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface OrderRepository extends JpaRepository<OrderLine, OrderLine.OrderLineId> {
+public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLine.OrderLineId> {
+
+    //Retourne une liste de OrderLine par CrtId
+    List<OrderLine> findByOrdLnId_CartId(Long crtId);
+
 }
