@@ -1,11 +1,9 @@
 package com.mns.cda.saas_facturation.mapper;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.MakerReferenceForArticleDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
+import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.responseDTO.*;
 
+import com.mns.cda.saas_facturation.mapper.responseMapper.MakerReferenceResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.CategoryResponseMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.TvaResponseMapper;
@@ -27,7 +25,7 @@ public class ArticleMapper {
     private final TvaResponseMapper tvaResponseMapper;
     private final SupplierReferenceResponseMapper supplierReferenceMapper;
     private final ArticleRepository articleRepository;
-    private final MakerReferenceMapper makerReferenceMapper;
+    private final MakerReferenceResponseMapper makerReferenceResponseMapper;
 
     public ArticleDTO toDTO(Article article) {
 
@@ -51,9 +49,9 @@ public class ArticleMapper {
                 .toList()
                 :List.of();
 
-        List<MakerReferenceForArticleDTO> makerLinks = article.getMakerReferences()
+        List<MakerReferenceResponseDTO> makerLinks = article.getMakerReferences()
                 .stream()
-                .map(makerReferenceMapper::referenceToDto)
+                .map(makerReferenceResponseMapper::toResponseDto)
                 .toList();
 
         // Construction du DTO de réponse avec toutes les données calculées et mappées
@@ -73,6 +71,22 @@ public class ArticleMapper {
                 makerLinks
         );
     }
+
+    public ArticleLightDTO toLightDTO(Article article) {
+
+        BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
+                .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
+
+        return new ArticleLightDTO(
+                article.getArtId(),
+                article.getArtReference(),
+                article.getArtName(),
+                article.getArtDescription(),
+                article.getArtStock(),
+                priceTTC
+        );
+    }
+
 
     public ArticleResponseMakerReferenceDTO MakerReferenceToDTO(MakerReference makerReference) {
         Article article = makerReference.getArticle();
@@ -111,7 +125,11 @@ public class ArticleMapper {
                 article.getArtPriceExcludeTaxes(),
                 article.getArtStock(),
                 tvaResponseMapper.toResponseDto(article.getTva()),
-                categories
+                categories,
+                article.getMakerReferences()
+                        .stream()
+                        .map(makerReferenceResponseMapper::toResponseDto)
+                        .toList()
         );
     }
 

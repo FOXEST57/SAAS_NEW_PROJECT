@@ -14,6 +14,7 @@ public class AddressMapper {
 
     public AddressDTO toDTO(Address address) {
         return new AddressDTO(
+                address.getAddId(),
                 address.getAddNumber(),
                 address.getAddStreet(),
                 address.getAddComplement(),

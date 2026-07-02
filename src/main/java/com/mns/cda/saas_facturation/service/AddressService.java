@@ -47,9 +47,12 @@ public class AddressService implements IAddressService {
 
     @Override
     public AddressDTO create(AddressRequestDTO dto) throws ResourceNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
-        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
+        PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
+        City city = cityRepository.findById(dto.cityId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPCodeId(),city.getCityId()))
+                .orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
 
         Address address = new Address(
                 null,
@@ -66,10 +69,13 @@ public class AddressService implements IAddressService {
 
     @Override
     public AddressDTO update(Long addId, AddressRequestDTO dto) throws ResourceNotFoundException {
-        Address address = addressRepository.findById(addId).orElseThrow(() -> new ResourceNotFoundException("Adresse non existente"));
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(() -> new ResourceNotFoundException("Code postal non exitant"));
+        Address address = addressRepository.findById(addId)
+                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existente"));
+        PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Code postal non exitant"));
         City city = cityRepository.findById(dto.cityId()).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
-        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPCodeId(),city.getCityId()))
+                .orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
 
         address.setAddNumber(dto.addNumber());
         address.setAddStreet(dto.addStreet());
@@ -82,7 +88,8 @@ public class AddressService implements IAddressService {
 
     @Override
     public void delete(Long addId) throws ResourceNotFoundException {
-        Address address = addressRepository.findById(addId).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
+        Address address = addressRepository.findById(addId)
+                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         
         addressRepository.delete(address);
     }

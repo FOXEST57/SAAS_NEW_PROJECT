@@ -29,32 +29,32 @@ public class PostalCodeService implements IPostalCodeService {
     }
 
     @Override
-    public Optional<PostalCodeDTO> findById(Long pcodeId) {
-        return postalCodeRepository.findById(pcodeId).map(postalCodeMapper::toDTO);
+    public Optional<PostalCodeDTO> findById(Long pCodeId) {
+        return postalCodeRepository.findById(pCodeId).map(postalCodeMapper::toDTO);
     }
 
     @Override
     public PostalCodeDTO create(PostalCodeRequestDTO dto) {
         PostalCode postalCode = new PostalCode(
                 null,
-                dto.pcodeName()
+                dto.pCodeName()
         );
 
         return postalCodeMapper.toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
-    public PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO dto) throws ResourceNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(() -> new ResourceNotFoundException("Code Postal non existant"));
+    public PostalCodeDTO update(Long pCodeId, PostalCodeRequestDTO dto) throws ResourceNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(pCodeId).orElseThrow(() -> new ResourceNotFoundException("Code Postal non existant"));
 
-        postalCode.setPcodeName(dto.pcodeName());
+        postalCode.setPCodeName(dto.pCodeName());
 
         return postalCodeMapper.toDTO(postalCodeRepository.save(postalCode));
     }
 
     @Override
-    public void delete(Long pcodeId) throws ResourceNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(() -> new ResourceNotFoundException("Code Postal non existant"));
+    public void delete(Long pCodeId) throws ResourceNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(pCodeId).orElseThrow(() -> new ResourceNotFoundException("Code Postal non existant"));
 
         postalCodeRepository.delete(postalCode);
     }

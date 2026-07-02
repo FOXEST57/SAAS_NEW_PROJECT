@@ -84,7 +84,7 @@ public class PostalCodeCityController {
      * <p>Si aucun liens entre code postal et ville ne correspond à l'ID fourni, une réponse 404 est retournée
      * sans corps, conformément aux conventions REST.</p>
      *
-     * @param pcodeId l'identifiant unique du code postal à récupérer, extrait de l'URL
+     * @param pCodeId l'identifiant unique du code postal à récupérer, extrait de l'URL
      * @param cityId l'identifiant unique de la ville à récupérer, extrait de l'URL
      * @return une {@link ResponseEntity} contenant :
      *         <ul>
@@ -101,8 +101,8 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "200", description = "Lien entre code postal et ville récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Lien entre code postal et ville non trouvé.")
     })
-    public ResponseEntity<PostalCodeCityDTO> getPostalCodeCityById(@PathVariable Long pcodeId, @PathVariable Long cityId) {
-        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pcodeId, cityId);
+    public ResponseEntity<PostalCodeCityDTO> getPostalCodeCityById(@PathVariable Long pCodeId, @PathVariable Long cityId) {
+        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
         Optional<PostalCodeCityDTO> optionalPostalCodeCity = postalCodeCityService.findById(id);
 
         if (optionalPostalCodeCity.isEmpty()) {
@@ -149,7 +149,7 @@ public class PostalCodeCityController {
      * <p>Le DTO est validé par Bean Validation avant traitement. Les exceptions métier
      * sont propagées si l'article, la TVA ou le fournisseur référencés sont introuvables.</p>
      *
-     * @param pcodeId l'identifiant unique du code postal à modifier, extrait de l'URL
+     * @param pCodeId l'identifiant unique du code postal à modifier, extrait de l'URL
      * @param cityId l'identifiant unique de la ville à modifier, extrait de l'URL
      * @param dto les nouvelles données du lien entre code postal et ville, désérialisées depuis le corps JSON
      *            et validées par {@code @Valid}
@@ -166,8 +166,8 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "200", description = "Lien entre code postal et ville modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "Le lien entre code postal et ville n'existe pas.")
     })
-    public ResponseEntity<PostalCodeCityDTO> updatePostalCodeCity(@PathVariable Long pcodeId, @PathVariable Long cityId, @RequestBody @Valid PostalCodeCityRequestDTO dto) {
-        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pcodeId, cityId);
+    public ResponseEntity<PostalCodeCityDTO> updatePostalCodeCity(@PathVariable Long pCodeId, @PathVariable Long cityId, @RequestBody @Valid PostalCodeCityRequestDTO dto) {
+        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
         PostalCodeCityDTO postalCodeCityUpdated = postalCodeCityService.update(id, dto);
 
         return new ResponseEntity<>(postalCodeCityUpdated, HttpStatus.OK);
@@ -179,7 +179,7 @@ public class PostalCodeCityController {
      * <p>En cas de succès, une réponse 204 No Content est retournée conformément
      * aux conventions REST (pas de corps dans la réponse après suppression).</p>
      *
-     * @param pcodeId l'identifiant unique code postal à supprimer, extrait de l'URL
+     * @param pCodeId l'identifiant unique code postal à supprimer, extrait de l'URL
      * @param cityId l'identifiant unique de la ville à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
      * @throws ResourceNotFoundException si le lien entre code postal et ville n'existe pas en base
@@ -192,8 +192,8 @@ public class PostalCodeCityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Lien entre code postal et ville supprimé avec succès.")
     })
-    public ResponseEntity<Void> deletePostalCodeCity(@PathVariable Long pcodeId, @PathVariable Long cityId) throws ResourceNotFoundException {
-        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pcodeId, cityId);
+    public ResponseEntity<Void> deletePostalCodeCity(@PathVariable Long pCodeId, @PathVariable Long cityId) throws ResourceNotFoundException {
+        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
         postalCodeCityService.delete(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

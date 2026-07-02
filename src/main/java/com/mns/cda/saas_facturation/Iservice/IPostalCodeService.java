@@ -11,12 +11,12 @@ public interface IPostalCodeService {
 
     List<PostalCodeDTO> findAll();
 
-    Optional<PostalCodeDTO> findById(Long pcodeId);
+    Optional<PostalCodeDTO> findById(Long pCodeId);
 
     PostalCodeDTO create(PostalCodeRequestDTO postalCode);
 
-    PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO postalCode) throws ResourceNotFoundException;
+    PostalCodeDTO update(Long pCodeId, PostalCodeRequestDTO postalCode) throws ResourceNotFoundException;
 
-    void delete(Long pcodeId) throws ResourceNotFoundException;
+    void delete(Long pCodeId) throws ResourceNotFoundException;
 
 }
