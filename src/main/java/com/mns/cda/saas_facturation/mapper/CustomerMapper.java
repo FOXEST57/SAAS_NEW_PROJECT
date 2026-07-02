@@ -13,6 +13,7 @@ public class CustomerMapper {
 
     public CustomerDTO toDTO(Customer customer) {
         return new CustomerDTO(
+                customer.getCtmId(),
                 customer.getCtmFirstName(),
                 customer.getCtmLastName(),
                 customer.getCtmEmail(),

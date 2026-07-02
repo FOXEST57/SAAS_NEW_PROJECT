@@ -64,10 +64,7 @@ public class SupplierReferenceController {
 
     @PostMapping
     public ResponseEntity<SupplierReferenceDTO> create(
-            @Valid @RequestBody SupplierReferenceRequestDTO supplierReference)
-            throws IArticleService.ArticleNotFoundException,
-            ISupplierService.SupplierNotFoundException {
-
+            @Valid @RequestBody SupplierReferenceRequestDTO supplierReference) {
         SupplierReferenceDTO response = supplierReferenceService.create(supplierReference);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -92,8 +89,7 @@ public class SupplierReferenceController {
             @PathVariable Long articleId,
             @PathVariable Long supplierId,
             @Valid @RequestBody UpdateSupplierReferenceDTO dto
-    ) throws
-            ISupplierReferenceService.SupplierReferenceNotFoundException, ISupplierService.SupplierNotFoundException, IArticleService.ArticleNotFoundException {
+    ) {
 
         SupplierReferenceDTO updated = supplierReferenceService.update(articleId,supplierId, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);

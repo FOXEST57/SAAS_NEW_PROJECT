@@ -5,15 +5,13 @@ import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.SupplierReference;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ISupplierReferenceService {
-
-
-    public static class SupplierReferenceNotFoundException extends Exception {}
 
     List<SupplierReferenceDTO> findAll();
 
@@ -26,12 +24,11 @@ public interface ISupplierReferenceService {
     List<ArticleResponseSupplierDTO> findBySupplierId(Long supplierId);
 
     SupplierReferenceDTO create(SupplierReferenceRequestDTO dto)
-            throws IArticleService.ArticleNotFoundException,
-            ISupplierService.SupplierNotFoundException;
+            throws ResourceNotFoundException;
 
     //PUT
     SupplierReferenceDTO update(Long artId, Long mkrId, UpdateSupplierReferenceDTO dto)
-            throws SupplierReferenceNotFoundException;
+            throws ResourceNotFoundException;
 
     void deleteById (SupplierReference.SupplierReferenceId id);
 }

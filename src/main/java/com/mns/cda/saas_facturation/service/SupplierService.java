@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.Article;
@@ -26,7 +27,7 @@ import java.util.Optional;
  * <ul>
  *   <li>convertir les entités JPA en DTOs avant de les retourner au contrôleur</li>
  *   <li>construire les entités {@link Supplier} à partir des DTOs reçus en entrée</li>
- *   <li>lever des exceptions métier explicites ({@link SupplierNotFoundException})
+ *   <li>lever des exceptions métier explicites ({@link ResourceNotFoundException})
  *       lorsqu'une ressource demandée est introuvable</li>
  * </ul>
  *
@@ -66,18 +67,18 @@ public class SupplierService implements ISupplierService {
     /**
      * Recherche un fournisseur par son identifiant unique.
      *
-     * <p>Si aucun fournisseur ne correspond à l'splId fourni, une {@link SupplierNotFoundException}
+     * <p>Si aucun fournisseur ne correspond à l'splId fourni, une {@link ResourceNotFoundException}
      * est levée. Elle sera interceptée soit localement dans le contrôleur,
      * soit par le {@code GlobalExceptionInterceptor}.</p>
      *
      * @param id l'identifiant du fournisseur à rechercher
      * @return le {@link SupplierDTO} correspondant au fournisseur trouvé
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
+     * @throws ResourceNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     @Override
-    public SupplierDTO findById(Long id) throws SupplierNotFoundException {
+    public SupplierDTO findById(Long id) throws ResourceNotFoundException {
         return supplierMapper.toDTO(supplierRepository.findById(id)
-                .orElseThrow(SupplierNotFoundException::new)); // Lève l'exception si l'Optional est vide
+                .orElseThrow(() -> new ResourceNotFoundException("Fournisseur non existant"))); // Lève l'exception si l'Optional est vide
     }
 
     /**
@@ -91,10 +92,10 @@ public class SupplierService implements ISupplierService {
      * @return le {@link SupplierDTO} du fournisseur créé, avec son splId généré
      */
     @Override
-    public SupplierDTO create(SupplierRequestDTO dto) throws IAddressService.AddressNotFoundException {
+    public SupplierDTO create(SupplierRequestDTO dto) throws ResourceNotFoundException {
 
         Address address = addressRepository.findById(dto.addressId())
-                .orElseThrow(IAddressService.AddressNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
 
         // Construction de l'entité à partir du DTO — l'splId est null pour forcer la génération en base
         Supplier supplier = new Supplier(
@@ -113,20 +114,16 @@ public class SupplierService implements ISupplierService {
      * Supprime un fournisseur par son identifiant.
      *
      * <p>L'existence du fournisseur est vérifiée avant toute tentative de suppression.
-     * Si l'splId est introuvable, une {@link SupplierNotFoundException} est levée
+     * Si l'splId est introuvable, une {@link ResourceNotFoundException} est levée
      * pour éviter un appel inutile à {@code deleteById}.</p>
      *
      * @param id l'identifiant du fournisseur à supprimer
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
+     * @throws ResourceNotFoundException si aucun fournisseur ne correspond à cet splId
      */
     @Override
-    public void delete(Long id) throws SupplierNotFoundException {
-        Optional<Supplier> optionalSupplier = supplierRepository.findById(id);
-
-        // Vérification préalable : on lève l'exception avant d'appeler deleteById
-        if (optionalSupplier.isEmpty()) {
-            throw new SupplierNotFoundException();
-        }
+    public void delete(Long id) throws ResourceNotFoundException {
+        // On regarde d'abord si le fournisseur existe en base avant de le supprimer
+        supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Fournisseur non existant"));
         supplierRepository.deleteById(id);
     }
 
@@ -134,7 +131,7 @@ public class SupplierService implements ISupplierService {
      * Met à jour un fournisseur existant avec les nouvelles données fournies.
      *
      * <p>Le fournisseur est d'abord récupéré en base via son splId. Si introuvable,
-     * une {@link SupplierNotFoundException} est levée immédiatement.</p>
+     * une {@link ResourceNotFoundException} est levée immédiatement.</p>
      *
      * <p>Les champs de l'entité sont ensuite mis à jour un par un via les setters
      * avant d'être sauvegardés. Cette approche garantit que seuls les champs
@@ -143,17 +140,17 @@ public class SupplierService implements ISupplierService {
      * @param id  l'identifiant du fournisseur à mettre à jour
      * @param dto le DTO contenant les nouvelles valeurs
      * @return le {@link SupplierDTO} du fournisseur après mise à jour
-     * @throws SupplierNotFoundException  si aucun fournisseur ne correspond à cet splId
+     * @throws ResourceNotFoundException  si aucun fournisseur ne correspond à cet splId
      */
     @Override
-    public SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException, IAddressService.AddressNotFoundException {
+    public SupplierDTO modify(Long id, SupplierRequestDTO dto) throws ResourceNotFoundException {
 
-        // Récupération de l'entité existante — lève SupplierNotFoundException si absente
+        // Récupération de l'entité existante — lève ResourceNotFoundException si absente
         Supplier supplier = supplierRepository.findById(id)
-                .orElseThrow(ISupplierService.SupplierNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Fournisseur non existant"));
 
         Address address = addressRepository.findById(dto.addressId())
-                .orElseThrow(IAddressService.AddressNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
 
         // Mise à jour des champs de l'entité avec les valeurs du DTO
         supplier.setSplName(dto.name());

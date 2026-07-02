@@ -50,6 +50,6 @@ public record ArticleDTO(
         LocalDateTime  artUpdatedDate,
         List<CategoryResponseDTO> categories,
         List<SupplierReferenceResponseDTO> suppliers,
-        List<MakerReferenceForArticleDTO> makers
+        List<MakerReferenceResponseDTO> makers
 ) {
 }

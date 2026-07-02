@@ -3,9 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.AddressRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
-import com.mns.cda.saas_facturation.Iservice.ICityService;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,9 +36,7 @@ import java.util.Optional;
  * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
  * qui les transforme en réponse 400 structurée.</p>
  *
- * <p>Les exceptions métier ({@link IAddressService.AddressNotFoundException},
- * {@link IPostalCodeService.PostalCodeNotFoundException}, {@link ICityService.CityNotFoundException})
- * sont propagées vers la couche de gestion globale des erreurs.</p>
+ * <p>Les exceptions (@link ResourceNotFoundException) sont propagées vers la couche de gestion globale des erreurs.</p>
  *
  * @see IAddressService
  * @see AddressDTO
@@ -126,8 +122,7 @@ public class AddressController {
      * @param dto les données de l'adresse à créer, désérialisées depuis le corps JSON
      *            de la requête et validées par {@code @Valid}
      * @return une {@link ResponseEntity} vide avec le statut HTTP 201 Created
-     * @throws IPostalCodeService.PostalCodeNotFoundException si le code postal référencé n'existe pas
-     * @throws ICityService.CityNotFoundException si la ville référencée n'existe pas
+     * @throws ResourceNotFoundException si le code postal référencé ou si la ville référencée n'existe pas
      */
     @PostMapping()
     @Operation(
@@ -138,7 +133,7 @@ public class AddressController {
             @ApiResponse(responseCode = "201", description = "Adresse créée avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<AddressDTO> createAddress(@RequestBody @Valid AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
+    public ResponseEntity<AddressDTO> createAddress(@RequestBody @Valid AddressRequestDTO dto) {
         AddressDTO addressCreated = addressService.create(dto);
 
         return new ResponseEntity<>(addressCreated, HttpStatus.CREATED);
@@ -158,9 +153,7 @@ public class AddressController {
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant la {@link AddressDTO} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws IAddressService.AddressNotFoundException       si l'adresse ciblée n'existe pas en base
-     * @throws IPostalCodeService.PostalCodeNotFoundException si le code postal référencé n'existe pas
-     * @throws ICityService.CityNotFoundException             si la ville référencée n'existe pas
+     * @throws ResourceNotFoundException si l'adresse ciblée, le code postal référencé ou la ville référencée n'existe pas
      */
     @PutMapping("/{addId}")
     @Operation(
@@ -171,7 +164,7 @@ public class AddressController {
             @ApiResponse(responseCode = "200", description = "Adresse modifiée avec succès."),
             @ApiResponse(responseCode = "404", description = "L'adresse n'existe pas.")
     })
-    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addId, @RequestBody @Valid AddressRequestDTO dto) throws IAddressService.AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addId, @RequestBody @Valid AddressRequestDTO dto) {
         AddressDTO addressUpdated = addressService.update(addId, dto);
 
         return new ResponseEntity<>(addressUpdated, HttpStatus.OK);
@@ -185,7 +178,7 @@ public class AddressController {
      *
      * @param addId l'identifiant unique de l'adresse à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi</li>
-     * @throws IAddressService.AddressNotFoundException si l'adresse ciblée n'existe pas en base
+     * @throws ResourceNotFoundException si l'adresse ciblée n'existe pas en base
      */
     @DeleteMapping("/{addId}")
     @Operation(
@@ -195,7 +188,7 @@ public class AddressController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Article supprimé avec succès.")
     })
-    public ResponseEntity<Void> deleteAddress(@PathVariable Long addId) throws IAddressService.AddressNotFoundException {
+    public ResponseEntity<Void> deleteAddress(@PathVariable Long addId) {
         addressService.delete(addId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

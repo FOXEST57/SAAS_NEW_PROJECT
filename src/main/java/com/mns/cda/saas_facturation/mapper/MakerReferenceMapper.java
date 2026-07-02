@@ -1,14 +1,8 @@
 package com.mns.cda.saas_facturation.mapper;
 
 import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.MakerReferenceForArticleDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerResponseDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierReferenceResponseDTO;
 import com.mns.cda.saas_facturation.mapper.responseMapper.ArticleResponseMakerReferenceMapper;
 import com.mns.cda.saas_facturation.mapper.responseMapper.MakerResponseMapper;
-import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
 import com.mns.cda.saas_facturation.model.MakerReference;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,14 +25,4 @@ public class MakerReferenceMapper {
         );
     }
 
-    public MakerReferenceForArticleDTO referenceToDto(MakerReference makerReference) {
-
-        return new MakerReferenceForArticleDTO(
-                new MakerResponseDTO(
-                        makerReference.getMaker().getMkrId(),
-                        makerReference.getMaker().getMkrName()
-                ),
-                makerReference.getMkrRefReference()
-        );
-    }
 }

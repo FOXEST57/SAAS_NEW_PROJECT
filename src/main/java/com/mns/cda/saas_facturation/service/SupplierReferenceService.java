@@ -8,6 +8,7 @@ import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.mapper.SupplierReferenceMapper;
@@ -74,14 +75,13 @@ public class SupplierReferenceService implements ISupplierReferenceService {
     //Post
     @Override
     public SupplierReferenceDTO create(SupplierReferenceRequestDTO dto)
-            throws IArticleService.ArticleNotFoundException,
-            ISupplierService.SupplierNotFoundException {
+            throws ResourceNotFoundException {
 
         Supplier splRefSupplier = supplierRepository.findById(dto.supplierId())
-                .orElseThrow(ISupplierService.SupplierNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Fournisseur non existant"));
 
         Article splRefArticle = articleRepository.findById(dto.articleId())
-                .orElseThrow(IArticleService.ArticleNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         SupplierReference splRef = new SupplierReference(
                 new SupplierReference.SupplierReferenceId(),
@@ -100,11 +100,11 @@ public class SupplierReferenceService implements ISupplierReferenceService {
     //PUT
     @Override
     public SupplierReferenceDTO update(Long artId, Long mkrId, UpdateSupplierReferenceDTO dto)
-            throws SupplierReferenceNotFoundException{
+            throws ResourceNotFoundException{
 
         SupplierReference splRef = supplierReferenceRepository.findById(
                 new SupplierReference.SupplierReferenceId(artId,mkrId)
-        ).orElseThrow(ISupplierReferenceService.SupplierReferenceNotFoundException::new);
+        ).orElseThrow(() -> new ResourceNotFoundException("Référence fournisseur non existante"));
 
         splRef.setSplRefReference(dto.splRefReference());
         splRef.setSplRefStock(dto.splRefStock());

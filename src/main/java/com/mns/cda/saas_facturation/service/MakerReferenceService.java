@@ -8,6 +8,7 @@ import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenc
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.mapper.MakerMapper;
 import com.mns.cda.saas_facturation.mapper.MakerReferenceMapper;
@@ -58,23 +59,22 @@ public class MakerReferenceService implements IMakerReferenceService {
     }
 
     @Override // Utiliser la clé primaire
-    public MakerReferenceDTO findById(Long artId, Long mkrId) throws IMakerReferenceService.MakerReferenceNotFoundException {
+    public MakerReferenceDTO findById(Long artId, Long mkrId) throws ResourceNotFoundException {
 
         return makerReferenceMapper.toDto(makerReferenceRepository.findById(
                 new MakerReference.MakerReferenceId(artId,mkrId)
-        ).orElseThrow(IMakerReferenceService.MakerReferenceNotFoundException::new));
+        ).orElseThrow(() -> new ResourceNotFoundException("Référence fabricant non existante")));
     }
 
     @Override
-    public MakerReferenceDTO create(MakerReferenceRequestDTO dto) throws IArticleService.ArticleNotFoundException,
-            IMakerService.MakerNotFoundException {
+    public MakerReferenceDTO create(MakerReferenceRequestDTO dto) throws ResourceNotFoundException {
         //
 
         Article article = articleRepository.findById(dto.artId())
-                .orElseThrow(IArticleService.ArticleNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         Maker maker = makerRepository.findById(dto.mkrId())
-                .orElseThrow(IMakerService.MakerNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Fabricant non existant"));
 
         MakerReference makerReference = new MakerReference(
                 new MakerReference.MakerReferenceId(),
@@ -87,11 +87,11 @@ public class MakerReferenceService implements IMakerReferenceService {
     }
 
     @Override
-    public MakerReferenceDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws MakerReferenceNotFoundException {
+    public MakerReferenceDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws ResourceNotFoundException {
 
        MakerReference makerReference = makerReferenceRepository.findById(
                new MakerReference.MakerReferenceId(artId,mkrId)
-       ).orElseThrow(MakerReferenceNotFoundException::new);
+       ).orElseThrow(() -> new ResourceNotFoundException("Référence fabricant non existante"));
 
        makerReference.setMkrRefReference(dto.reference());
 
@@ -100,10 +100,10 @@ public class MakerReferenceService implements IMakerReferenceService {
     }
 
     @Override
-    public void delete(Long artId, Long mkrId) throws MakerReferenceNotFoundException {
+    public void delete(Long artId, Long mkrId) throws ResourceNotFoundException {
         makerReferenceRepository.delete(
                 makerReferenceRepository.findById(
                         new MakerReference.MakerReferenceId(artId, mkrId)
-                ).orElseThrow(MakerReferenceNotFoundException::new));
+                ).orElseThrow(() -> new ResourceNotFoundException("Référence fabricant non existante")));
     }
 }

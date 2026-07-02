@@ -13,6 +13,7 @@ public class CityMapper {
 
     public CityDTO toDTO(City city) {
         return new CityDTO(
+                city.getCityId(),
                 city.getCityName(),
                 countryMapper.toDTO(city.getCountry())
         );

@@ -11,6 +11,7 @@ public class CountryMapper {
 
     public CountryDTO toDTO(Country country) {
         return new CountryDTO(
+                country.getCntId(),
                 country.getCntName()
         );
     }

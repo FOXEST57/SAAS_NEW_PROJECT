@@ -4,6 +4,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -45,11 +46,11 @@ public class MakerController {
             @ApiResponse(responseCode = "200", description = "Fabricant récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Fabricant non trouvé.")
     })
-    public ResponseEntity<MakerDTO> getMakerById(@PathVariable Long id) throws IMakerService.MakerNotFoundException {
+    public ResponseEntity<MakerDTO> getMakerById(@PathVariable Long id) throws ResourceNotFoundException {
 
         try {
             return new ResponseEntity<>(makerService.findById(id),HttpStatus.OK);
-        } catch (IMakerService.MakerNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -76,11 +77,11 @@ public class MakerController {
             @ApiResponse(responseCode = "204", description = "Fabricant supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "Le fabricant n'existe pas.")
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws IMakerService.MakerNotFoundException {
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws ResourceNotFoundException {
         try {
             makerService.delete(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IMakerService.MakerNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -97,11 +98,11 @@ public class MakerController {
     })
     public ResponseEntity<MakerDTO> update (
             @PathVariable Long id,
-            @Valid @RequestBody MakerRequestDTO dto) throws IMakerService.MakerNotFoundException {
+            @Valid @RequestBody MakerRequestDTO dto) throws ResourceNotFoundException {
 
         try {
             return new ResponseEntity<>(makerService.modify(id, dto),HttpStatus.OK);
-        } catch (IMakerService.MakerNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Category;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -121,7 +122,7 @@ public class CategoryController {
     })
     public ResponseEntity<CategoryDTO> create(
             @Valid @RequestBody CategoryRequestDTO category
-    ) throws ICategoryService.CategoryNotFoundException {
+    ) {
         CategoryDTO response = categoryService.create(category);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -173,7 +174,7 @@ public class CategoryController {
      * @param category le DTO contenant le nouveau nom de la catégorie, désérialisé depuis le corps JSON
      * @return une {@link ResponseEntity} contenant la {@link Category} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws ICategoryService.CategoryNotFoundException si aucune catégorie ne correspond à l'ID fourni
+     * @throws ResourceNotFoundException si aucune catégorie ne correspond à l'ID fourni
      */
     @PutMapping("/{id}")
     @Operation(summary = "Modifie une Category en base de données.",
@@ -184,8 +185,7 @@ public class CategoryController {
     })
     public ResponseEntity<CategoryDTO> update(
             @PathVariable Long id,
-            @Valid @RequestBody CategoryRequestDTO category)
-            throws ICategoryService.CategoryNotFoundException {
+            @Valid @RequestBody CategoryRequestDTO category) {
         CategoryDTO updatedCategory = categoryService.update(id, category);
         return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }

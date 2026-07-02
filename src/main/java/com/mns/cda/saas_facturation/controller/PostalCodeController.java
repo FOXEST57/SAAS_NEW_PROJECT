@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,8 +36,7 @@ import java.util.Optional;
  * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
  * qui les transforme en réponse 400 structurée.</p>
  *
- * <p>L'exception métier ({@link IPostalCodeService.PostalCodeNotFoundException})
- * est propagée vers la couche de gestion globale des erreurs.</p>
+ * <p>L'exception ({@link ResourceNotFoundException}) est propagée vers la couche de gestion globale des erreurs.</p>
  *
  * @see IPostalCodeService
  * @see PostalCodeDTO
@@ -83,7 +83,7 @@ public class PostalCodeController {
      * <p>Si aucun code postal ne correspond à l'ID fourni, une réponse 404 est retournée
      * sans corps, conformément aux conventions REST.</p>
      *
-     * @param pcodeId l'identifiant unique du code postal à récupérer, extrait de l'URL
+     * @param pCodeId l'identifiant unique du code postal à récupérer, extrait de l'URL
      * @return une {@link ResponseEntity} contenant :
      *         <ul>
      *           <li>l'{@link PostalCodeDTO} correspondant avec le statut 200 OK si trouvé</li>
@@ -99,8 +99,8 @@ public class PostalCodeController {
             @ApiResponse(responseCode = "200", description = "Code postal récupéré avec succès."),
             @ApiResponse(responseCode = "404", description = "Code postal non trouvé.")
     })
-    public ResponseEntity<PostalCodeDTO> getPostalCodeById(@PathVariable Long pcodeId) {
-        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pcodeId);
+    public ResponseEntity<PostalCodeDTO> getPostalCodeById(@PathVariable Long pCodeId) {
+        Optional<PostalCodeDTO> optionalPostalCode = postalCodeService.findById(pCodeId);
 
         if (optionalPostalCode.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -146,12 +146,12 @@ public class PostalCodeController {
      * <p>Le DTO est validé par Bean Validation avant traitement. Les exceptions métier
      * sont propagées si l'article, la TVA ou le fournisseur référencés sont introuvables.</p>
      *
-     * @param pcodeId  l'identifiant unique du code postal à modifier, extrait de l'URL
+     * @param pCodeId  l'identifiant unique du code postal à modifier, extrait de l'URL
      * @param dto les nouvelles données du code postal, désérialisées depuis le corps JSON
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link PostalCodeDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws IPostalCodeService.PostalCodeNotFoundException si le code postal ciblé n'existe pas en base
+     * @throws ResourceNotFoundException si le code postal ciblé n'existe pas en base
      */
     @PutMapping("/{pcodeId}")
     @Operation(
@@ -162,8 +162,8 @@ public class PostalCodeController {
             @ApiResponse(responseCode = "200", description = "Code postal modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "Le code postal n'existe pas.")
     })
-    public ResponseEntity<PostalCodeDTO> updatePostalCode(@PathVariable Long pcodeId, @RequestBody @Valid PostalCodeRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException {
-        PostalCodeDTO postalCodeUpdated = postalCodeService.update(pcodeId, dto);
+    public ResponseEntity<PostalCodeDTO> updatePostalCode(@PathVariable Long pCodeId, @RequestBody @Valid PostalCodeRequestDTO dto) {
+        PostalCodeDTO postalCodeUpdated = postalCodeService.update(pCodeId, dto);
 
         return new ResponseEntity<>(postalCodeUpdated, HttpStatus.OK);
     }
@@ -174,9 +174,9 @@ public class PostalCodeController {
      * <p>En cas de succès, une réponse 204 No Content est retournée conformément
      * aux conventions REST (pas de corps dans la réponse après suppression).</p>
      *
-     * @param pcodeId l'identifiant unique du code postal à supprimer, extrait de l'URL
+     * @param pCodeId l'identifiant unique du code postal à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
-     * @throws IPostalCodeService.PostalCodeNotFoundException si le code postal n'existe pas en base
+     * @throws ResourceNotFoundException si le code postal n'existe pas en base
      */
     @DeleteMapping("/{pcodeId}")
     @Operation(
@@ -186,8 +186,8 @@ public class PostalCodeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Code postal supprimé avec succès.")
     })
-    public ResponseEntity<Void> deletePostalCode(@PathVariable Long pcodeId) throws IPostalCodeService.PostalCodeNotFoundException {
-        postalCodeService.delete(pcodeId);
+    public ResponseEntity<Void> deletePostalCode(@PathVariable Long pCodeId) {
+        postalCodeService.delete(pCodeId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

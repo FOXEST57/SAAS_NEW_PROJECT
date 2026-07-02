@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Category;
 import com.mns.cda.saas_facturation.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,6 @@ public class CategoryService implements ICategoryService {
 
     // Repository Spring Data JPA : gère tous les accès base de données pour l'entité Category
     protected final CategoryRepository categoryRepository;
-
     protected final CategoryMapper categoryMapper;
 
     /**
@@ -80,22 +80,22 @@ public class CategoryService implements ICategoryService {
      * Crée une nouvelle catégorie en base de données à partir des données fournies dans le DTO.
      *
      * <p>La catégorie parente est obligatoire : si l'splId {@code parentId} fourni dans le DTO
-     * ne correspond à aucune catégorie existante, une {@link CategoryNotFoundException}
+     * ne correspond à aucune catégorie existante, une {@link ResourceNotFoundException}
      * est levée avant toute persistance.</p>
      *
      * @param dto les données de la catégorie à créer (nom et splId de la catégorie parente)
      * @return le {@link CategoryDTO} de la catégorie créée avec son splId généré
-     * @throws CategoryNotFoundException si la catégorie parente référencée n'existe pas en base
+     * @throws ResourceNotFoundException si la catégorie parente référencée n'existe pas en base
      */
     @Override
-    public CategoryDTO create(CategoryRequestDTO dto) throws CategoryNotFoundException {
+    public CategoryDTO create(CategoryRequestDTO dto) throws ResourceNotFoundException {
 
         // Vérification et récupération de la catégorie parente — obligatoire
         // orElseThrow lève CategoryNotFoundException si l'splId est inconnu
         Category categoryParent = null;
         if (dto.parentId() != null) {
             categoryParent = categoryRepository.findById(dto.parentId())
-                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
+                    .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante"));
         }
 
 
@@ -129,26 +129,25 @@ public class CategoryService implements ICategoryService {
      *
      * <p>Le nom et la catégorie parente sont mis à jour. La catégorie parente
      * est vérifiée en base avant toute modification — si elle est introuvable,
-     * une {@link CategoryNotFoundException} est levée.</p>
+     * une {@link ResourceNotFoundException} est levée.</p>
      *
      * @param id               l'identifiant unique de la catégorie à modifier
      * @param categoryToUpdate le DTO contenant le nouveau nom et le nouvel splId de catégorie parente
      * @return le {@link CategoryDTO} de la catégorie après mise à jour
-     * @throws CategoryNotFoundException si la catégorie ciblée ou la catégorie parente
-     *                                   référencée n'existe pas en base
+     * @throws ResourceNotFoundException si la catégorie ciblée ou la catégorie parente référencée n'existe pas en base
      */
     @Override
     public CategoryDTO update(long id, CategoryRequestDTO categoryToUpdate)
-            throws CategoryNotFoundException {
+            throws ResourceNotFoundException {
 
-        // Récupération de la catégorie à modifier — lève CategoryNotFoundException si absente
+        // Récupération de la catégorie à modifier — lève ResourceNotFoundException si absente
         Category category = categoryRepository.findById(id)
-                .orElseThrow(CategoryNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante"));
 
         // Vérification et récupération de la nouvelle catégorie parente
         // lève CategoryNotFoundException si l'splId est inconnu
         Category categoryParent = categoryRepository.findById(categoryToUpdate.parentId())
-                .orElseThrow(CategoryNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante"));
 
         // Mise à jour des champs — JPA détecte les changements et génère un UPDATE lors du save()
         category.setCatName(categoryToUpdate.catName());

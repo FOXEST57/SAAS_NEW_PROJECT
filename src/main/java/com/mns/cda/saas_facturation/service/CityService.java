@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.CityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
-import com.mns.cda.saas_facturation.Iservice.ICountryService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CityMapper;
 import com.mns.cda.saas_facturation.model.City;
 import com.mns.cda.saas_facturation.model.Country;
@@ -37,8 +37,8 @@ public class CityService implements ICityService {
     }
 
     @Override
-    public CityDTO create(CityRequestDTO dto) throws ICountryService.CountryNotFoundException {
-        Country country = countryRepository.findById(dto.cntId()).orElseThrow(ICountryService.CountryNotFoundException::new);
+    public CityDTO create(CityRequestDTO dto) throws ResourceNotFoundException {
+        Country country = countryRepository.findById(dto.cntId()).orElseThrow(() -> new ResourceNotFoundException("Pays non existant"));
 
         City city = new City(
                 null,
@@ -50,9 +50,9 @@ public class CityService implements ICityService {
     }
 
     @Override
-    public CityDTO update(Long cityId, CityRequestDTO dto) throws CityNotFoundException, ICountryService.CountryNotFoundException {
-        City city = cityRepository.findById(cityId).orElseThrow(CityNotFoundException::new);
-        Country country = countryRepository.findById(dto.cntId()).orElseThrow(ICountryService.CountryNotFoundException::new);
+    public CityDTO update(Long cityId, CityRequestDTO dto) throws ResourceNotFoundException {
+        City city = cityRepository.findById(cityId).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        Country country = countryRepository.findById(dto.cntId()).orElseThrow(() -> new ResourceNotFoundException("Pays non existant"));
 
         city.setCityName(dto.cityName());
         city.setCountry(country);
@@ -61,8 +61,8 @@ public class CityService implements ICityService {
     }
 
     @Override
-    public void delete(Long cityId) throws CityNotFoundException {
-        City city = cityRepository.findById(cityId).orElseThrow(CityNotFoundException::new);
+    public void delete(Long cityId) throws ResourceNotFoundException {
+        City city = cityRepository.findById(cityId).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
         
         cityRepository.delete(city);
     }

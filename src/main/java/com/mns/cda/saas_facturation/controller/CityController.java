@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.CityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,9 +36,7 @@ import java.util.Optional;
  * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
  * qui les transforme en réponse 400 structurée.</p>
  *
- * <p>Les exceptions métier ({@link ICityService.CityNotFoundException},
- * {@link ICountryService.CountryNotFoundException})
- * sont propagées vers la couche de gestion globale des erreurs.</p>
+ * <p>L'exception ({@link ResourceNotFoundException} est propagée vers la couche de gestion globale des erreurs.</p>
  *
  * @see ICityService
  * @see CityDTO
@@ -123,7 +122,7 @@ public class CityController {
      * @param dto les données de la ville à créer, désérialisées depuis le corps JSON
      *            de la requête et validées par {@code @Valid}
      * @return une {@link ResponseEntity} vide avec le statut HTTP 201 Created
-     * @throws ICountryService.CountryNotFoundException si le pays référencé n'existe pas
+     * @throws ResourceNotFoundException si le pays référencé n'existe pas
      */
     @PostMapping()
     @Operation(
@@ -134,7 +133,7 @@ public class CityController {
             @ApiResponse(responseCode = "201", description = "Ville créée avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<CityDTO> createCity(@RequestBody @Valid CityRequestDTO dto) throws ICountryService.CountryNotFoundException {
+    public ResponseEntity<CityDTO> createCity(@RequestBody @Valid CityRequestDTO dto) {
         CityDTO cityCreated = cityService.create(dto);
 
         return new ResponseEntity<>(cityCreated, HttpStatus.CREATED);
@@ -154,8 +153,7 @@ public class CityController {
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant la {@link CityDTO} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws ICityService.CityNotFoundException             si la ville ciblée n'existe pas en base
-     * @throws ICountryService.CountryNotFoundException si le pays référencé n'existe pas
+     * @throws ResourceNotFoundException si la ville ciblée ou le pays référencé n'existe pas
      */
     @PutMapping("/{cityId}")
     @Operation(
@@ -166,7 +164,7 @@ public class CityController {
             @ApiResponse(responseCode = "200", description = "Ville modifiée avec succès."),
             @ApiResponse(responseCode = "404", description = "La ville n'existe pas.")
     })
-    public ResponseEntity<CityDTO> updateCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) throws ICityService.CityNotFoundException, ICountryService.CountryNotFoundException {
+    public ResponseEntity<CityDTO> updateCity(@PathVariable Long cityId, @RequestBody @Valid CityRequestDTO dto) {
         CityDTO cityUpdated = cityService.update(cityId, dto);
 
         return new ResponseEntity<>(cityUpdated, HttpStatus.OK);
@@ -180,7 +178,7 @@ public class CityController {
      *
      * @param cityId l'identifiant unique de la ville à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi</li>
-     * @throws ICityService.CityNotFoundException si la ville ciblée n'existe pas en base
+     * @throws ResourceNotFoundException si la ville ciblée n'existe pas en base
      */
     @DeleteMapping("/{cityId}")
     @Operation(
@@ -190,7 +188,7 @@ public class CityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Article supprimé avec succès.")
     })
-    public ResponseEntity<Void> deleteCity(@PathVariable Long cityId) throws ICityService.CityNotFoundException {
+    public ResponseEntity<Void> deleteCity(@PathVariable Long cityId) {
         cityService.delete(cityId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

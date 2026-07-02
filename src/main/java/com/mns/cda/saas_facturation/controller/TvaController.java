@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateTvaTauxDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Tva;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -164,7 +165,7 @@ public class TvaController {
      * @param tva le DTO contenant les nouvelles valeurs, désérialisé depuis le corps JSON
      * @return une {@link ResponseEntity} contenant la {@link Tva} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws ITvaService.TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @PutMapping("/{id}")
     @Operation(summary = "Modifie une Tva en base de données.",
@@ -175,7 +176,7 @@ public class TvaController {
     })
     public ResponseEntity<Tva> update(
             @PathVariable Long id,
-            @RequestBody TvaRequestDTO tva) throws ITvaService.TvaNotFoundException {
+            @RequestBody TvaRequestDTO tva) {
         Tva updatedTva = tvaService.update(id, tva);
         return new ResponseEntity<>(updatedTva, HttpStatus.OK);
     }
@@ -195,7 +196,7 @@ public class TvaController {
      * @param tvaTauxDTO le DTO contenant le nouveau taux, désérialisé depuis le corps JSON
      * @return une {@link ResponseEntity} contenant la {@link Tva} mise à jour
      *         avec le statut HTTP 200 OK
-     * @throws ITvaService.TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @PatchMapping("/{id}")
     @Operation(summary = "Modifie le taux d'une Tva en base de données.",
@@ -206,7 +207,7 @@ public class TvaController {
     })
     public ResponseEntity<Tva> patchTaux(
             @PathVariable Long id,
-            UpdateTvaTauxDTO tvaTauxDTO) throws ITvaService.TvaNotFoundException {
+            UpdateTvaTauxDTO tvaTauxDTO) {
         Optional<Tva> optionalTva = tvaService.findById(id);
 
         // Vérification préalable : inutile d'appeler patchTaux() si la TVA est inexistante

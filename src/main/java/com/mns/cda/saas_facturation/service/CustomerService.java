@@ -2,8 +2,8 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CustomerMapper;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.Customer;
@@ -38,8 +38,8 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public CustomerDTO create(CustomerRequestDTO dto) throws IAddressService.AddressNotFoundException {
-        Address address = addressRepository.findById(dto.addId()).orElseThrow(IAddressService.AddressNotFoundException::new);
+    public CustomerDTO create(CustomerRequestDTO dto) throws ResourceNotFoundException {
+        Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
 
         Customer customer = new Customer();
         customer.setCtmFirstName(dto.ctmFirstName());
@@ -52,9 +52,9 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws CustomerNotFoundException, IAddressService.AddressNotFoundException {
-        Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
-        Address address = addressRepository.findById(dto.addId()).orElseThrow(IAddressService.AddressNotFoundException::new);
+    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws ResourceNotFoundException {
+        Customer customer = customerRepository.findById(ctmId).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
+        Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
 
         customer.setCtmFirstName(dto.ctmFirstName());
         customer.setCtmLastName(dto.ctmLastName());
@@ -66,8 +66,8 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public void delete(Long ctmId) throws CustomerNotFoundException {
-        Customer customer = customerRepository.findById(ctmId).orElseThrow(CustomerNotFoundException::new);
+    public void delete(Long ctmId) throws ResourceNotFoundException {
+        Customer customer = customerRepository.findById(ctmId).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
 
         customerRepository.delete(customer);
     }

@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.Iservice;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Supplier;
 
 import java.util.List;
@@ -29,17 +30,6 @@ import java.util.List;
  */
 public interface ISupplierService {
 
-
-    /**
-     * Exception levée lorsqu'un fournisseur recherché par son identifiant
-     * n'existe pas en base de données.
-     *
-     * <p>Elle est levée par {@link #findById(Long)}, {@link #delete(Long)}
-     * et {@link #modify(Long, SupplierRequestDTO)}, et remonte jusqu'au contrôleur
-     * pour être gérée en réponse HTTP 404.</p>
-     */
-    public static class SupplierNotFoundException extends Exception {}
-
     /**
      * Récupère la liste complète de tous les fournisseurs en base de données.
      *
@@ -52,9 +42,9 @@ public interface ISupplierService {
      *
      * @param id l'identifiant unique du fournisseur à rechercher
      * @return le {@link SupplierDTO} correspondant au fournisseur trouvé
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
+     * @throws ResourceNotFoundException si aucun fournisseur ne correspond à cet splId
      */
-    SupplierDTO findById(Long id) throws SupplierNotFoundException;
+    SupplierDTO findById(Long id) throws ResourceNotFoundException;
 
     /**
      * Crée un nouveau fournisseur en base de données à partir d'un DTO de requête.
@@ -66,7 +56,7 @@ public interface ISupplierService {
      * @param dto les données du fournisseur à créer
      * @return le {@link SupplierDTO} du fournisseur créé avec son splId généré
      */
-    SupplierDTO create(SupplierRequestDTO dto) throws IAddressService.AddressNotFoundException;
+    SupplierDTO create(SupplierRequestDTO dto) throws ResourceNotFoundException;
 
     /**
      * Supprime un fournisseur par son identifiant unique.
@@ -74,9 +64,9 @@ public interface ISupplierService {
      * <p>Le service vérifie que le fournisseur existe avant toute tentative de suppression.</p>
      *
      * @param id l'identifiant unique du fournisseur à supprimer
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
+     * @throws ResourceNotFoundException si aucun fournisseur ne correspond à cet splId
      */
-    void delete(Long id) throws SupplierNotFoundException;
+    void delete(Long id) throws ResourceNotFoundException;
 
     /**
      * Met à jour intégralement un fournisseur existant à partir de son identifiant.
@@ -88,7 +78,7 @@ public interface ISupplierService {
      * @param id  l'identifiant unique du fournisseur à modifier
      * @param dto les nouvelles données du fournisseur
      * @return le {@link SupplierDTO} du fournisseur après mise à jour
-     * @throws SupplierNotFoundException si aucun fournisseur ne correspond à cet splId
+     * @throws ResourceNotFoundException si aucun fournisseur ne correspond à cet splId
      */
-    SupplierDTO modify(Long id, SupplierRequestDTO dto) throws SupplierNotFoundException, IAddressService.AddressNotFoundException;
+    SupplierDTO modify(Long id, SupplierRequestDTO dto) throws ResourceNotFoundException;
 }

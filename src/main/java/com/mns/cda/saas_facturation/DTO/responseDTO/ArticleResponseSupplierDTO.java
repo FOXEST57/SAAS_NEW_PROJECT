@@ -11,6 +11,7 @@ public record ArticleResponseSupplierDTO(
         BigDecimal artPriceExcludeTaxes,
         int artStock,
         TvaResponseDTO tva,
-        List<CategoryResponseDTO> categories
+        List<CategoryResponseDTO> categories,
+        List<MakerReferenceResponseDTO> makers
 ) {
 }

@@ -5,12 +5,11 @@ import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 
 import java.util.List;
 
 public interface IMakerReferenceService {
-
-    public class MakerReferenceNotFoundException extends Exception {}
 
     List<MakerReferenceDTO> findAll();
 
@@ -18,13 +17,12 @@ public interface IMakerReferenceService {
 
     List<ArticleResponseMakerReferenceDTO> findAllByMaker(Long mkrId);
 
-    MakerReferenceDTO findById(Long artId, Long mkrId) throws MakerReferenceNotFoundException;
+    MakerReferenceDTO findById(Long artId, Long mkrId) throws ResourceNotFoundException;
 
-    MakerReferenceDTO create(MakerReferenceRequestDTO dto) throws IArticleService.ArticleNotFoundException,
-            IMakerService.MakerNotFoundException;
+    MakerReferenceDTO create(MakerReferenceRequestDTO dto) throws ResourceNotFoundException;
 
-    MakerReferenceDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws MakerReferenceNotFoundException;
+    MakerReferenceDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws ResourceNotFoundException;
 
-    void delete(Long artId, Long mkrId) throws MakerReferenceNotFoundException;
+    void delete(Long artId, Long mkrId) throws ResourceNotFoundException;
 
 }

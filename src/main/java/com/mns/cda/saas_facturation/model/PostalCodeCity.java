@@ -21,19 +21,19 @@ public class PostalCodeCity {
     @AllArgsConstructor
     public static class PostalCodeCityId implements Serializable {
         @Column(name = "pcode_id")
-        Long pcodeId;
+        Long pCodeId;
         @Column(name = "city_id")
         Long cityId;
     }
 
     @Id
-    protected Long pcodeId;
+    protected Long pCodeId;
 
     @Id
     protected Long cityId;
 
     @ManyToOne
-    @MapsId("pcodeId")
+    @MapsId("pCodeId")
     @JoinColumn(name = "pcode_id")
     protected PostalCode postalCode;
 
