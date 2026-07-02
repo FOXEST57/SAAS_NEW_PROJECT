@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,5 +36,8 @@ public class Address {
     @JoinColumn(name = "city_id")
     @NotNull
     protected City city;
+
+    @OneToMany(mappedBy = "address")
+    private List<Supplier> suppliers = new ArrayList<>();
 
 }
