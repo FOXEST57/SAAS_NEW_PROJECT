@@ -5,6 +5,7 @@ import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.*;
 import com.mns.cda.saas_facturation.repository.*;
 import jakarta.transaction.Transactional;
@@ -104,19 +105,15 @@ public class ArticleService implements IArticleService {
      * @param dto les données de l'article à créer
      * @return un {@link ArticleDTO} contenant les informations de l'article créé,
      *         incluant la TVA, la catégorie et le fournisseur associé (ou {@code null} si aucun fournisseur)
-     * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
-     * @throws ICategoryService.CategoryNotFoundException si la catégorie référencée n'existe pas en base
+     * @throws ResourceNotFoundException si la TVA, le fournisseur ou la catégorie référencée n'existe pas en base
      */
     @Override
-    @Transactional(rollbackOn = {ITvaService.TvaNotFoundException.class, ISupplierService.SupplierNotFoundException.class, ICategoryService.CategoryNotFoundException.class})
-    public ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException,
-            ISupplierService.SupplierNotFoundException,
-            ICategoryService.CategoryNotFoundException {
+    @Transactional(rollbackOn = ResourceNotFoundException.class)
+    public ArticleDTO create(ArticleRequestDTO dto) throws ResourceNotFoundException {
 
         // La TVA est obligatoire : orElseThrow lève l'exception si l'splId est inconnu
         Tva articleTva = tvaRepository.findById(dto.tvaId())
-                .orElseThrow(ITvaService.TvaNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("TVA non existante"));
 
 
         // Construction de l'entité Article : l'splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
@@ -136,14 +133,8 @@ public class ArticleService implements IArticleService {
         if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
             List<Category> categories = dto.categoryIds()
                     .stream()
-                    .map(catId -> {
-                        try {
-                            return categoryRepository.findById(catId)
-                                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
-                        } catch (ICategoryService.CategoryNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(catId -> categoryRepository.findById(catId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
                     .collect(Collectors.toList());
 
             article.setCategories(categories);
@@ -156,7 +147,7 @@ public class ArticleService implements IArticleService {
             for (SupplierReferenceRequestDTO splRef : dto.suppliers()) {
 
                 Supplier supplier = supplierRepository.findById(splRef.supplierId())
-                        .orElseThrow(ISupplierService.SupplierNotFoundException::new);
+                        .orElseThrow(() -> new ResourceNotFoundException("Fournisseur non existant"));
 
                 SupplierReference link = new SupplierReference(
                         new SupplierReference.SupplierReferenceId(article.getArtId(), supplier.getSplId()),
@@ -185,10 +176,10 @@ public class ArticleService implements IArticleService {
      * @param id l'identifiant unique de l'article à supprimer
      */
     @Override
-    @Transactional(rollbackOn = {ArticleNotFoundException.class})
-    public void delete(Long id) throws ArticleNotFoundException {
+    @Transactional(rollbackOn = ResourceNotFoundException.class)
+    public void delete(Long id) throws ResourceNotFoundException {
         Article article = articleRepository.findById(id)
-                .orElseThrow(ArticleNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         supplierReferenceRepository.deleteBySplRefId_ArticleId(id);
         makerReferenceRepository.deleteByMkrRefId_ArticleId(id);
@@ -205,7 +196,7 @@ public class ArticleService implements IArticleService {
      *
      * <p>Les étapes réalisées sont les suivantes :</p>
      * <ol>
-     *   <li>Récupération de l'entité existante — lève {@link ArticleNotFoundException} si absente</li>
+     *   <li>Récupération de l'entité existante — lève {@link ResourceNotFoundException} si absente</li>
      *   <li>Mise à jour des champs simples (référence, nom, description, prix, stock)</li>
      *   <li>Mise à jour de la TVA associée</li>
      *   <li>Mise à jour de la catégorie associée (optionnelle)</li>
@@ -216,20 +207,15 @@ public class ArticleService implements IArticleService {
      * @param id  l'identifiant unique de l'article à modifier
      * @param dto les nouvelles données de l'article
      * @return l'{@link ArticleDTO} de l'article après mise à jour complète
-     * @throws ArticleNotFoundException                   si l'article ciblé n'existe pas en base
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
-     * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
-     * @throws ICategoryService.CategoryNotFoundException si la catégorie référencée n'existe pas en base
+     * @throws ResourceNotFoundException si l'article ciblé, le fournisseur référencé, la TVA référencée ou la catégorie référencée n'existe pas en base
      */
     @Override
     public ArticleDTO update(long id, ArticleUpdateDTO dto)
-            throws ArticleNotFoundException,
-            ITvaService.TvaNotFoundException,
-            ICategoryService.CategoryNotFoundException {
+            throws ResourceNotFoundException {
 
         // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son splId
         Article article = articleRepository.findById(id)
-                .orElseThrow(ArticleNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         // Mise à jour des champs primitifs : chaque setter modifie la valeur en mémoire
         // JPA détecte les changements et génère un UPDATE SQL lors du save()
@@ -241,21 +227,15 @@ public class ArticleService implements IArticleService {
 
         // Mise à jour de la relation TVA : on charge l'entité Tva depuis sa clé étrangère
         Tva tva = tvaRepository.findById(dto.tvaId())
-                .orElseThrow(ITvaService.TvaNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("TVA non existante"));
         article.setTva(tva);
 
         // La catégorie est optionnelle : on ne met à jour la relation que si un splId est fourni
         Category category = null;
         if (dto.categoryIds() != null) {
             List<Category> categories = dto.categoryIds().stream()
-                    .map(catId -> {
-                        try {
-                            return categoryRepository.findById(catId)
-                                    .orElseThrow(ICategoryService.CategoryNotFoundException::new);
-                        } catch (ICategoryService.CategoryNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
+                    .map(catId -> categoryRepository.findById(catId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
                     .collect(Collectors.toList());
 
             article.setCategories(categories);

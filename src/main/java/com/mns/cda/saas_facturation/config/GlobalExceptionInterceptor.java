@@ -1,5 +1,7 @@
 package com.mns.cda.saas_facturation.config;
 
+import com.mns.cda.saas_facturation.DTO.GlobalExceptionInterceptorDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -105,5 +107,11 @@ public class GlobalExceptionInterceptor {
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> getConstraintViolationDataBase(DataIntegrityViolationException ex) {
         return Map.of("Erreur", "Erreur de contrainte");
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public GlobalExceptionInterceptorDTO resourceNotFoundInterceptor(ResourceNotFoundException ex) {
+        return new GlobalExceptionInterceptorDTO(404, "NOT FOUND", ex.getMessage());
     }
 }

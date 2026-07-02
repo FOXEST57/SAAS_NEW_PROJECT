@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.PostalCodeMapper;
 import com.mns.cda.saas_facturation.model.PostalCode;
 import com.mns.cda.saas_facturation.repository.PostalCodeRepository;
@@ -43,8 +44,8 @@ public class PostalCodeService implements IPostalCodeService {
     }
 
     @Override
-    public PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO dto) throws PostalCodeNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(PostalCodeNotFoundException::new);
+    public PostalCodeDTO update(Long pcodeId, PostalCodeRequestDTO dto) throws ResourceNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(() -> new ResourceNotFoundException("Code Postal non existant"));
 
         postalCode.setPcodeName(dto.pcodeName());
 
@@ -52,8 +53,8 @@ public class PostalCodeService implements IPostalCodeService {
     }
 
     @Override
-    public void delete(Long pcodeId) throws PostalCodeNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(PostalCodeNotFoundException::new);
+    public void delete(Long pcodeId) throws ResourceNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(pcodeId).orElseThrow(() -> new ResourceNotFoundException("Code Postal non existant"));
 
         postalCodeRepository.delete(postalCode);
     }

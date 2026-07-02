@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.CountryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CountryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICountryService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,8 +36,7 @@ import java.util.Optional;
  * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
  * qui les transforme en réponse 400 structurée.</p>
  *
- * <p>L'exception métier ({@link ICountryService.CountryNotFoundException})
- * est propagée vers la couche de gestion globale des erreurs.</p>
+ * <p>L'exception ({@link ResourceNotFoundException}) est propagée vers la couche de gestion globale des erreurs.</p>
  *
  * @see ICountryService
  * @see CountryDTO
@@ -151,7 +151,7 @@ public class CountryController {
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link CountryDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws ICountryService.CountryNotFoundException si le pays ciblé n'existe pas en base
+     * @throws ResourceNotFoundException si le pays ciblé n'existe pas en base
      */
     @PutMapping("/{cntId}")
     @Operation(
@@ -162,7 +162,7 @@ public class CountryController {
             @ApiResponse(responseCode = "200", description = "Pays modifié avec succès."),
             @ApiResponse(responseCode = "404", description = "Le pays n'existe pas.")
     })
-    public ResponseEntity<CountryDTO> updateCountry(@PathVariable Long cntId, @RequestBody @Valid CountryRequestDTO dto) throws ICountryService.CountryNotFoundException {
+    public ResponseEntity<CountryDTO> updateCountry(@PathVariable Long cntId, @RequestBody @Valid CountryRequestDTO dto) {
         CountryDTO countryUpdated = countryService.update(cntId, dto);
 
         return new ResponseEntity<>(countryUpdated, HttpStatus.OK);
@@ -176,7 +176,7 @@ public class CountryController {
      *
      * @param cntId l'identifiant unique du pays à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
-     * @throws ICountryService.CountryNotFoundException si le pays n'existe pas en base
+     * @throws ResourceNotFoundException si le pays n'existe pas en base
      */
     @DeleteMapping("/{cntId}")
     @Operation(
@@ -186,7 +186,7 @@ public class CountryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Pays supprimé avec succès.")
     })
-    public ResponseEntity<Void> deleteCountry(@PathVariable Long cntId) throws ICountryService.CountryNotFoundException {
+    public ResponseEntity<Void> deleteCountry(@PathVariable Long cntId) {
         countryService.delete(cntId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Tva;
 import com.mns.cda.saas_facturation.repository.TvaRepository;
 import lombok.RequiredArgsConstructor;
@@ -121,14 +122,14 @@ public class TvaService implements ITvaService {
      * @param id      l'identifiant unique de la TVA à modifier
      * @param tvaTaux la nouvelle valeur du taux à appliquer
      * @return la {@link Tva} après mise à jour du taux
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @Override
-    public Tva patchTaux(long id, BigDecimal tvaTaux) throws TvaNotFoundException {
+    public Tva patchTaux(long id, BigDecimal tvaTaux) throws ResourceNotFoundException {
 
-        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'splId est inconnu
+        // Récupération de l'entité existante — orElseThrow lève ResourceNotFoundException si l'splId est inconnu
         Tva tvaEntity = tvaRepository.findById(id)
-                .orElseThrow(TvaNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("TVA non existante"));
 
         // Seul le taux est mis à jour — le nom reste inchangé (sémantique PATCH)
         tvaEntity.setTvaTaux(tvaTaux);
@@ -149,14 +150,14 @@ public class TvaService implements ITvaService {
      * @param id  l'identifiant unique de la TVA à modifier
      * @param dto le DTO contenant le nouveau libellé et le nouveau taux
      * @return la {@link Tva} après mise à jour complète
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
     @Override
-    public Tva update(long id, TvaRequestDTO dto) throws TvaNotFoundException {
+    public Tva update(long id, TvaRequestDTO dto) throws ResourceNotFoundException {
 
-        // Récupération de l'entité existante — orElseThrow lève TvaNotFoundException si l'splId est inconnu
+        // Récupération de l'entité existante — orElseThrow lève ResourceNotFoundException si l'splId est inconnu
         Tva tvaEntity = tvaRepository.findById(id)
-                .orElseThrow(TvaNotFoundException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("TVA non existante"));
 
         // Mise à jour des deux champs — comportement PUT : tout est remplacé
         tvaEntity.setTvaName(dto.tvaName());

@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.controller;
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,9 +36,7 @@ import java.util.Optional;
  * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
  * qui les transforme en réponse 400 structurée.</p>
  *
- * <p>Les exceptions métier ({@link ICustomerService.CustomerNotFoundException} et
- * {@link IAddressService.AddressNotFoundException})
- * sont propagées vers la couche de gestion globale des erreurs.</p>
+ * <p>L'exception métier ({@link ResourceNotFoundException} est propagée vers la couche de gestion globale des erreurs.</p>
  *
  * @see ICustomerService
  * @see CustomerDTO
@@ -125,7 +124,7 @@ public class CustomerController {
      *            de la requête et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link CustomerDTO} du client créé
      *         (avec son ID généré) et le statut HTTP 201 Created
-     * @throws IAddressService.AddressNotFoundException si l'adresse référencée n'existe pas
+     * @throws ResourceNotFoundException si l'adresse référencée n'existe pas
      */
     @PostMapping
     @Operation(
@@ -136,7 +135,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Client créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) throws IAddressService.AddressNotFoundException {
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) {
         CustomerDTO customerCreated = customerService.create(dto);
 
         return new ResponseEntity<>(customerCreated, HttpStatus.CREATED);
@@ -156,8 +155,7 @@ public class CustomerController {
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link CustomerDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws ICustomerService.CustomerNotFoundException si le client ciblé n'existe pas en base
-     * @throws IAddressService.AddressNotFoundException   si l'adresse référencée n'existe pas
+     * @throws ResourceNotFoundException si le client ciblé ou l'adresse référencée n'existe pas
      */
     @PutMapping("/{ctmId}")
     @Operation(
@@ -167,7 +165,7 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Client modifié avec succès.")
     })
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) throws ICustomerService.CustomerNotFoundException, IAddressService.AddressNotFoundException {
+    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) {
             CustomerDTO customerUpdated = customerService.update(ctmId, dto);
 
             return new ResponseEntity<>(customerUpdated, HttpStatus.OK);
@@ -181,7 +179,7 @@ public class CustomerController {
      *
      * @param ctmId l'identifiant unique du client à supprimer, extrait de l'URL
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
-     * @throws ICustomerService.CustomerNotFoundException si le client n'existe pas en base
+     * @throws ResourceNotFoundException si le client n'existe pas en base
      */
     @DeleteMapping("/{ctmId}")
     @Operation(
@@ -191,7 +189,7 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Client supprimé avec succès."),
     })
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long ctmId) throws ICustomerService.CustomerNotFoundException {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long ctmId) {
         customerService.delete(ctmId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

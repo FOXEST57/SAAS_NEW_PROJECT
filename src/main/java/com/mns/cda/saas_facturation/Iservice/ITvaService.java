@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.TvaRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Tva;
 
 import java.math.BigDecimal;
@@ -30,16 +30,6 @@ import java.util.Optional;
  * @see TvaRequestDTO
  */
 public interface ITvaService {
-
-
-    /**
-     * Exception levée lorsqu'un taux de TVA recherché par son identifiant
-     * n'existe pas en base de données.
-     *
-     * <p>Elle est levée par {@link #patchTaux(long, BigDecimal)} et {@link #update(long, TvaRequestDTO)},
-     * et remonte jusqu'au contrôleur via {@code throws} pour être gérée en réponse HTTP 404.</p>
-     */
-    public static class TvaNotFoundException extends Exception {}
 
     /**
      * Récupère la liste complète de tous les taux de TVA en base de données.
@@ -87,9 +77,9 @@ public interface ITvaService {
      * @param id      l'identifiant unique de la TVA à modifier
      * @param tvaTaux la nouvelle valeur du taux à appliquer
      * @return la {@link Tva} après mise à jour du taux
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
-    Tva patchTaux(long id, BigDecimal tvaTaux) throws TvaNotFoundException;
+    Tva patchTaux(long id, BigDecimal tvaTaux) throws ResourceNotFoundException;
 
     /**
      * Met à jour intégralement un taux de TVA existant à partir de son identifiant.
@@ -101,7 +91,7 @@ public interface ITvaService {
      * @param id  l'identifiant unique de la TVA à modifier
      * @param tva le DTO contenant les nouvelles valeurs
      * @return la {@link Tva} après mise à jour complète
-     * @throws TvaNotFoundException si aucune TVA ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune TVA ne correspond à l'splId fourni
      */
-    Tva update(long id, TvaRequestDTO tva) throws TvaNotFoundException;
+    Tva update(long id, TvaRequestDTO tva) throws ResourceNotFoundException;
 }

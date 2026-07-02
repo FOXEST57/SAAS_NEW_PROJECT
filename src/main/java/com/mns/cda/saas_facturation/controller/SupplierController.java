@@ -7,6 +7,7 @@ import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -37,7 +38,7 @@ import java.util.List;
  *   <li>Les doublons de nom (409) sont interceptés via la contrainte {@code unique = true}
  *       sur l'entité {@code Supplier}, remontant comme {@code DataIntegrityViolationException}
  *       vers le {@code GlobalExceptionInterceptor}</li>
- *   <li>Les 404 ({@link ISupplierService.SupplierNotFoundException}) sont déclarés avec
+ *   <li>Les 404 ({@link ResourceNotFoundException}) sont déclarés avec
  *       {@code throws} et gérés localement dans les méthodes qui en ont besoin</li>
  * </ul>
  *
@@ -75,7 +76,7 @@ public class SupplierController {
      * Retourne un fournisseur identifié par son splId.
      * GET /supplier/{splId}
      *
-     * <p>La {@link ISupplierService.SupplierNotFoundException} est interceptée localement
+     * <p>La {@link ResourceNotFoundException} est interceptée localement
      * car ce contrôleur ne délègue pas les 404 au {@code GlobalExceptionInterceptor}.</p>
      *
      * @param id l'identifiant unique du fournisseur à récupérer, extrait de l'URL
@@ -94,7 +95,7 @@ public class SupplierController {
     public ResponseEntity<SupplierDTO> findById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(supplierService.findById(id));
-        } catch (ISupplierService.SupplierNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -124,7 +125,7 @@ public class SupplierController {
 //            // Délègue la récupération des articles au service
 //            // Le service vérifie d'abord que le fournisseur existe avant de retourner ses articles
 //            return ResponseEntity.ok(articleService.findBySupplier(splId));
-//        } catch (ISupplierService.SupplierNotFoundException e) {
+//        } catch (ResourceNotFoundException e) {
 //            // Levée par le service si aucun fournisseur ne correspond à l'splId fourni
 //            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //        }
@@ -152,13 +153,13 @@ public class SupplierController {
             @ApiResponse(responseCode = "201", description = "Fournisseur créé"),
             @ApiResponse(responseCode = "409", description = "Fournisseur déjà existant en BDD portant le même nom")
     })
-    public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierRequestDTO dto) throws IAddressService.AddressNotFoundException {
+    public ResponseEntity<SupplierDTO> create(@Valid @RequestBody SupplierRequestDTO dto) throws ResourceNotFoundException {
 
         try {
             // @RequestBody : Spring désérialise automatiquement le JSON reçu en SupplierRequestDTO
             SupplierDTO response = supplierService.create(dto);
             return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
-        } catch (IAddressService.AddressNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -173,7 +174,7 @@ public class SupplierController {
      *           <li>le statut 204 No Content si la suppression a réussi</li>
      *           <li>le statut 404 Not Found si le fournisseur n'existe pas</li>
      *         </ul>
-     * @throws ISupplierService.SupplierNotFoundException déclarée dans la signature
+     * @throws ResourceNotFoundException déclarée dans la signature
      *         mais interceptée localement — ne remonte jamais jusqu'au client
      */
     @DeleteMapping("/{id}")
@@ -182,11 +183,11 @@ public class SupplierController {
             @ApiResponse(responseCode = "204", description = "Fournisseur supprimé"),
             @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
     })
-    public ResponseEntity<Void> delete(@PathVariable long id) throws ISupplierService.SupplierNotFoundException {
+    public ResponseEntity<Void> delete(@PathVariable long id) throws ResourceNotFoundException {
         try {
             supplierService.delete(id);
             return ResponseEntity.noContent().build(); // 204 : succès sans contenu retourné
-        } catch (ISupplierService.SupplierNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404
         }
     }
@@ -206,7 +207,7 @@ public class SupplierController {
      * @param dto le DTO contenant les nouvelles valeurs, validé par {@code @Valid}
      * @return une {@link ResponseEntity} contenant le {@link SupplierDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws ISupplierService.SupplierNotFoundException si aucun fournisseur ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucun fournisseur ne correspond à l'splId fourni
      */
     @PutMapping("/modify/{id}")
     @Operation(summary = "Modifier un fournisseur")
@@ -218,13 +219,13 @@ public class SupplierController {
     public ResponseEntity<SupplierDTO> update(@PathVariable long id,
                                               @Valid
                                               @RequestBody SupplierRequestDTO dto)
-            throws ISupplierService.SupplierNotFoundException,
-            IAddressService.AddressNotFoundException {
+            throws ResourceNotFoundException,
+            ResourceNotFoundException {
 
         try {
             SupplierDTO updated = supplierService.modify(id, dto);
             return new ResponseEntity<>(updated, HttpStatus.OK);
-        } catch (IAddressService.AddressNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

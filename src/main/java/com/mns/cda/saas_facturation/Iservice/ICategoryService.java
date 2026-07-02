@@ -2,7 +2,7 @@ package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.CategoryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CategoryRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.Category;
 
 import java.util.List;
@@ -27,15 +27,6 @@ import java.util.Optional;
  */
 public interface ICategoryService {
 
-
-    /**
-     * Exception levée lorsqu'une catégorie recherchée par son identifiant
-     * n'existe pas en base de données.
-     *
-     * <p>Elle est typiquement levée par  et remonte
-     * jusqu'au contrôleur via {@code throws} pour être gérée en réponse HTTP 404.</p>
-     */
-    public static class CategoryNotFoundException extends Exception {}
     /**
      * Récupère la liste complète de toutes les catégories en base de données.
      *
@@ -60,7 +51,7 @@ public interface ICategoryService {
      * @param dto les données de la catégorie à créer
      * @return la {@link Category} créée avec son splId généré
      */
-    CategoryDTO create(CategoryRequestDTO dto) throws CategoryNotFoundException;
+    CategoryDTO create(CategoryRequestDTO dto) throws ResourceNotFoundException;
 
     /**
      * Supprime une catégorie par son identifiant unique.
@@ -81,7 +72,7 @@ public interface ICategoryService {
      * @param id      l'identifiant unique de la catégorie à modifier
      * @param categoryToUpdate le nouveau nom à appliquer à la catégorie
      * @return la {@link Category} après mise à jour
-     * @throws CategoryNotFoundException si aucune catégorie ne correspond à l'splId fourni
+     * @throws ResourceNotFoundException si aucune catégorie ne correspond à l'splId fourni
      */
-    CategoryDTO update(long id, CategoryRequestDTO categoryToUpdate) throws CategoryNotFoundException;
+    CategoryDTO update(long id, CategoryRequestDTO categoryToUpdate) throws ResourceNotFoundException;
 }

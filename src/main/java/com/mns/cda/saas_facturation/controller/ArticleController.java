@@ -7,11 +7,11 @@ import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ICategoryService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.Iservice.ITvaService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,9 +40,7 @@ import java.util.Optional;
  * <p>Les erreurs de validation des DTOs sont remontées au {@code GlobalExceptionInterceptor}
  * qui les transforme en réponse 400 structurée.</p>
  *
- * <p>Les exceptions métier ({@link IArticleService.ArticleNotFoundException},
- * {@link ITvaService.TvaNotFoundException}, {@link ISupplierService.SupplierNotFoundException})
- * sont propagées vers la couche de gestion globale des erreurs.</p>
+ * <p>L'exception ({@link ResourceNotFoundException}) est propagée vers la couche de gestion globale des erreurs.</p>
  *
  * @see IArticleService
  * @see ArticleDTO
@@ -131,8 +129,7 @@ public class ArticleController {
      *            de la requête et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link ArticleDTO} de l'article créé
      *         (avec son ID généré) et le statut HTTP 201 Created
-     * @throws ITvaService.TvaNotFoundException       si le taux de TVA référencé n'existe pas
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas
+     * @throws ResourceNotFoundException si le taux de TVA référencé ou le fournisseur référencé n'existe pas
      */
     @PostMapping
     @Operation(
@@ -145,8 +142,7 @@ public class ArticleController {
     })
     public ResponseEntity<ArticleDTO> createArticle(
             @Valid @RequestBody ArticleRequestDTO dto
-    ) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException {
-
+    ) {
         ArticleDTO response = articleService.create(dto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -177,7 +173,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "204", description = "Article supprimé avec succès."),
             @ApiResponse(responseCode = "404", description = "L'article n'existe pas.")
     })
-    public ResponseEntity<ArticleDTO> delete(@PathVariable Long id) throws IArticleService.ArticleNotFoundException {
+    public ResponseEntity<ArticleDTO> delete(@PathVariable Long id) {
 
         Optional<ArticleDTO> optionalArticle = articleService.findById(id);
 
@@ -204,9 +200,7 @@ public class ArticleController {
      *            et validées par {@code @Valid}
      * @return une {@link ResponseEntity} contenant l'{@link ArticleDTO} mis à jour
      *         avec le statut HTTP 200 OK
-     * @throws IArticleService.ArticleNotFoundException   si l'article ciblé n'existe pas en base
-     * @throws ITvaService.TvaNotFoundException           si le taux de TVA référencé n'existe pas
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas
+     * @throws ResourceNotFoundException si l'article ciblé, le taux de TVA référencé ou le fournisseur référencé n'existe pas
      */
     @PutMapping("/{id}")
     @Operation(
@@ -220,10 +214,7 @@ public class ArticleController {
     public ResponseEntity<ArticleDTO> update(
             @PathVariable Long id,
             @Valid @RequestBody ArticleUpdateDTO dto
-    ) throws IArticleService.ArticleNotFoundException,
-            ITvaService.TvaNotFoundException,
-            ICategoryService.CategoryNotFoundException {
-
+    ) {
         ArticleDTO updated = articleService.update(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }

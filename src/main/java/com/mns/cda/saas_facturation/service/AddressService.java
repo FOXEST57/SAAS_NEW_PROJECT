@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.AddressMapper;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.City;
@@ -45,10 +46,10 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressDTO create(AddressRequestDTO dto) throws IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
-        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
+    public AddressDTO create(AddressRequestDTO dto) throws ResourceNotFoundException {
+        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
+        City city = cityRepository.findById(dto.cityId()).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
 
         Address address = new Address(
                 null,
@@ -64,11 +65,11 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public AddressDTO update(Long addId, AddressRequestDTO dto) throws AddressNotFoundException, IPostalCodeService.PostalCodeNotFoundException, ICityService.CityNotFoundException, IPostalCodeCityService.PostalCodeCityNotFoundException {
-        Address address = addressRepository.findById(addId).orElseThrow(AddressNotFoundException::new);
-        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(IPostalCodeService.PostalCodeNotFoundException::new);
-        City city = cityRepository.findById(dto.cityId()).orElseThrow(ICityService.CityNotFoundException::new);
-        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(IPostalCodeCityService.PostalCodeCityNotFoundException::new);
+    public AddressDTO update(Long addId, AddressRequestDTO dto) throws ResourceNotFoundException {
+        Address address = addressRepository.findById(addId).orElseThrow(() -> new ResourceNotFoundException("Adresse non existente"));
+        PostalCode postalCode = postalCodeRepository.findById(dto.pcodeId()).orElseThrow(() -> new ResourceNotFoundException("Code postal non exitant"));
+        City city = cityRepository.findById(dto.cityId()).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        postalCodeCityRepository.findById(new PostalCodeCity.PostalCodeCityId(postalCode.getPcodeId(),city.getCityId())).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
 
         address.setAddNumber(dto.addNumber());
         address.setAddStreet(dto.addStreet());
@@ -80,8 +81,8 @@ public class AddressService implements IAddressService {
     }
 
     @Override
-    public void delete(Long addId) throws AddressNotFoundException {
-        Address address = addressRepository.findById(addId).orElseThrow(AddressNotFoundException::new);
+    public void delete(Long addId) throws ResourceNotFoundException {
+        Address address = addressRepository.findById(addId).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         
         addressRepository.delete(address);
     }

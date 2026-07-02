@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.CountryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CountryRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICountryService;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CountryMapper;
 import com.mns.cda.saas_facturation.model.Country;
 import com.mns.cda.saas_facturation.repository.CountryRepository;
@@ -43,8 +44,8 @@ public class CountryService implements ICountryService {
     }
 
     @Override
-    public CountryDTO update(Long cntId, CountryRequestDTO dto) throws CountryNotFoundException {
-        Country country = countryRepository.findById(cntId).orElseThrow(CountryNotFoundException::new);
+    public CountryDTO update(Long cntId, CountryRequestDTO dto) throws ResourceNotFoundException {
+        Country country = countryRepository.findById(cntId).orElseThrow(() -> new ResourceNotFoundException("Pays non existant"));
 
         country.setCntName(dto.cntName());
 
@@ -52,8 +53,8 @@ public class CountryService implements ICountryService {
     }
 
     @Override
-    public void delete(Long cntId) throws CountryNotFoundException {
-        Country country = countryRepository.findById(cntId).orElseThrow(CountryNotFoundException::new);
+    public void delete(Long cntId) throws ResourceNotFoundException {
+        Country country = countryRepository.findById(cntId).orElseThrow(() -> new ResourceNotFoundException("Pays non existant"));
 
         countryRepository.delete(country);
     }

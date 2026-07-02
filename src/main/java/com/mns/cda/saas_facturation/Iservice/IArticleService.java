@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.Iservice;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,17 +24,6 @@ import java.util.Optional;
  * @see ArticleRequestDTO
  */
 public interface IArticleService {
-
-
-    /**
-     * Exception levée lorsqu'un article recherché par son identifiant
-     * n'existe pas en base de données.
-     *
-     * <p>Elle est typiquement levée par {@link #findById(Long)} ou
-     * et remonte jusqu'au contrôleur via {@code throws} pour être gérée
-     * en réponse HTTP 404.</p>
-     */
-    public static class ArticleNotFoundException extends Exception {}
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
@@ -62,10 +52,9 @@ public interface IArticleService {
      *
      * @param dto les données de l'article à créer
      * @return l'{@link ArticleDTO} de l'article créé, avec son splId généré
-     * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
+     * @throws ResourceNotFoundException si la TVA ou le fournisseur non référencé en base
      */
-    ArticleDTO create(ArticleRequestDTO dto) throws ITvaService.TvaNotFoundException, ISupplierService.SupplierNotFoundException, ICategoryService.CategoryNotFoundException;
+    ArticleDTO create(ArticleRequestDTO dto) throws ResourceNotFoundException;
 
     /**
      * Supprime un article par son identifiant unique.
@@ -75,7 +64,7 @@ public interface IArticleService {
      *
      * @param id l'identifiant unique de l'article à supprimer
      */
-    void delete(Long id) throws ArticleNotFoundException;
+    void delete(Long id) throws ResourceNotFoundException;
 
     /**
      * Met à jour intégralement un article existant à partir de son identifiant.
@@ -87,9 +76,7 @@ public interface IArticleService {
      * @param id  l'identifiant unique de l'article à modifier
      * @param dto les nouvelles données de l'article
      * @return l'{@link ArticleDTO} de l'article après mise à jour
-     * @throws ArticleNotFoundException                   si l'article ciblé n'existe pas en base
-     * @throws ITvaService.TvaNotFoundException           si la TVA référencée n'existe pas en base
-     * @throws ISupplierService.SupplierNotFoundException si le fournisseur référencé n'existe pas en base
+     * @throws ResourceNotFoundException si l'article ciblé, la TVA ou le fournisseur référencé n'existe pas en base
      */
-    ArticleDTO update(long id, ArticleUpdateDTO dto) throws ArticleNotFoundException, ITvaService.TvaNotFoundException, ICategoryService.CategoryNotFoundException;
+    ArticleDTO update(long id, ArticleUpdateDTO dto) throws ResourceNotFoundException;
 }
