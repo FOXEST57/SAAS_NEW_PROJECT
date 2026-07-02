@@ -1,9 +1,6 @@
 package com.mns.cda.saas_facturation.mapper;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.MakerReferenceForArticleDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
+import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.responseDTO.*;
 
 import com.mns.cda.saas_facturation.mapper.responseMapper.SupplierReferenceResponseMapper;
@@ -73,6 +70,22 @@ public class ArticleMapper {
                 makerLinks
         );
     }
+
+    public ArticleLightDTO toLightDTO(Article article) {
+
+        BigDecimal priceTTC = article.getArtPriceExcludeTaxes()
+                .multiply(BigDecimal.ONE.add(article.getTva().getTvaTaux()));
+
+        return new ArticleLightDTO(
+                article.getArtId(),
+                article.getArtReference(),
+                article.getArtName(),
+                article.getArtDescription(),
+                article.getArtStock(),
+                priceTTC
+        );
+    }
+
 
     public ArticleResponseMakerReferenceDTO MakerReferenceToDTO(MakerReference makerReference) {
         Article article = makerReference.getArticle();
