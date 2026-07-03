@@ -2,14 +2,20 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.CartDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CartRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.OrderLineRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICartService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CartMapper;
+import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Cart;
 import com.mns.cda.saas_facturation.model.Customer;
+import com.mns.cda.saas_facturation.model.OrderLine;
+import com.mns.cda.saas_facturation.repository.ArticleRepository;
 import com.mns.cda.saas_facturation.repository.CartRepository;
 import com.mns.cda.saas_facturation.repository.CustomerRepository;
+import com.mns.cda.saas_facturation.repository.OrderLineRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +28,8 @@ public class CartService implements ICartService {
     private final CustomerRepository customerRepository;
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
+    private final ArticleRepository  articleRepository;
+    private final OrderLineRepository orderLineRepository;
 
     @Override
     public List<CartDTO> findAll() {
@@ -49,6 +57,24 @@ public class CartService implements ICartService {
         cart.setCrtStatus(dto.crtStatus());
         cart.setCustomer(customer);
 
+        cartRepository.save(cart);
+
+        if (dto.orderLines() != null && !dto.orderLines().isEmpty()) {
+            for (OrderLineRequestDTO orderLine : dto.orderLines()) {
+
+                Article article = articleRepository.findById(orderLine.articleId())
+                        .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + orderLine.articleId() + " n'existe pas"));
+
+                OrderLine link = new OrderLine(
+                        new OrderLine.OrderLineId(),
+                        article,
+                        cart,
+                        orderLine.quantity());
+
+                orderLineRepository.save(link);
+            }
+        }
+
         return cartMapper.toDTO(cartRepository.save(cart));
     }
 
@@ -69,9 +95,13 @@ public class CartService implements ICartService {
     }
 
     @Override
+    @Transactional(rollbackOn = ResourceNotFoundException.class)
     public void delete(Long id) {
-        cartRepository.delete(cartRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" )));
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
+
+        orderLineRepository.deleteAllByOrdLnId_CartId(cart.getCrtId());
+        cartRepository.delete(cart);
     }
 
 }

@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,4 +42,7 @@ public class Cart {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     protected Customer customer;
+
+    @OneToMany(mappedBy = "cart")
+    protected List<OrderLine> orderLines;
 }

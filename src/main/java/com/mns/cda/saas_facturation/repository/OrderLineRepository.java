@@ -14,4 +14,6 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLine.
 
     List<OrderLine> findByOrdLnId_ArticleId(Long articleId);
 
+    void deleteAllByOrdLnId_CartId(Long ordLnIdCartId);
+
 }
