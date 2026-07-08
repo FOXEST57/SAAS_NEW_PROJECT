@@ -72,7 +72,7 @@ public class Article {
     protected String artName;
 
     /** Description détaillée de l'article — ne peut pas être {@code null}. */
-    @NotNull
+    @NotBlank
     protected String artDescription;
 
     /**
@@ -88,8 +88,7 @@ public class Article {
      * Quantité disponible en stock.
      * Doit être supérieure ou égale à 0 — une valeur négative n'est pas autorisée.
      */
-    @NotNull
-    @Min(0)
+
     protected int artStock;
 
     @CreatedDate
@@ -105,6 +104,7 @@ public class Article {
      */
     @ManyToOne
     @JoinColumn(name = "tva_id")
+    @NotNull
     protected Tva tva;
 
     /**
