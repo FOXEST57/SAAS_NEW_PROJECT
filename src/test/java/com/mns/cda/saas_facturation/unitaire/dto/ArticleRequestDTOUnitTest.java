@@ -19,6 +19,7 @@ public class ArticleRequestDTOUnitTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
+    // ArticleRequestDTO artReference: @NotBlank
     @Test
     public void validArticleWithArtReferenceNull_MustBeNotValidated() {
 
@@ -205,6 +206,7 @@ public class ArticleRequestDTOUnitTest {
         Assertions.assertTrue(constraintViolation);
     }
 
+    // ArticleRequestDTO artName: @NotBlank
     @Test
     public void validArticleWithArtNameNull_MustBeNotValidated() {
 
@@ -391,6 +393,7 @@ public class ArticleRequestDTOUnitTest {
         Assertions.assertTrue(constraintViolation);
     }
 
+    // ArticleRequestDTO artDescription: @NotBlank
     @Test
     public void validArticleWithArtDescriptionNull_MustBeNotValidated() {
 
@@ -577,6 +580,7 @@ public class ArticleRequestDTOUnitTest {
         Assertions.assertTrue(constraintViolation);
     }
 
+    // ArticleRequestDTO ArtPriceExcludeTaxes: @NotNull
     @Test
     public void validArticleWithArtPriceExcludeTaxesNotNull_MustBeValidated() {
 
@@ -623,6 +627,7 @@ public class ArticleRequestDTOUnitTest {
         Assertions.assertTrue(constraintViolation);
     }
 
+    // ArticleRequestDTO ArtPriceExcludeTaxes : @DecimalMin
     @Test
     public void validArticleWithArtPriceExcludeTaxesNegative_MustNotBeValidated() {
 
@@ -692,6 +697,7 @@ public class ArticleRequestDTOUnitTest {
         Assertions.assertFalse(constraintViolation);
     }
 
+    // ArtRequestDTO TvaId: @NotNull
     @Test
     public void validArticleWithTvaNull_MustNotBeValidated() {
 
@@ -738,6 +744,7 @@ public class ArticleRequestDTOUnitTest {
         Assertions.assertFalse(constraintViolation);
     }
 
+    // ArtRequestDTO TvaId: @Min
     @Test
     public void validArticleWithTvaIdNegative_MustNotBeValidated() {
 
@@ -760,4 +767,5 @@ public class ArticleRequestDTOUnitTest {
 
         Assertions.assertTrue(constraintViolation);
     }
+
 }
