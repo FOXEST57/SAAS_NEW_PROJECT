@@ -17,6 +17,7 @@ public class CountryUnitTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
+    // Country cntName : @NotBlank
     @Test
     public void validCountryWithCntNameNull_MustNotBeValidated() {
 
