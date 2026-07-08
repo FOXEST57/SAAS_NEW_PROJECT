@@ -64,7 +64,6 @@ public class SupplierReference {
     @NotNull
     protected BigDecimal supplierPrice;
 
-    @NotNull
     protected int SplRefStock;
 
 }

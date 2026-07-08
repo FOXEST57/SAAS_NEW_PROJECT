@@ -10,6 +10,6 @@ public record SupplierReferenceRequestDTO(
         @NotNull Long supplierId,
         @NotBlank String splRefReference,
         @NotNull BigDecimal supplierPrice,
-        @NotNull int splRefStock
+        int splRefStock
 ) {
 }
