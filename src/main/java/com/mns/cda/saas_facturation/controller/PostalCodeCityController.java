@@ -92,7 +92,7 @@ public class PostalCodeCityController {
      *           <li>un corps vide avec le statut 404 Not Found si le lien entre code postal et ville n'existe pas</li>
      *         </ul>
      */
-    @GetMapping("/{pcodeId}/{cityId}")
+    @GetMapping("/{pCodeId}/{cityId}")
     @Operation(
             summary = "Récupère un lien entre code postal et ville par son ID.",
             description = "Cette route permet de récupérer un lien entre code postal et ville spécifique par son ID dans la base de données."
@@ -157,7 +157,7 @@ public class PostalCodeCityController {
      *         avec le statut HTTP 200 OK
      * @throws ResourceNotFoundException si le lien entre code postal et ville ciblé n'existe pas en base
      */
-    @PutMapping("/{pcodeId}/{cityId}")
+    @PutMapping("/{pCodeId}/{cityId}")
     @Operation(
             summary = "Modifie un lien entre code postal et ville en base de données.",
             description = "Cette route permet de modifier un lien entre code postal et ville en base de données."
@@ -184,7 +184,7 @@ public class PostalCodeCityController {
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
      * @throws ResourceNotFoundException si le lien entre code postal et ville n'existe pas en base
      */
-    @DeleteMapping("/{pcodeId}/{cityId}")
+    @DeleteMapping("/{pCodeId}/{cityId}")
     @Operation(
             summary = "Supprime un lien entre code postal et ville par son ID.",
             description = "Cette route permet de supprimer un lien entre code postal et ville spécifique par son ID."
