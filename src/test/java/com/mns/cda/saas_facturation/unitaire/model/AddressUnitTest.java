@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.unitaire.model;
 
 import com.mns.cda.saas_facturation.TestUtilitaire;
 import com.mns.cda.saas_facturation.model.Address;
+import com.mns.cda.saas_facturation.model.City;
 import com.mns.cda.saas_facturation.model.PostalCode;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -50,5 +51,36 @@ public class AddressUnitTest {
 
         Assertions.assertFalse(constraintExist);
 
+    }
+
+    @Test
+    public void validAddressWithCityNotNull_MustBeValidated() {
+
+        Address address = new Address();
+        address.setCity(new City());
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(address),
+                "city",
+                "NotNull"
+        );
+
+        Assertions.assertFalse(constraintExist);
+
+    }
+
+    @Test
+    public void validAddressWithCityNull_MustNotBeValidated () {
+
+        Address address = new Address();
+        address.setCity(null);
+
+        boolean contraintViolation = TestUtilitaire.constraintViolationExist(
+                validator.validate(address),
+                "city",
+                "NotNull"
+        );
+
+        Assertions.assertTrue(contraintViolation);
     }
 }
