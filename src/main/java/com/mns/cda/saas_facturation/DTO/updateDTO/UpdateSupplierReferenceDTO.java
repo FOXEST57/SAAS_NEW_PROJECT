@@ -9,6 +9,6 @@ import java.math.BigDecimal;
 public record UpdateSupplierReferenceDTO (
         @NotBlank @Column(unique = true) String splRefReference,
         @NotNull BigDecimal supplierPrice,
-        @NotNull int splRefStock
+        int splRefStock
 ) {
 }
