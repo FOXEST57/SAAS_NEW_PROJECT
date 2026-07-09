@@ -49,12 +49,14 @@ public class SupplierReference {
     @ManyToOne
     @MapsId("articleId")
     @JoinColumn(name = "article_id")
+    @NotNull
     protected Article article;
 
 
     @ManyToOne
     @MapsId("supplierId")
     @JoinColumn(name = "supplier_id")
+    @NotNull
     protected Supplier supplier;
 
     @NotBlank
