@@ -1,5 +1,4 @@
-package com.mns.cda.saas_facturation.unitaire.dto;
-
+package com.mns.cda.saas_facturation.unitaire.dto.request;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.AddressRequestDTO;
 import com.mns.cda.saas_facturation.TestUtilitaire;
@@ -9,17 +8,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-
 public class AddressRequestDTOUnitTest {
 
-    public static Validator validator;
+    private static Validator validator;
 
     @BeforeAll
     public static void init() {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    // AddressRequestDTO pCodeId: @NotNull
+    // AddressRequestDTO pCodeId : @NotNull
+
     @Test
     public void validAddressWithPCodeIdNull_MustNotBeValidated() {
 
@@ -28,20 +27,42 @@ public class AddressRequestDTOUnitTest {
                 null,
                 null,
                 null,
-                null
+                1L
         );
 
-        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+        boolean constraintViolation = TestUtilitaire.constraintViolationExist(
                 validator.validate(address),
                 "pCodeId",
                 "NotNull"
         );
 
-        Assertions.assertTrue(constraintExist);
-
+        Assertions.assertTrue(constraintViolation);
     }
+
     @Test
     public void validAddressWithPCodeIdNotNull_MustBeValidated() {
+
+        AddressRequestDTO address = new AddressRequestDTO(
+                null,
+                null,
+                null,
+                1L,
+                1L
+        );
+
+        boolean constraintViolation = TestUtilitaire.constraintViolationExist(
+                validator.validate(address),
+                "pCodeId",
+                "NotNull"
+        );
+
+        Assertions.assertFalse(constraintViolation);
+    }
+
+    // AddressRequestDTO cityId : @NotNull
+
+    @Test
+    public void validAddressWithCityIdNull_MustNotBeValidated() {
 
         AddressRequestDTO address = new AddressRequestDTO(
                 null,
@@ -51,17 +72,15 @@ public class AddressRequestDTOUnitTest {
                 null
         );
 
-        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+        boolean constraintViolation = TestUtilitaire.constraintViolationExist(
                 validator.validate(address),
-                "pCodeId",
+                "cityId",
                 "NotNull"
         );
 
-        Assertions.assertFalse(constraintExist);
-
+        Assertions.assertTrue(constraintViolation);
     }
 
-    // AddressRequestDTO cityId: @NotNull
     @Test
     public void validAddressWithCityIdNotNull_MustBeValidated() {
 
@@ -69,38 +88,16 @@ public class AddressRequestDTOUnitTest {
                 null,
                 null,
                 null,
-                null,
+                1L,
                 1L
-
         );
 
-        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+        boolean constraintViolation = TestUtilitaire.constraintViolationExist(
                 validator.validate(address),
                 "cityId",
                 "NotNull"
         );
 
-        Assertions.assertFalse(constraintExist);
-
-    }
-
-    @Test
-    public void validAddressWithCityIdNull_MustNotBeValidated () {
-
-        AddressRequestDTO address = new AddressRequestDTO(
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        boolean contraintViolation = TestUtilitaire.constraintViolationExist(
-                validator.validate(address),
-                "cityId",
-                "NotNull"
-        );
-
-        Assertions.assertTrue(contraintViolation);
+        Assertions.assertFalse(constraintViolation);
     }
 }

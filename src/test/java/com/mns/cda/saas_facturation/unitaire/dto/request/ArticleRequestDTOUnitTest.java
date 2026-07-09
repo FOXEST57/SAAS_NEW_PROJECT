@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.unitaire.dto;
+package com.mns.cda.saas_facturation.unitaire.dto.request;
 
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.TestUtilitaire;
@@ -25,11 +25,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 null,
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -50,11 +50,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 "Test",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -73,11 +73,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 "",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -96,11 +96,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 " ",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -119,11 +119,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 " test ",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -142,11 +142,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 "\t",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -165,11 +165,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 "\n",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -188,11 +188,11 @@ public class ArticleRequestDTOUnitTest {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
                 " \n \t ",
-                null,
-                null,
-                null,
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -211,12 +211,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameNull_MustBeNotValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
+                "REF001",
                 null,
-                null,
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -236,12 +236,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameNotNull_MustBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 "Test",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -259,12 +259,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameBlank_MustBeNotValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 "",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -282,12 +282,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameSpace_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 " ",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -305,12 +305,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameNotBlankAndSpace_MustBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 " test ",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -328,12 +328,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameTabulation_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 "\t",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -351,12 +351,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameLineBreak_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 "\n",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -374,12 +374,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtNameLineBreakSpaceTabulation_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
+                "REF001",
                 " \n \t ",
-                null,
-                null,
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -398,12 +398,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionNull_MustBeNotValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
+                "REF001",
+                "Article",
                 null,
-                null,
-                null,
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -423,12 +423,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionNotNull_MustBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 "Test",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -446,12 +446,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionBlank_MustBeNotValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 "",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -469,12 +469,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionSpace_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 " ",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -492,12 +492,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionNotBlankAndSpace_MustBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 " test ",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -515,12 +515,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionTabulation_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 "\t",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -538,12 +538,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionLineBreak_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 "\n",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -561,12 +561,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtDescriptionLineBreakSpaceTabulation_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
+                "REF001",
+                "Article",
                 " \n \t ",
-                null,
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -585,12 +585,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtPriceExcludeTaxesNotNull_MustBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
-                BigDecimal.valueOf(1),
+                "REF001",
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -608,12 +608,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtPriceExcludeTaxesNull_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
+                "REF001",
+                "Article",
+                "Description",
                 null,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -632,12 +632,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtPriceExcludeTaxesNegative_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
+                "REF001",
+                "Article",
+                "Description",
                 BigDecimal.valueOf(-1),
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -655,12 +655,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtPriceExcludeTaxesZero_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
-                BigDecimal.valueOf(0),
+                "REF001",
+                "Article",
+                "Description",
+                BigDecimal.ZERO,
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -678,12 +678,12 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithArtPriceExcludeTaxesPositive_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
+                "REF001",
+                "Article",
+                "Description",
                 BigDecimal.valueOf(0.1),
                 0,
-                null,
+                1L,
                 null,
                 null
         );
@@ -702,10 +702,10 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithTvaNull_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
-                null,
+                "REF001",
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
                 null,
                 null,
@@ -725,10 +725,10 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithTvaNotNull_MustBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
-                null,
+                "REF001",
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
                 1L,
                 null,
@@ -749,10 +749,10 @@ public class ArticleRequestDTOUnitTest {
     public void validArticleWithTvaIdNegative_MustNotBeValidated() {
 
         ArticleRequestDTO article = new ArticleRequestDTO(
-                null,
-                null,
-                null,
-                null,
+                "REF001",
+                "Article",
+                "Description",
+                BigDecimal.ONE,
                 0,
                 -1L,
                 null,

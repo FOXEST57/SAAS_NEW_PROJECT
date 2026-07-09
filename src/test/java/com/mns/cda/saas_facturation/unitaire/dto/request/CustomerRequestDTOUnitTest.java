@@ -1,15 +1,14 @@
-package com.mns.cda.saas_facturation.unitaire.model;
+package com.mns.cda.saas_facturation.unitaire.dto.request;
 
 import com.mns.cda.saas_facturation.TestUtilitaire;
-import com.mns.cda.saas_facturation.model.Address;
-import com.mns.cda.saas_facturation.model.Customer;
+import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class CustomerUnitTest {
+public class CustomerRequestDTOUnitTest {
     
     public static Validator validator;
     
@@ -18,12 +17,17 @@ public class CustomerUnitTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    // Customer ctmFirstName : @NotBlank
+    // CustomerRequestDTO ctmFirstName : @NotBlank
     @Test
     public void validCustomerWithCtmFirstNameNull_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmFirstName(null);
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                null,
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -36,8 +40,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmFirstNameBlankSpace_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmFirstName("  ");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                " ",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -50,8 +59,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmFirstNameBlank_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmFirstName("");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -64,8 +78,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmFirstNameNotBlank_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmFirstName("John");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -76,12 +95,17 @@ public class CustomerUnitTest {
     }
 
 
-    // Customer ctmLastName : @NotBlank
+    // CustomerRequestDTO ctmLastName : @NotBlank
     @Test
     public void validCustomerWithCtmLastNameNull_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmLastName(null);
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                null,
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -94,8 +118,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmLastNameBlankSpace_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmLastName("  ");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                " ",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -108,8 +137,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmLastNameBlank_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmLastName("");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -122,8 +156,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmLastNameNotBlank_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmLastName("Doe");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -133,12 +172,17 @@ public class CustomerUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // Customer ctmEmail : @NotBlank
+    // CustomerRequestDTO ctmEmail : @NotBlank
     @Test
     public void validCustomerWithCtmEmailNull_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmEmail(null);
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                null,
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -151,8 +195,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmEmailBlankSpace_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmEmail("  ");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                " ",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -165,8 +214,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmEmailBlank_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmEmail("");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -179,8 +233,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmEmailNotBlank_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmEmail("JohnDoe@gmail.com");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -190,12 +249,17 @@ public class CustomerUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // Customer ctmEmail : @Email
+    // CustomerRequestDTO ctmEmail : @Email
     @Test
     public void validCustomerWithCtmEmailNotValid_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmEmail("invalid-email");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "invalid-email",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -208,8 +272,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmEmailValid_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmEmail("JohnDoe@gmail.com");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -219,12 +288,17 @@ public class CustomerUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // Customer ctmPhone : @NotBlank
+    // CustomerRequestDTO ctmPhone : @NotBlank
     @Test
     public void validCustomerWithCtmPhoneNull_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmPhone(null);
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                null,
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -237,8 +311,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmPhoneBlankSpace_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmPhone("  ");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                " ",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -251,8 +330,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmPhoneBlank_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmPhone("");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -265,8 +349,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmPhoneNotBlank_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmPhone("+33234567890");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -276,12 +365,17 @@ public class CustomerUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // Customer ctmPhone : @ValidPhoneNumber
+    // CustomerRequestDTO ctmPhone : @ValidPhoneNumber
     @Test
     public void validCustomerWithCtmPhoneNotValid_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmPhone("invalid-phone");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "invalid-phone",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -294,8 +388,13 @@ public class CustomerUnitTest {
     @Test
     public void validCustomerWithCtmPhoneValid_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setCtmPhone("+33234567890");
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
@@ -305,30 +404,40 @@ public class CustomerUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // Customer ctmAddress : @NotNull
+    // CustomerRequestDTO ctmAddress : @NotNull
     @Test
-    public void validCustomerWithCtmAddressNull_MustNotBeValidated() {
+    public void validCustomerWithAddressIdNull_MustNotBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setAddress(null);
+        CustomerRequestDTO customer = new CustomerRequestDTO("John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                null
+
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
-                "address",
+                "addId",
                 "NotNull"
         );
         Assertions.assertTrue(constraintExist);
     }
 
     @Test
-    public void validCustomerWithCtmAddressNotNull_MustBeValidated() {
+    public void validCustomerWithAddressIdNotNull_MustBeValidated() {
 
-        Customer customer = new Customer();
-        customer.setAddress(new Address());
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L
+        );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
-                "address",
+                "addId",
                 "NotNull"
         );
         Assertions.assertFalse(constraintExist);
