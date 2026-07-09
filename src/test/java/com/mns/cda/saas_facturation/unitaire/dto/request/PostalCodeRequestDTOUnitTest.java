@@ -1,14 +1,14 @@
-package com.mns.cda.saas_facturation.unitaire.model;
+package com.mns.cda.saas_facturation.unitaire.dto.request;
 
 import com.mns.cda.saas_facturation.TestUtilitaire;
-import com.mns.cda.saas_facturation.model.PostalCode;
+import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeRequestDTO;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class PostalCodeUnitTest {
+public class PostalCodeRequestDTOUnitTest {
 
     public static Validator validator;
 
@@ -20,11 +20,12 @@ public class PostalCodeUnitTest {
     // Tests sur pCodeName (@NotBlank)
     @Test
     public void validPostalCodeWithNameNotBlank_MustBeValidated() {
-        PostalCode postalCode = new PostalCode();
-        postalCode.setPCodeName("12345");
+        PostalCodeRequestDTO postalCodeRequestDTO = new PostalCodeRequestDTO(
+                "12345"
+        );
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
-                validator.validate(postalCode),
+                validator.validate(postalCodeRequestDTO),
                 "pCodeName",
                 "NotBlank"
         );
@@ -34,11 +35,12 @@ public class PostalCodeUnitTest {
 
     @Test
     public void validPostalCodeWithNameNull_MustNotBeValidated() {
-        PostalCode postalCode = new PostalCode();
-        postalCode.setPCodeName(null);
+        PostalCodeRequestDTO postalCodeRequestDTO = new PostalCodeRequestDTO(
+                null
+        );
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
-                validator.validate(postalCode),
+                validator.validate(postalCodeRequestDTO),
                 "pCodeName",
                 "NotBlank"
         );
@@ -48,11 +50,12 @@ public class PostalCodeUnitTest {
 
     @Test
     public void validPostalCodeWithNameEmpty_MustNotBeValidated() {
-        PostalCode postalCode = new PostalCode();
-        postalCode.setPCodeName("");
+        PostalCodeRequestDTO postalCodeRequestDTO = new PostalCodeRequestDTO(
+                ""
+        );
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
-                validator.validate(postalCode),
+                validator.validate(postalCodeRequestDTO),
                 "pCodeName",
                 "NotBlank"
         );
@@ -62,11 +65,12 @@ public class PostalCodeUnitTest {
 
     @Test
     public void validPostalCodeWithNameWithOnlySpace_MustNotBeValidated() {
-        PostalCode postalCode = new PostalCode();
-        postalCode.setPCodeName(" ");
+        PostalCodeRequestDTO postalCodeRequestDTO = new PostalCodeRequestDTO(
+                " "
+        );
 
         boolean contraintExists = TestUtilitaire.constraintViolationExist(
-                validator.validate(postalCode),
+                validator.validate(postalCodeRequestDTO),
                 "pCodeName",
                 "NotBlank"
         );
