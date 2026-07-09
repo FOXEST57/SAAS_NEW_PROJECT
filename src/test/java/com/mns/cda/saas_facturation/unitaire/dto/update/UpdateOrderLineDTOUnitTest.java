@@ -46,5 +46,33 @@ public class UpdateOrderLineDTOUnitTest {
         );
         Assertions.assertFalse(constraintExist);
     }
-}
 
+    //UpdateOrderLineDTO quantity : @Min(1)
+    @Test
+    public void validUpdateOrderLineDTOWithQuantityLessThan1_MustNotBeValidated() {
+
+        UpdateOrderLineDTO updateOrderLineDTO = new UpdateOrderLineDTO(
+                0
+        );
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(updateOrderLineDTO),
+                "quantity",
+                "Min"
+        );
+        Assertions.assertTrue(constraintExist);
+    }
+    @Test
+    public void validUpdateOrderLineDTOWithQuantityGreaterThan1_MustBeValidated() {
+
+        UpdateOrderLineDTO updateOrderLineDTO = new UpdateOrderLineDTO(
+                2
+        );
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(updateOrderLineDTO),
+                "quantity",
+                "Min"
+        );
+        Assertions.assertFalse(constraintExist);
+    }
+
+}
