@@ -1,10 +1,7 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
-import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
@@ -56,7 +53,6 @@ public class SupplierController {
 
     // Injection des services via leurs interfaces — Spring injecte automatiquement les implémentations
     protected final ISupplierService supplierService;
-    private final IArticleService articleService;
 
     /**
      * Retourne la liste complète des fournisseurs.
@@ -209,7 +205,7 @@ public class SupplierController {
      *         avec le statut HTTP 200 OK
      * @throws ResourceNotFoundException si aucun fournisseur ne correspond à l'splId fourni
      */
-    @PutMapping("/modify/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Modifier un fournisseur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Fournisseur modifié"),
@@ -219,8 +215,7 @@ public class SupplierController {
     public ResponseEntity<SupplierDTO> update(@PathVariable long id,
                                               @Valid
                                               @RequestBody SupplierRequestDTO dto)
-            throws ResourceNotFoundException,
-            ResourceNotFoundException {
+            throws  ResourceNotFoundException {
 
         try {
             SupplierDTO updated = supplierService.modify(id, dto);

@@ -90,7 +90,7 @@ public class PostalCodeController {
      *           <li>un corps vide avec le statut 404 Not Found si le code postal n'existe pas</li>
      *         </ul>
      */
-    @GetMapping("/{pcodeId}")
+    @GetMapping("/{pCodeId}")
     @Operation(
             summary = "Récupère un code postal par son ID.",
             description = "Cette route permet de récupérer un code postal spécifique par son ID dans la base de données."
@@ -153,7 +153,7 @@ public class PostalCodeController {
      *         avec le statut HTTP 200 OK
      * @throws ResourceNotFoundException si le code postal ciblé n'existe pas en base
      */
-    @PutMapping("/{pcodeId}")
+    @PutMapping("/{pCodeId}")
     @Operation(
             summary = "Modifie un code postal en base de données.",
             description = "Cette route permet de modifier un code postal en base de données."
@@ -178,7 +178,7 @@ public class PostalCodeController {
      * @return une {@link ResponseEntity} vide avec le statut 204 No Content si la suppression a réussi
      * @throws ResourceNotFoundException si le code postal n'existe pas en base
      */
-    @DeleteMapping("/{pcodeId}")
+    @DeleteMapping("/{pCodeId}")
     @Operation(
             summary = "Supprime un code postal par son ID.",
             description = "Cette route permet de supprimer un code postal spécifique par son ID."

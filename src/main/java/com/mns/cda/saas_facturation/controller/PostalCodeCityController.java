@@ -2,9 +2,7 @@ package com.mns.cda.saas_facturation.controller;
 
 import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.model.PostalCodeCity;
 import io.swagger.v3.oas.annotations.Operation;
@@ -102,14 +100,9 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "404", description = "Lien entre code postal et ville non trouvé.")
     })
     public ResponseEntity<PostalCodeCityDTO> getPostalCodeCityById(@PathVariable Long pCodeId, @PathVariable Long cityId) {
-        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
-        Optional<PostalCodeCityDTO> optionalPostalCodeCity = postalCodeCityService.findById(id);
+        PostalCodeCityDTO postalCodeCity = postalCodeCityService.findById(pCodeId, cityId);
 
-        if (optionalPostalCodeCity.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>(optionalPostalCodeCity.get(), HttpStatus.OK);
+        return new ResponseEntity<>(postalCodeCity, HttpStatus.OK);
     }
 
     /**
@@ -167,8 +160,7 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "404", description = "Le lien entre code postal et ville n'existe pas.")
     })
     public ResponseEntity<PostalCodeCityDTO> updatePostalCodeCity(@PathVariable Long pCodeId, @PathVariable Long cityId, @RequestBody @Valid PostalCodeCityRequestDTO dto) {
-        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
-        PostalCodeCityDTO postalCodeCityUpdated = postalCodeCityService.update(id, dto);
+        PostalCodeCityDTO postalCodeCityUpdated = postalCodeCityService.update(pCodeId, cityId, dto);
 
         return new ResponseEntity<>(postalCodeCityUpdated, HttpStatus.OK);
     }
@@ -193,8 +185,7 @@ public class PostalCodeCityController {
             @ApiResponse(responseCode = "204", description = "Lien entre code postal et ville supprimé avec succès.")
     })
     public ResponseEntity<Void> deletePostalCodeCity(@PathVariable Long pCodeId, @PathVariable Long cityId) throws ResourceNotFoundException {
-        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
-        postalCodeCityService.delete(id);
+        postalCodeCityService.delete(pCodeId, cityId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

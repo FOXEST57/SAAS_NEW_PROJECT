@@ -15,7 +15,7 @@ public interface ISupplierReferenceService {
 
     List<SupplierReferenceDTO> findAll();
 
-    Optional<SupplierReferenceDTO> findById(SupplierReference.SupplierReferenceId id);
+    Optional<SupplierReferenceDTO> findById(Long articleId, Long supplierId);
 
     //Get By Id Article
     List<SupplierDTO> findByArticleId(Long articleId);
@@ -30,6 +30,6 @@ public interface ISupplierReferenceService {
     SupplierReferenceDTO update(Long artId, Long mkrId, UpdateSupplierReferenceDTO dto)
             throws ResourceNotFoundException;
 
-    void deleteById (SupplierReference.SupplierReferenceId id);
+    void deleteById (Long articleId, Long supplierId);
 }
 

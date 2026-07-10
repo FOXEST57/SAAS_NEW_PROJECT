@@ -5,9 +5,7 @@ import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
-import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
-import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
@@ -48,7 +46,8 @@ public class SupplierReferenceService implements ISupplierReferenceService {
 
     //Get By Id composite
     @Override
-    public Optional<SupplierReferenceDTO> findById(SupplierReference.SupplierReferenceId id) {
+    public Optional<SupplierReferenceDTO> findById(Long articleId, Long supplierId) {
+        SupplierReference.SupplierReferenceId id = new SupplierReference.SupplierReferenceId(articleId, supplierId);
         return supplierReferenceRepository.findById(id)
                 .map(supplierReferenceMapper::toDTO);
     }
@@ -115,7 +114,10 @@ public class SupplierReferenceService implements ISupplierReferenceService {
     }
 
     @Override
-    public void deleteById(SupplierReference.SupplierReferenceId id) {
+    public void deleteById(Long articleId, Long supplierId) {
+        articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
+        supplierRepository.findById(supplierId).orElseThrow(() -> new ResourceNotFoundException("Fournisseur non existant"));
+        SupplierReference.SupplierReferenceId id = new SupplierReference.SupplierReferenceId(articleId, supplierId);
         supplierReferenceRepository.deleteById(id);
     }
 

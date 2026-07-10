@@ -2,9 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
-import com.mns.cda.saas_facturation.Iservice.ICityService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.PostalCodeCityMapper;
 import com.mns.cda.saas_facturation.model.PostalCode;
@@ -41,14 +39,19 @@ public class PostalCodeCityService implements IPostalCodeCityService {
 
     //Get By Id
     @Override
-    public Optional<PostalCodeCityDTO> findById(PostalCodeCity.PostalCodeCityId id) {
-        return postalCodeCityRepository.findById(id).map(postalCodeCityMapper::toDTO);
+    public PostalCodeCityDTO findById(Long pCodeId, Long cityId) {
+        postalCodeRepository.findById(pCodeId).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
+        cityRepository.findById(cityId).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
+        PostalCodeCity postalCodeCity = postalCodeCityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
+
+        return postalCodeCityMapper.toDTO(postalCodeCity);
     }
 
 
     //Post
     @Override
-    public PostalCodeCityDTO create(PostalCodeCityRequestDTO dto) throws ResourceNotFoundException, ResourceNotFoundException {
+    public PostalCodeCityDTO create(PostalCodeCityRequestDTO dto) throws ResourceNotFoundException {
 
         PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId()).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
 
@@ -67,7 +70,10 @@ public class PostalCodeCityService implements IPostalCodeCityService {
 
     //PUT
     @Override
-    public PostalCodeCityDTO update(PostalCodeCity.PostalCodeCityId id, PostalCodeCityRequestDTO dto) throws ResourceNotFoundException {
+    public PostalCodeCityDTO update(Long pCodeId, Long cityId, PostalCodeCityRequestDTO dto) throws ResourceNotFoundException {
+        postalCodeRepository.findById(pCodeId).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
+        cityRepository.findById(cityId).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
         PostalCodeCity postalCodeCity = postalCodeCityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
 
         PostalCode postalCode = postalCodeRepository.findById(dto.pCodeId()).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
@@ -80,7 +86,10 @@ public class PostalCodeCityService implements IPostalCodeCityService {
     }
 
     @Override
-    public void delete(PostalCodeCity.PostalCodeCityId id) throws ResourceNotFoundException {
+    public void delete(Long pCodeId, Long cityId) throws ResourceNotFoundException {
+        postalCodeRepository.findById(pCodeId).orElseThrow(() -> new ResourceNotFoundException("Code postal non existant"));
+        cityRepository.findById(cityId).orElseThrow(() -> new ResourceNotFoundException("Ville non existante"));
+        PostalCodeCity.PostalCodeCityId id = new PostalCodeCity.PostalCodeCityId(pCodeId, cityId);
         postalCodeCityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Lien entre code postal et ville non existant"));
         postalCodeCityRepository.deleteById(id);
     }

@@ -5,10 +5,7 @@ import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
-import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
-import com.mns.cda.saas_facturation.Iservice.ISupplierService;
-import com.mns.cda.saas_facturation.model.SupplierReference;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +35,7 @@ public class SupplierReferenceController {
             @PathVariable Long articleId,
             @PathVariable Long supplierId) {
 
-        SupplierReference.SupplierReferenceId supplierReferenceId = new SupplierReference.SupplierReferenceId(articleId, supplierId);
-        Optional<SupplierReferenceDTO> supplierReference = supplierReferenceService.findById(supplierReferenceId);
+        Optional<SupplierReferenceDTO> supplierReference = supplierReferenceService.findById(articleId, supplierId);
 
         if (supplierReference.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -74,13 +70,12 @@ public class SupplierReferenceController {
             @PathVariable Long articleId,
             @PathVariable Long supplierId) {
 
-        SupplierReference.SupplierReferenceId supplierReferenceId = new SupplierReference.SupplierReferenceId(articleId, supplierId);
-        Optional<SupplierReferenceDTO> supplierReference = supplierReferenceService.findById(supplierReferenceId);
+        Optional<SupplierReferenceDTO> supplierReference = supplierReferenceService.findById(articleId, supplierId);
 
         if (supplierReference.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        supplierReferenceService.deleteById(supplierReferenceId);
+        supplierReferenceService.deleteById(articleId, supplierId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

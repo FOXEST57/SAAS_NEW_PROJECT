@@ -207,7 +207,7 @@ public class TvaController {
     })
     public ResponseEntity<Tva> patchTaux(
             @PathVariable Long id,
-            UpdateTvaTauxDTO tvaTauxDTO) {
+            @RequestBody UpdateTvaTauxDTO tvaTauxDTO) {
         Optional<Tva> optionalTva = tvaService.findById(id);
 
         // Vérification préalable : inutile d'appeler patchTaux() si la TVA est inexistante
