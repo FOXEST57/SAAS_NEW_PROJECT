@@ -2,13 +2,9 @@ package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mns.cda.saas_facturation.DTO.AddressDTO;
-import com.mns.cda.saas_facturation.DTO.CountryDTO;
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.CountryRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.ICountryService;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
-import com.mns.cda.saas_facturation.controller.CountryController;
 import com.mns.cda.saas_facturation.controller.CustomerController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -70,7 +66,7 @@ public class CustomerControllerUnitTest {
     // ------------------------------------------------------------------
 
     @Test
-    @DisplayName("GET /customer/list -> 200 et la liste des countries")
+    @DisplayName("GET /customer/list -> 200 et la liste des customers")
     void getCustomerList_devraitRetourner200() throws Exception {
         when(customerService.findAll()).thenReturn(List.of(customerDTO));
 
@@ -88,7 +84,7 @@ public class CustomerControllerUnitTest {
     // ------------------------------------------------------------------
 
     @Test
-    @DisplayName("GET /customer/{id} -> 200 quand le client existe")
+    @DisplayName("GET /customer/{id} -> 200 quand le customer existe")
     void getCustomer_devraitRetourner200() throws Exception {
         when(customerService.findById(1L)).thenReturn(Optional.of(customerDTO));
 
@@ -100,7 +96,7 @@ public class CustomerControllerUnitTest {
     }
 
     @Test
-    @DisplayName("GET /customer/{id} -> 404 quand le client n'existe pas")
+    @DisplayName("GET /customer/{id} -> 404 quand le customer n'existe pas")
     void getCustomerById_quandIntrouvable_devraitRetourner404() throws Exception {
         when(customerService.findById(99L)).thenReturn(Optional.empty());
 
@@ -158,7 +154,7 @@ public class CustomerControllerUnitTest {
     // ------------------------------------------------------------------
 
     @Test
-    @DisplayName("PUT /customer/{id} -> 200 avec le client modifié")
+    @DisplayName("PUT /customer/{id} -> 200 avec le customer modifié")
     void updateCustomer_devraitRetourner200EtLeClientModifie() throws Exception {
         when(customerService.update(eq(1L), any(CustomerRequestDTO.class))).thenReturn(customerDTO);
 
