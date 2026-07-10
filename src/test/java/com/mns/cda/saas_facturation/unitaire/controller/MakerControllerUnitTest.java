@@ -61,7 +61,7 @@ public class MakerControllerUnitTest {
     // ------------------------------------------------------------------
 
     @Test
-    @DisplayName("GET /maker/list -> 200 et la liste des fournisseurs")
+    @DisplayName("GET /maker/list -> 200 et la liste des constructeurs")
     void getMakerList_devraitRetourner200() throws Exception {
         when(makerService.findAll()).thenReturn(List.of(makerDTO));
 
@@ -79,7 +79,7 @@ public class MakerControllerUnitTest {
     // ------------------------------------------------------------------
 
     @Test
-    @DisplayName("GET /maker/{id} -> 200 quand le fournisseur existe")
+    @DisplayName("GET /maker/{id} -> 200 quand le constructeur existe")
     void getMaker_devraitRetourner200() throws Exception {
         when(makerService.findById(1L)).thenReturn(makerDTO);
 
@@ -91,7 +91,7 @@ public class MakerControllerUnitTest {
     }
 
     @Test
-    @DisplayName("GET /maker/{id} -> 404 quand le fournisseur n'existe pas")
+    @DisplayName("GET /maker/{id} -> 404 quand le constructeur n'existe pas")
     void getMakerById_quandIntrouvable_devraitRetourner404() throws Exception {
         when(makerService.findById(99L)).thenThrow(new ResourceNotFoundException("Maker not found"));
 
@@ -107,7 +107,7 @@ public class MakerControllerUnitTest {
 
     @Test
     @DisplayName("POST /maker -> 201 avec un corps valide")
-    void createMaker_avecDonneesValides_devraitRetourner201EtLeClientCree() throws Exception {
+    void createMaker_avecDonneesValides_devraitRetourner201EtConstructeurReferenceCree() throws Exception {
         // any(...) car seul le comportement du service nous intéresse ici,
         // pas la valeur exacte de l'argument (déjà couverte par le test de validation ci-dessous)
         when(makerService.create(any(MakerRequestDTO.class))).thenReturn(makerDTO);
@@ -128,8 +128,8 @@ public class MakerControllerUnitTest {
     // ------------------------------------------------------------------
 
     @Test
-    @DisplayName("PUT /maker/{id} -> 200 avec le fournisseur modifié")
-    void updateMaker_devraitRetourner200EtLeFournisseurModifie() throws Exception {
+    @DisplayName("PUT /maker/{id} -> 200 avec le constructeur modifié")
+    void updateMaker_devraitRetourner200EtLeConstructeurModifie() throws Exception {
         when(makerService.modify(eq(1L), any(MakerRequestDTO.class))).thenReturn(makerDTO);
 
         mockMvc.perform(put("/maker/{mkrId}", 1L)
