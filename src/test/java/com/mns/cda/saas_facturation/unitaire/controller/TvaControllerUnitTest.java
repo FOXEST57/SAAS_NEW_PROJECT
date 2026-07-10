@@ -48,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * controller, pas la logique métier réelle (qui est mockée).</p>
  */
 @WebMvcTest(controllers = TvaController.class)
-class TvaControllerTest {
+class TvaControllerUnitTest {
 
     /**
      * Client HTTP simulé injecté automatiquement par Spring grâce à {@code @WebMvcTest}.
