@@ -76,7 +76,7 @@ public class CartController {
             return ResponseEntity.noContent().build(); // 204 : succès sans contenu retourné
     }
 
-    @PutMapping("/modify/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Modifier un panier")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Panier modifié"),
