@@ -55,7 +55,7 @@ import static org.hamcrest.Matchers.hasSize;
  * controller, pas la logique métier réelle (qui est mockée).</p>
  */
 @WebMvcTest(controllers = AddressController.class)
-class AddressControllerTest {
+class AddressControllerUnitTest {
 
     /**
      * Client HTTP simulé injecté automatiquement par Spring grâce à {@code @WebMvcTest}.
