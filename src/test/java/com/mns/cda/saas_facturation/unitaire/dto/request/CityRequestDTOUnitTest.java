@@ -93,7 +93,7 @@ public class CityRequestDTOUnitTest {
 
         boolean contraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(city),
-                "country",
+                "cntId",
                 "NotNull"
         );
 
@@ -109,7 +109,7 @@ public class CityRequestDTOUnitTest {
 
         boolean contraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(city),
-                "country",
+                "cntId",
                 "NotNull"
         );
 

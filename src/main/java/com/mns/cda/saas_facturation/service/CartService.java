@@ -4,7 +4,6 @@ import com.mns.cda.saas_facturation.DTO.CartDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CartRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.OrderLineRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICartService;
-import com.mns.cda.saas_facturation.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CartMapper;
 import com.mns.cda.saas_facturation.model.Article;

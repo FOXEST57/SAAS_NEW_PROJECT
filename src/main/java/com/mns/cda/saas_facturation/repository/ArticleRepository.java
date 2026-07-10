@@ -4,8 +4,6 @@ import com.mns.cda.saas_facturation.model.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
  * Repository JPA gérant les accès en base de données pour l'entité {@link Article}.
  *
@@ -24,23 +22,4 @@ import java.util.List;
  */
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
-
-//    /**
-//     * Récupère la liste de tous les articles associés à un fournisseur spécifique.
-//     *
-//     * <p>Cette méthode utilise la convention de nommage Spring Data JPA :
-//     * {@code findBy} + {@code Supplier} (champ de {@link Article}) + {@code SplId}
-//     * (champ de {@link com.mns.cda.saas_facturation.model.Supplier}).
-//     * Spring génère automatiquement la requête SQL correspondante à l'exécution.</p>
-//     *
-//     * <p>Requête SQL équivalente :</p>
-//     * <pre>{@code
-//     * SELECT * FROM article WHERE supplier_id = :splId
-//     * }</pre>
-//     *
-//     * @param splId l'identifiant unique du fournisseur dont on veut récupérer les articles
-//     * @return une {@link List} d'articles associés à ce fournisseur
-//     *         (vide si le fournisseur n'a aucun article)
-//     */
-//    List<Article> findBySupplierSplId(Long splId);
 }
