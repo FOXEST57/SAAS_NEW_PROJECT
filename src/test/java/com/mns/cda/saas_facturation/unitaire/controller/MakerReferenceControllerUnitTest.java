@@ -43,7 +43,6 @@ public class MakerReferenceControllerUnitTest {
     private MakerReferenceDTO makerReferenceDTO;
     private MakerReferenceRequestDTO makerReferenceRequestDTO;
     private UpdateMakerReferenceDTO updateMakerReferenceDTO;
-    private MakerReference.MakerReferenceId makerReferenceId;
     private ArticleResponseMakerReferenceDTO article;
     private MakerResponseDTO maker;
 
@@ -100,7 +99,7 @@ public class MakerReferenceControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /makerReference/{artId}/{mkrId}
+    // GET /makerReference/artId/mkrId
     // ------------------------------------------------------------------
 
     @Test
@@ -152,7 +151,7 @@ public class MakerReferenceControllerUnitTest {
 
 
     // ------------------------------------------------------------------
-    // PUT /maker-reference/{mkrId}
+    // PUT /maker-reference/mkrId
     // ------------------------------------------------------------------
 
     @Test
@@ -172,7 +171,7 @@ public class MakerReferenceControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /maker-reference/{mkrId}
+    // DELETE /maker-reference/mkrId
     // ------------------------------------------------------------------
 
     @Test

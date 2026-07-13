@@ -8,7 +8,6 @@ import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.controller.PostalCodeCityController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.PostalCodeCity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -136,7 +134,7 @@ class PostalCodeCityControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /postalcodecity/{pCodeId}/{cityId}
+    // GET /postalcodecity/pCodeId/cityId
     // ------------------------------------------------------------------
 
     /**
@@ -264,7 +262,7 @@ class PostalCodeCityControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // PUT /postalcodecity/{pCodeId}/{cityId}
+    // PUT /postalcodecity/pCodeId/cityId
     // ------------------------------------------------------------------
 
     /**
@@ -289,7 +287,7 @@ class PostalCodeCityControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /postalcodecity/{pCodeId}/{cityId}
+    // DELETE /postalcodecity/pCodeId/cityId
     // ------------------------------------------------------------------
 
     /**

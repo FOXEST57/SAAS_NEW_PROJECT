@@ -4,7 +4,6 @@ import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.PostalCodeCity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+
 
 /**
  * Contrôleur REST exposant les endpoints de gestion des liens entre code postal et ville.

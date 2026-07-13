@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.List;
 
 public record CityRequestDTO(
         @NotBlank @Column(unique = true) String cityName,

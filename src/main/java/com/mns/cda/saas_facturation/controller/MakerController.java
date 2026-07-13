@@ -50,7 +50,7 @@ public class MakerController {
 
         try {
             return new ResponseEntity<>(makerService.findById(id),HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -81,7 +81,7 @@ public class MakerController {
         try {
             makerService.delete(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -102,7 +102,7 @@ public class MakerController {
 
         try {
             return new ResponseEntity<>(makerService.modify(id, dto),HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

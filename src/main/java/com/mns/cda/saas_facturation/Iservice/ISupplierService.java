@@ -2,9 +2,7 @@ package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.Supplier;
 
 import java.util.List;
 

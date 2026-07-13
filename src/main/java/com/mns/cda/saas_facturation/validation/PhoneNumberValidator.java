@@ -62,7 +62,7 @@ public class PhoneNumberValidator implements ConstraintValidator<ValidPhoneNumbe
             String normalized = phoneUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.E164);
             return normalized.equals(value);
 
-        } catch (NumberParseException e) {
+        } catch (NumberParseException _) {
             // Le numéro n'a pas pu être parsé (format illisible, préfixe inconnu, etc.)
             // On retourne false sans propager l'exception : c'est une entrée invalide, pas une erreur serveur.
             return false;

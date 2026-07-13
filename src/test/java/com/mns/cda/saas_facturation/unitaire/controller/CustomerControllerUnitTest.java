@@ -80,7 +80,7 @@ public class CustomerControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /customer/{ctmId}
+    // GET /customer/ctmId
     // ------------------------------------------------------------------
 
     @Test
@@ -150,7 +150,7 @@ public class CustomerControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // PUT /customer/{ctmId}
+    // PUT /customer/ctmId
     // ------------------------------------------------------------------
 
     @Test
@@ -168,7 +168,7 @@ public class CustomerControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /customer/{ctmId}
+    // DELETE /customer/ctmId
     // ------------------------------------------------------------------
 
     @Test

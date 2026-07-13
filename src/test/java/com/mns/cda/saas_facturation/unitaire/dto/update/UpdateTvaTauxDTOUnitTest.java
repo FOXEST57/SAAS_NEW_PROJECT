@@ -2,7 +2,6 @@ package com.mns.cda.saas_facturation.unitaire.dto.update;
 
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateTvaTauxDTO;
 import com.mns.cda.saas_facturation.TestUtilitaire;
-import com.mns.cda.saas_facturation.model.Tva;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;

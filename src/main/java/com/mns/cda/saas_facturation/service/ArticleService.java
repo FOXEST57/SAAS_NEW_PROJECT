@@ -11,6 +11,7 @@ import com.mns.cda.saas_facturation.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
+import org.apache.el.stream.Stream;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -135,7 +136,7 @@ public class ArticleService implements IArticleService {
                     .stream()
                     .map(catId -> categoryRepository.findById(catId)
                             .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
-                    .collect(Collectors.toList());
+                    .toList();
 
             article.setCategories(categories);
         }
@@ -231,12 +232,11 @@ public class ArticleService implements IArticleService {
         article.setTva(tva);
 
         // La catégorie est optionnelle : on ne met à jour la relation que si un splId est fourni
-        Category category = null;
         if (dto.categoryIds() != null) {
             List<Category> categories = dto.categoryIds().stream()
                     .map(catId -> categoryRepository.findById(catId)
                             .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
-                    .collect(Collectors.toList());
+                    .toList();
 
             article.setCategories(categories);
         }

@@ -5,9 +5,7 @@ import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateMakerReferenceDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
-import com.mns.cda.saas_facturation.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
-import com.mns.cda.saas_facturation.Iservice.IMakerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,7 +53,7 @@ public class MakerReferenceController {
                                                              @PathVariable Long mkrId) {
         try {
             return new ResponseEntity<>(makerReferenceService.findById(artId, mkrId), HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -83,7 +81,7 @@ public class MakerReferenceController {
     public ResponseEntity<MakerReferenceDTO> create(@Valid @RequestBody MakerReferenceRequestDTO dto) {
         try {
             return new ResponseEntity<>(makerReferenceService.create(dto), HttpStatus.CREATED);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -104,7 +102,7 @@ public class MakerReferenceController {
             @Valid @RequestBody UpdateMakerReferenceDTO dto) {
         try {
             return new ResponseEntity<>(makerReferenceService.modify(artId, mkrId, dto), HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -123,7 +121,7 @@ public class MakerReferenceController {
         try {
             makerReferenceService.delete(artId, mkrId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

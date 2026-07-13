@@ -70,7 +70,7 @@ public class CountryControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /country/{addId}
+    // GET /country/addId
     // ------------------------------------------------------------------
 
     @Test
@@ -118,7 +118,7 @@ public class CountryControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // PUT /country/{cntId}
+    // PUT /country/cntId
     // ------------------------------------------------------------------
 
     @Test
@@ -136,7 +136,7 @@ public class CountryControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /country/{cntId}
+    // DELETE /country/cntId
     // ------------------------------------------------------------------
 
     @Test

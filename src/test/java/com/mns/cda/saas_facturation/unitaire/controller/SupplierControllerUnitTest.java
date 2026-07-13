@@ -19,7 +19,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -139,7 +138,7 @@ class SupplierControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /supplier/{splId}
+    // GET /supplier/splId
     // ------------------------------------------------------------------
 
     /**
@@ -338,7 +337,7 @@ class SupplierControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // PUT /supplier/{id}
+    // PUT /supplier/id
     // ------------------------------------------------------------------
 
     /**
@@ -359,7 +358,7 @@ class SupplierControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /supplier/{id}
+    // DELETE /supplier/id
     // ------------------------------------------------------------------
 
     /**

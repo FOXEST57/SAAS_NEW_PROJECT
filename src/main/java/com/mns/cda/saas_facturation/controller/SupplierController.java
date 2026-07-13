@@ -91,41 +91,10 @@ public class SupplierController {
     public ResponseEntity<SupplierDTO> findById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(supplierService.findById(id));
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-//    /**
-//     * Récupère la liste des articles associés à un fournisseur spécifique.
-//     * GET /supplier/{splId}/articles
-//     *
-//     * <p>Cette route permet d'obtenir tous les articles liés à un fournisseur
-//     * identifié par son splId. Si le fournisseur n'existe pas, une réponse 404 est retournée.</p>
-//     *
-//     * @param splId l'identifiant du fournisseur dont on veut récupérer les articles
-//     * @return une {@link ResponseEntity} contenant :
-//     *         <ul>
-//     *           <li>200 OK avec la liste des {@link ArticleDTO} si le fournisseur existe</li>
-//     *           <li>404 Not Found si aucun fournisseur ne correspond à cet splId</li>
-//     *         </ul>
-//     */
-//    @GetMapping("/{splId}/articles")
-//    @Operation(summary = "Récupérer une liste d'article par splId fournisseur")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Fournisseur trouvé"),
-//            @ApiResponse(responseCode = "404", description = "Fournisseur introuvable")
-//    })
-//    public ResponseEntity<List<ArticleResponseSupplierDTO>> findArticleBySupplierId(@PathVariable Long splId) {
-//        try {
-//            // Délègue la récupération des articles au service
-//            // Le service vérifie d'abord que le fournisseur existe avant de retourner ses articles
-//            return ResponseEntity.ok(articleService.findBySupplier(splId));
-//        } catch (ResourceNotFoundException e) {
-//            // Levée par le service si aucun fournisseur ne correspond à l'splId fourni
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
 
     /**
      * Crée un nouveau fournisseur à partir des données reçues dans le corps de la requête.
@@ -155,7 +124,7 @@ public class SupplierController {
             // @RequestBody : Spring désérialise automatiquement le JSON reçu en SupplierRequestDTO
             SupplierDTO response = supplierService.create(dto);
             return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -183,7 +152,7 @@ public class SupplierController {
         try {
             supplierService.delete(id);
             return ResponseEntity.noContent().build(); // 204 : succès sans contenu retourné
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404
         }
     }
@@ -220,7 +189,7 @@ public class SupplierController {
         try {
             SupplierDTO updated = supplierService.modify(id, dto);
             return new ResponseEntity<>(updated, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException _) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

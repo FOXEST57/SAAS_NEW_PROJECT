@@ -6,7 +6,6 @@ import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.SupplierReference;
 
 import java.util.List;
 import java.util.Optional;

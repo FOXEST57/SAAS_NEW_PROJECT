@@ -2,12 +2,10 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.SupplierMapper;
 import com.mns.cda.saas_facturation.model.Address;
-import com.mns.cda.saas_facturation.model.Article;
 import com.mns.cda.saas_facturation.model.Supplier;
 import com.mns.cda.saas_facturation.repository.AddressRepository;
 import com.mns.cda.saas_facturation.repository.SupplierRepository;
@@ -15,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Service métier gérant la logique liée aux fournisseurs ({@link Supplier}).

@@ -41,7 +41,6 @@ public class MakerControllerUnitTest {
 
     private MakerDTO makerDTO;
     private MakerRequestDTO makerRequestDTO;
-    private ResourceNotFoundException resourceNotFoundException;
 
     @BeforeEach
     void setUp() {
@@ -75,7 +74,7 @@ public class MakerControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /maker/{mkrId}
+    // GET /maker/mkrId
     // ------------------------------------------------------------------
 
     @Test
@@ -124,7 +123,7 @@ public class MakerControllerUnitTest {
 
 
     // ------------------------------------------------------------------
-    // PUT /maker/{mkrId}
+    // PUT /maker/mkrId
     // ------------------------------------------------------------------
 
     @Test
@@ -142,7 +141,7 @@ public class MakerControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /maker/{mkrId}
+    // DELETE /maker/mkrId
     // ------------------------------------------------------------------
 
     @Test

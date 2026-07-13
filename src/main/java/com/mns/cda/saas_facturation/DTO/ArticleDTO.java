@@ -1,7 +1,6 @@
 package com.mns.cda.saas_facturation.DTO;
 
 import com.mns.cda.saas_facturation.DTO.responseDTO.*;
-import com.mns.cda.saas_facturation.model.MakerReference;
 import com.mns.cda.saas_facturation.model.Tva;
 
 import java.math.BigDecimal;

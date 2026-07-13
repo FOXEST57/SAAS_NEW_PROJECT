@@ -24,7 +24,7 @@ public class PostalCodeCityRequestDTOUnitTest {
         PostalCodeCityRequestDTO postalCodeCityRequestDTO = new PostalCodeCityRequestDTO(
                 null,
                 1L
-        );;
+        );
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(postalCodeCityRequestDTO),
                 "pCodeId",
@@ -55,7 +55,7 @@ public class PostalCodeCityRequestDTOUnitTest {
         PostalCodeCityRequestDTO postalCodeCityRequestDTO = new PostalCodeCityRequestDTO(
                 1L,
                 null
-        );;
+        );
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(postalCodeCityRequestDTO),
                 "cityId",

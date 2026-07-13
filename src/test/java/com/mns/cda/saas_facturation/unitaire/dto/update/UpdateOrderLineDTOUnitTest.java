@@ -1,6 +1,5 @@
 package com.mns.cda.saas_facturation.unitaire.dto.update;
 
-import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateOrderLineDTO;
 import com.mns.cda.saas_facturation.TestUtilitaire;
 import jakarta.validation.Validation;

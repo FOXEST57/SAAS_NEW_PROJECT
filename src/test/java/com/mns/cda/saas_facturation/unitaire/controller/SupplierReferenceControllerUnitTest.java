@@ -10,7 +10,6 @@ import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.controller.SupplierReferenceController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.SupplierReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -166,7 +165,7 @@ class SupplierReferenceControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /supplier-reference/{articleId}/{supplierId}
+    // GET /supplier-reference/articleId/supplierId
     // ------------------------------------------------------------------
 
     /**
@@ -438,7 +437,7 @@ class SupplierReferenceControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // PUT /supplier-reference/{articleId}/{supplierId}
+    // PUT /supplier-reference/articleId/supplierId
     // ------------------------------------------------------------------
 
     /**
@@ -461,7 +460,7 @@ class SupplierReferenceControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /supplier-reference/{articleId}/{supplierId}
+    // DELETE /supplier-reference/articleId/supplierId
     // ------------------------------------------------------------------
 
     /**

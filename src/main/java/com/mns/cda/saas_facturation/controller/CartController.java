@@ -1,14 +1,9 @@
 package com.mns.cda.saas_facturation.controller;
 
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
+
 import com.mns.cda.saas_facturation.DTO.CartDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CartRequestDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IAddressService;
 import com.mns.cda.saas_facturation.Iservice.ICartService;
-import com.mns.cda.saas_facturation.Iservice.ICustomerService;
-import com.mns.cda.saas_facturation.Iservice.ISupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

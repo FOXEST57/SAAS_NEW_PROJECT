@@ -6,7 +6,6 @@ import com.mns.cda.saas_facturation.DTO.CartDTO;
 import com.mns.cda.saas_facturation.DTO.OrderLineDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.OrderLineRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CartResponseDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerResponseDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateOrderLineDTO;
 import com.mns.cda.saas_facturation.Iservice.IOrderLineService;
 import com.mns.cda.saas_facturation.controller.OrderLineController;
@@ -158,7 +157,7 @@ public class OrderLineControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /orderLine/{artId}/{mkrId}
+    // GET /orderLine/artId/mkrId
     // ------------------------------------------------------------------
 
     @Test
@@ -208,7 +207,7 @@ public class OrderLineControllerUnitTest {
 
 
     // ------------------------------------------------------------------
-    // PUT /order-line/{mkrId}
+    // PUT /order-line/mkrId
     // ------------------------------------------------------------------
 
     @Test
@@ -227,7 +226,7 @@ public class OrderLineControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /order-line/{mkrId}
+    // DELETE /order-line/mkrId
     // ------------------------------------------------------------------
 
     @Test

@@ -65,7 +65,7 @@ public class GlobalExceptionInterceptor {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> constraintViolationInterceptor(MethodArgumentNotValidException ex) {
 
-        // Map qui va accueillir les paires { nomDuChamp : messageErreur }
+        // Map qui va accueillir les paires nomDuChamp : messageErreur
         Map<String, String> errors = new HashMap<>();
 
         // On itère sur chaque erreur de champ détectée par le moteur de validation

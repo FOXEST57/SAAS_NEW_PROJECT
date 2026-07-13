@@ -126,7 +126,7 @@ class PostalCodeControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // GET /postalcode/{pCodeId}
+    // GET /postalcode/pCodeId
     // ------------------------------------------------------------------
 
     /**
@@ -218,7 +218,7 @@ class PostalCodeControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // PUT /postalcode/{pCodeId}
+    // PUT /postalcode/pCodeId
     // ------------------------------------------------------------------
 
     /**
@@ -240,7 +240,7 @@ class PostalCodeControllerUnitTest {
     }
 
     // ------------------------------------------------------------------
-    // DELETE /postalcode/{pCodeId}
+    // DELETE /postalcode/pCodeId
     // ------------------------------------------------------------------
 
     /**

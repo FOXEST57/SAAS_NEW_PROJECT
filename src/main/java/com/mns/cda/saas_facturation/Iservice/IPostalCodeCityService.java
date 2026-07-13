@@ -3,10 +3,8 @@ package com.mns.cda.saas_facturation.Iservice;
 import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.PostalCodeCity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface IPostalCodeCityService {
 
