@@ -55,6 +55,11 @@ public class Customer {
     @LastModifiedDate
     protected LocalDateTime ctmModificationDate;
 
+    @ManyToOne
+    @JoinColumn(name = "acc_type_id")
+    @NotNull
+    protected AccountType accountType;
+
     @ManyToMany
     protected List<Customer> customers;
 

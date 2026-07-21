@@ -13,6 +13,7 @@ public record CustomerRequestDTO(
         @NotBlank @Email String ctmEmail,
         @NotBlank @ValidPhoneNumber String ctmPhone,
         @NotNull Long addId,
+        @NotNull Long accTypeId,
         List<Integer> customerIds,
         List<Integer> superCustomerIds
 ) {
