@@ -14,7 +14,6 @@ public record CustomerRequestDTO(
         @NotBlank @ValidPhoneNumber String ctmPhone,
         @NotNull Long addId,
         @NotNull Long accTypeId,
-        List<Integer> customerIds,
-        List<Integer> superCustomerIds
+        List<Long> customerIds
 ) {
 }

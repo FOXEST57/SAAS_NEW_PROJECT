@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.exception.SameAccountException;
 import com.mns.cda.saas_facturation.mapper.CustomerMapper;
 import com.mns.cda.saas_facturation.model.AccountType;
 import com.mns.cda.saas_facturation.model.Address;
@@ -41,9 +42,21 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public CustomerDTO create(CustomerRequestDTO dto) throws ResourceNotFoundException {
+    public CustomerDTO create(CustomerRequestDTO dto) throws ResourceNotFoundException, SameAccountException {
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         AccountType accountType = accountTypeRepository.findById(dto.accTypeId()).orElseThrow(() -> new ResourceNotFoundException("Type de compte non existant"));
+        List<Customer> customers = dto.customerIds() != null
+                ? dto.customerIds()
+                    .stream()
+                    .map(id -> {
+                            Customer cust = customerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
+                            if (cust.getAccountType() == accountType) {
+                                throw new SameAccountException("Le type de compte " + accountType + " ne peut pas avoir une liste de clients du même type");
+                            }
+                            return cust;
+                    })
+                    .toList()
+                : null;
 
         Customer customer = new Customer();
         customer.setCtmFirstName(dto.ctmFirstName());
@@ -52,15 +65,28 @@ public class CustomerService implements ICustomerService {
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
         customer.setAccountType(accountType);
+        customer.setCustomers(customers);
 
         return customerMapper.toDTO(customerRepository.save(customer));
     }
 
     @Override
-    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws ResourceNotFoundException {
+    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws ResourceNotFoundException, SameAccountException {
         Customer customer = customerRepository.findById(ctmId).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         AccountType accountType = accountTypeRepository.findById(dto.accTypeId()).orElseThrow(() -> new ResourceNotFoundException("Type de compte non existant"));
+        List<Customer> customers = dto.customerIds() != null
+                ? dto.customerIds()
+                .stream()
+                .map(id -> {
+                    Customer cust = customerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
+                    if (cust.getAccountType() == accountType) {
+                        throw new SameAccountException("Le type de compte " + accountType + " ne peut pas avoir une liste de clients du même type");
+                    }
+                    return cust;
+                })
+                .toList()
+                : null;
 
         customer.setCtmFirstName(dto.ctmFirstName());
         customer.setCtmLastName(dto.ctmLastName());
@@ -68,6 +94,7 @@ public class CustomerService implements ICustomerService {
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
         customer.setAccountType(accountType);
+        customer.setCustomers(customers);
 
         return customerMapper.toDTO(customerRepository.save(customer));
     }

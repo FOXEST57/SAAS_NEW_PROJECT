@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.DTO;
 
 import com.mns.cda.saas_facturation.DTO.responseDTO.AccountTypeResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CustomerResponseDTO;
 
 import java.util.List;
 
@@ -11,9 +12,7 @@ public record CustomerDTO(
         String ctmEmail,
         String ctmPhone,
         AddressDTO address,
-        AccountTypeResponseDTO accountType
-        AddressDTO address,
-        List<CustomerDTO> customers,
-        List<CustomerDTO> superCustomers
+        AccountTypeResponseDTO accountType,
+        List<CustomerResponseDTO> customers
 ) {
 }

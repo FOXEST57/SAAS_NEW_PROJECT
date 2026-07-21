@@ -63,7 +63,4 @@ public class Customer {
     @ManyToMany
     protected List<Customer> customers;
 
-    @ManyToMany(mappedBy = "customers")
-    protected List<Customer> superCustomers;
-
 }

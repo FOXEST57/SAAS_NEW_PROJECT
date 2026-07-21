@@ -11,7 +11,6 @@ public record CustomerResponseDTO(
         String ctmEmail,
         String ctmPhone,
         AddressDTO address,
-        List<CustomerResponseDTO> customers,
-        List<CustomerResponseDTO> superCustomers
+        AccountTypeResponseDTO accountType
 ) {
 }
