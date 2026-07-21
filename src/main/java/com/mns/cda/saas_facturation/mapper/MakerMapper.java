@@ -16,8 +16,8 @@ public class MakerMapper {
         return new MakerDTO(
                 maker.getMkrId(),
                 maker.getMkrName(),
-                maker.getMkrPhone(),
                 maker.getMkrEmail(),
+                maker.getMkrPhone(),
                 addressMapper.toDTO(maker.getAddress())
         );
     }
