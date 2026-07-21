@@ -319,7 +319,7 @@ class SupplierReferenceControllerUnitTest {
                 {
                   "supplierId": 1,
                   "splRefReference": "référence",
-                  "supplierPrice": BigDecimal.valusOf(1),
+                  "splRefSellPrice": BigDecimal.valusOf(1),
                   "splRefStock": 1
                 }
                 """;
@@ -353,7 +353,7 @@ class SupplierReferenceControllerUnitTest {
                 {
                   "articleId": 1,
                   "splRefReference": "référence",
-                  "supplierPrice": BigDecimal.valusOf(1),
+                  "splRefSellPrice": BigDecimal.valusOf(1),
                   "splRefStock": 1
                 }
                 """;
@@ -387,7 +387,7 @@ class SupplierReferenceControllerUnitTest {
                 {
                   "articleId": 1,
                   "supplierId": 1,
-                  "supplierPrice": BigDecimal.valusOf(1),
+                  "splRefSellPrice": BigDecimal.valusOf(1),
                   "splRefStock": 1
                 }
                 """;
@@ -403,7 +403,7 @@ class SupplierReferenceControllerUnitTest {
     }
 
     /**
-     * Cas d'erreur de validation : {@code supplierPrice} est obligatoire
+     * Cas d'erreur de validation : {@code splRefSellPrice} est obligatoire
      * ({@code @NotNull} dans {@link SupplierReferenceRequestDTO}). Si on l'omet, Bean
      * Validation doit rejeter la requête avant même d'atteindre le service
      * (grâce à {@code @Valid} sur le paramètre du controller).
@@ -415,7 +415,7 @@ class SupplierReferenceControllerUnitTest {
      * construction).</p>
      */
     @Test
-    @DisplayName("POST /supplier-reference -> 400 quand supplierPrice est manquant")
+    @DisplayName("POST /supplier-reference -> 400 quand splRefSellPrice est manquant")
     void createSupplierReference_withoutSupplierPrice_shouldReturn400() throws Exception {
         String jsonWithoutSupplierId = """
                 {

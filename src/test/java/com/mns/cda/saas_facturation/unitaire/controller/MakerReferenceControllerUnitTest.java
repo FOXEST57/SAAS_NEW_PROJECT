@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -63,17 +64,23 @@ public class MakerReferenceControllerUnitTest {
         makerReferenceDTO = new MakerReferenceDTO(
                 article,
                 maker,
-                "Ref-001"
+                "Ref-001",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                "Ref-001"
+                "Ref-001",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
-                "Ref-001"
+                "Ref-001",
+                0,
+                BigDecimal.valueOf(1)
         );
 
     }

@@ -11,12 +11,10 @@ import com.mns.cda.saas_facturation.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
-import org.apache.el.stream.Stream;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service métier gérant la logique liée aux articles ({@link Article}).
@@ -155,7 +153,7 @@ public class ArticleService implements IArticleService {
                         article,
                         supplier,
                         splRef.splRefReference(),
-                        splRef.supplierPrice(),
+                        splRef.splRefSellPrice(),
                         splRef.splRefStock()
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer

@@ -89,7 +89,7 @@ public class UpdateSupplierReferenceDTOUnitTest {
     }
 
 
-    // Tests sur supplierPrice (@NotNull)
+    // Tests sur splRefSellPrice (@NotNull)
     @Test
     public void validSupplierReferenceWithSupplierPriceNotNull_MustBeValidated() {
         UpdateSupplierReferenceDTO updateSupplierReferenceDTO = new UpdateSupplierReferenceDTO(
@@ -100,7 +100,7 @@ public class UpdateSupplierReferenceDTOUnitTest {
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(updateSupplierReferenceDTO),
-                "supplierPrice",
+                "splRefSellPrice",
                 "NotNull"
         );
 
@@ -117,8 +117,25 @@ public class UpdateSupplierReferenceDTOUnitTest {
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(updateSupplierReferenceDTO),
-                "supplierPrice",
+                "splRefSellPrice",
                 "NotNull"
+        );
+
+        Assertions.assertTrue(constraintExists);
+    }
+
+    @Test
+    public void validSupplierReferenceWithSupplierPriceNegative_MustNotBeValidated() {
+        UpdateSupplierReferenceDTO updateSupplierReferenceDTO = new UpdateSupplierReferenceDTO(
+                "Référence",
+                BigDecimal.valueOf(-1),
+                1
+        );
+
+        boolean constraintExists = TestUtilitaire.constraintViolationExist(
+                validator.validate(updateSupplierReferenceDTO),
+                "splRefSellPrice",
+                "DecimalMin"
         );
 
         Assertions.assertTrue(constraintExists);

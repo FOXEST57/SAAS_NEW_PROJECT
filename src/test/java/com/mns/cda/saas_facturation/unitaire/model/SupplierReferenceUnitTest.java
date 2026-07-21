@@ -137,8 +137,8 @@ public class SupplierReferenceUnitTest {
 
         Assertions.assertTrue(contraintExists);
     }
-    
-    // Tests sur supplierPrice (@NotNull)
+
+    // Tests sur splRefSellPrice (@NotNull)
     @Test
     public void validSupplierReferenceWithSupplierPriceNotNull_MustBeValidated() {
         SupplierReference supplierReference = new SupplierReference();
@@ -167,4 +167,31 @@ public class SupplierReferenceUnitTest {
         Assertions.assertTrue(contraintExists);
     }
 
+    @Test
+    public void validSupplierReferenceWithSupplierPriceNegative_MustNotBeValidated() {
+        SupplierReference supplierReference = new SupplierReference();
+        supplierReference.setSplRefSellPrice(BigDecimal.valueOf(-1));
+
+        boolean contraintExists = TestUtilitaire.constraintViolationExist(
+                validator.validate(supplierReference),
+                "splRefSellPrice",
+                "DecimalMin"
+        );
+
+        Assertions.assertTrue(contraintExists);
+    }
+
+    @Test
+    public void validSupplierReferenceWithSupplierPricePositive_MustBeValidated() {
+        SupplierReference supplierReference = new SupplierReference();
+        supplierReference.setSplRefSellPrice(BigDecimal.valueOf(1));
+
+        boolean contraintExists = TestUtilitaire.constraintViolationExist(
+                validator.validate(supplierReference),
+                "splRefSellPrice",
+                "DecimalMin"
+        );
+
+        Assertions.assertFalse(contraintExists);
+    }
 }

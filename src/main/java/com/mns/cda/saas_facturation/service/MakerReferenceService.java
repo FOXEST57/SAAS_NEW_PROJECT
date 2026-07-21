@@ -79,9 +79,9 @@ public class MakerReferenceService implements IMakerReferenceService {
                 new MakerReference.MakerReferenceId(dto.artId(), dto.mkrId()),
                 article,
                 maker,
-                dto.mkrRefReference(),
-                1,
-                BigDecimal.valueOf(2.0)
+                dto.artMkrReference(),
+                dto.artMkrStock(),
+                dto.artMkrSellPrice()
         );
 
         return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
@@ -95,6 +95,8 @@ public class MakerReferenceService implements IMakerReferenceService {
        ).orElseThrow(() -> new ResourceNotFoundException("Référence fabricant non existante"));
 
        makerReference.setArtMkrReference(dto.reference());
+       makerReference.setArtMkrStock(dto.artMkrStock());
+       makerReference.setArtMkrSellPrice(dto.artMkrSellPrice());
 
        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
 

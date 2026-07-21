@@ -102,4 +102,32 @@ public class MakerReferenceUnitTest {
         );
         Assertions.assertTrue(constraintExist);
     }
+
+    @Test
+    public void validMakerReferenceWithMkrRefSellPriceNegative_MustNotBeValidated() {
+
+        MakerReference makerReference = new MakerReference();
+        makerReference.setArtMkrSellPrice(BigDecimal.valueOf(-1));
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(makerReference),
+                "artMkrSellPrice",
+                "DecimalMin"
+        );
+        Assertions.assertTrue(constraintExist);
+    }
+
+    @Test
+    public void validMakerReferenceWithMkrRefSellPricePositive_MustBeValidated() {
+
+        MakerReference makerReference = new MakerReference();
+        makerReference.setArtMkrSellPrice(BigDecimal.valueOf(1));
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(makerReference),
+                "artMkrSellPrice",
+                "DecimalMin"
+        );
+        Assertions.assertFalse(constraintExist);
+    }
 }
