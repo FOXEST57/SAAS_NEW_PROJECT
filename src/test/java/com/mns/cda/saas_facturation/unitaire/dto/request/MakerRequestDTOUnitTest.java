@@ -22,7 +22,10 @@ public class MakerRequestDTOUnitTest {
     public void validMakerRequestDTOWithMkrNameNull_MustNotBeValidated() {
 
         MakerRequestDTO makerRequestDTO = new MakerRequestDTO(
-                null
+                null,
+                "test@gail.com",
+                "+33618765635",
+                1L
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -37,7 +40,10 @@ public class MakerRequestDTOUnitTest {
     public void validMakerRequestDTOWithMkrRefReferenceBlankSpace_MustNotBeValidated() {
 
         MakerRequestDTO makerRequestDTO = new MakerRequestDTO(
-                "  "
+                "  ",
+                "test@gail.com",
+                "+33618765635",
+                1L
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -52,7 +58,10 @@ public class MakerRequestDTOUnitTest {
     public void validMakerRequestDTOWithMkrRefReferenceBlank_MustNotBeValidated() {
 
         MakerRequestDTO makerRequestDTO = new MakerRequestDTO(
-                ""
+                "",
+                "test@gail.com",
+                "+33618765635",
+                1L
         );
 
 
@@ -68,7 +77,10 @@ public class MakerRequestDTOUnitTest {
     public void validMakerRequestDTOWithMkrNameNotBlank_MustBeValidated() {
 
         MakerRequestDTO makerRequestDTO = new MakerRequestDTO(
-                "Valid Maker Name"
+                "Valid Maker Name",
+                "test@gail.com",
+                "+33618765635",
+                1L
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(

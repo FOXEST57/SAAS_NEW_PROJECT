@@ -70,12 +70,12 @@ VALUES
     ('Logitech France', 'contact@logitech.fr', '+33102030405', 1);
 
 -- 9. Table MAKER (référencée par MAKER_REFERENCE.maker_id)
-INSERT INTO maker (mkr_name,mkr_email,mkr_phone)
+INSERT INTO maker (mkr_name,mkr_email,mkr_phone, address_id)
 VALUES
-    ('Fabricant 1','fabricant1@gmail.com','+33618765635'),
-    ('Fabricant 2', 'fabricant2@gmail.com', '+33619775736'),
-    ('Fabricant 3', 'fabricant3@gmail.com', '+33620785837'),
-    ('Fabricant 4', 'fabricant4@gmail.com', '+33621795938');
+    ('Fabricant 1','fabricant1@gmail.com','+33618765635',1),
+    ('Fabricant 2', 'fabricant2@gmail.com', '+33619775736',2),
+    ('Fabricant 3', 'fabricant3@gmail.com', '+33620785837',1),
+    ('Fabricant 4', 'fabricant4@gmail.com', '+33621795938',1);
 
 -- 10. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
 INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock,art_create_date, art_update_date, tva_id)
