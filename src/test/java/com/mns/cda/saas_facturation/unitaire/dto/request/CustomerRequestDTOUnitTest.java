@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 public class CustomerRequestDTOUnitTest {
     
     public static Validator validator;
@@ -27,7 +29,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -47,7 +50,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -67,7 +71,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -87,7 +92,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -109,7 +115,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -129,7 +136,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -149,7 +157,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -169,7 +178,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -190,7 +200,8 @@ public class CustomerRequestDTOUnitTest {
                 null,
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -210,7 +221,8 @@ public class CustomerRequestDTOUnitTest {
                 " ",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -230,7 +242,8 @@ public class CustomerRequestDTOUnitTest {
                 "",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -250,7 +263,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -271,7 +285,8 @@ public class CustomerRequestDTOUnitTest {
                 "invalid-email",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -291,7 +306,8 @@ public class CustomerRequestDTOUnitTest {
                 "",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -312,7 +328,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 null,
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -332,7 +349,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 " ",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -352,7 +370,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -372,7 +391,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -393,7 +413,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "invalid-phone",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -413,7 +434,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -433,8 +455,8 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 null,
-                3L
-
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -454,12 +476,55 @@ public class CustomerRequestDTOUnitTest {
                 "John.Doe@gmail.com",
                 "+33617755534",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(customer),
                 "addId",
+                "NotNull"
+        );
+        Assertions.assertFalse(constraintExist);
+    }
+
+    // CustomerRequestDTO accountType : @NotNull
+    @Test
+    public void validCustomerWithAccountTypeNull_MustNotBeValidated() {
+
+        CustomerRequestDTO customer = new CustomerRequestDTO("John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L,
+                null,
+                List.of(1L, 2L)
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(customer),
+                "accTypeId",
+                "NotNull"
+        );
+        Assertions.assertTrue(constraintExist);
+    }
+
+    @Test
+    public void validCustomerWithAccountIdNotNull_MustBeValidated() {
+
+        CustomerRequestDTO customer = new CustomerRequestDTO(
+                "John",
+                "Doe",
+                "John.Doe@gmail.com",
+                "+33617755534",
+                1L,
+                3L,
+                List.of(1L, 2L)
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(customer),
+                "accTypeId",
                 "NotNull"
         );
         Assertions.assertFalse(constraintExist);

@@ -5,6 +5,7 @@ import com.mns.cda.saas_facturation.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.DTO.CustomerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.AccountTypeResponseDTO;
+import com.mns.cda.saas_facturation.DTO.responseDTO.CustomerResponseDTO;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.controller.CustomerController;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ public class CustomerControllerUnitTest {
     void setUp() {
         AddressDTO addressDTO = mock(AddressDTO.class);
         AccountTypeResponseDTO  accountTypeResponseDTO = mock(AccountTypeResponseDTO.class);
+        List<CustomerResponseDTO> customerResponseDTO = List.of(mock(CustomerResponseDTO.class));
 
         customerDTO = new CustomerDTO(
                 1L,
@@ -52,7 +54,8 @@ public class CustomerControllerUnitTest {
                 "dupont.jean@example.com",
                 "+33123456789",
                 addressDTO,
-                accountTypeResponseDTO
+                accountTypeResponseDTO,
+                customerResponseDTO
         );
 
         customerRequestDTO = new CustomerRequestDTO(
@@ -61,7 +64,8 @@ public class CustomerControllerUnitTest {
                 "dupont.jean@example.com",
                 "+33123456789",
                 1L,
-                3L
+                3L,
+                List.of(1L, 2L)
         );
     }
 
@@ -139,7 +143,8 @@ public class CustomerControllerUnitTest {
                   "ctmFirstName": "Jean",
                   "ctmLastName": "Dupont",
                   "ctmEmail": "jean.dupont@example.com",
-                  "ctmPhone": "0123456789"
+                  "ctmPhone": "0123456789",
+                  "accTypeId": 1
                 }
                 """;
 
