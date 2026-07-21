@@ -112,15 +112,22 @@ VALUES
     (4, 3),
     (5, 3);
 
+-- 14. Table ACCOUNT_TYPE (référencée par ACCOUNT.account_type_id)
+INSERT INTO account_type (acc_type-libelle)
+VALUES
+    ('Super Admin'),
+    ('Admin'),
+    ('User'),
+    ('Super User');
 
--- 14. Table CUSTOMER (référence ADDRESS)
+-- 15. Table CUSTOMER (référence ADDRESS)
 INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, ctm_phone, add_id)
 VALUES
     ('John', 'Doe', 'john.doe@email.com', '+33754156322', 1),
     ('Jane', 'Doe', 'jane.doe@email.com', '+33758965410', 1),
     ('Lily', 'Smith', 'lily.smith@email.com', '0654125532', 2);
 
--- 15. Table CART (référence CUSTOMER)
+-- 16. Table CART (référence CUSTOMER)
 INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, customer_id)
 VALUES
     ('CART-0001', 'OPEN', current_date, current_date, 1),
@@ -128,7 +135,7 @@ VALUES
     ('CART-0003', 'OPEN', current_date, current_date, 2),
     ('CART-0004', 'ABANDONED', current_date, current_date, 3);
 
--- 16. Table ORDER_LINE (clé composite article_id + cart_id)
+-- 17. Table ORDER_LINE (clé composite article_id + cart_id)
 INSERT INTO order_line (article_id, cart_id, ord_ln_quantity)
 VALUES
     (1, 1, 2),
