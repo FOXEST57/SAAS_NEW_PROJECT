@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -61,11 +62,12 @@ public class SupplierReference {
 
     @NotBlank
     @Column(unique = true)
-    protected String SplRefReference;
+    protected String splRefReference;
 
     @NotNull
-    protected BigDecimal supplierPrice;
+    @DecimalMin(value = "0.00", inclusive = true)
+    protected BigDecimal splRefSellPrice;
 
-    protected int SplRefStock;
+    protected int splRefStock;
 
 }

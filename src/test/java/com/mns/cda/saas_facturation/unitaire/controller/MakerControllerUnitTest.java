@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mns.cda.saas_facturation.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.DTO.MakerDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.MakerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.IMakerService;
@@ -44,14 +45,21 @@ public class MakerControllerUnitTest {
 
     @BeforeEach
     void setUp() {
+        AddressDTO addressDTO = mock(AddressDTO.class);
 
         makerDTO = new MakerDTO(
                 1L,
-                "Lenovo"
+                "Lenovo",
+                "lenovo@gmail.com",
+                "+33618765635",
+                addressDTO
         );
 
         makerRequestDTO = new MakerRequestDTO(
-                "Lenovo"
+                "Lenovo",
+                "lenovo@gmail.com",
+                "+33618765635",
+                1L
         );
     }
 

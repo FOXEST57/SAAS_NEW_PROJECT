@@ -70,12 +70,12 @@ VALUES
     ('Logitech France', 'contact@logitech.fr', '+33102030405', 1);
 
 -- 9. Table MAKER (référencée par MAKER_REFERENCE.maker_id)
-INSERT INTO maker (mkr_name)
+INSERT INTO maker (mkr_name,mkr_email,mkr_phone, address_id)
 VALUES
-    ('Fabricant 1'),
-    ('Fabricant 2'),
-    ('Fabricant 3'),
-    ('Fabricant 4');
+    ('Fabricant 1','fabricant1@gmail.com','+33618765635',1),
+    ('Fabricant 2', 'fabricant2@gmail.com', '+33619775736',2),
+    ('Fabricant 3', 'fabricant3@gmail.com', '+33620785837',1),
+    ('Fabricant 4', 'fabricant4@gmail.com', '+33621795938',1);
 
 -- 10. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
 INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, art_stock,art_create_date, art_update_date, tva_id)
@@ -87,7 +87,7 @@ VALUES
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99, 50, current_date, current_date, 2);
 
 -- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference,supplier_price, spl_ref_stock)
-INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, supplier_price, spl_ref_stock)
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_sell_price, spl_ref_stock)
 VALUES
     (1, 1, 'TC-USB-64', 120.00, 120),
     (1, 2, 'OP-USB-64', 80.00, 120),
@@ -96,12 +96,12 @@ VALUES
     (4, 2, 'OP-PAPER-A4', 400.00, 120);
 
 -- 12. Table MAKER_REFERENCE (clé composite article_id + maker_id)
-INSERT INTO maker_reference (article_id, maker_id, mkr_ref_reference)
+INSERT INTO maker_reference (article_id, maker_id, art_mkr_reference, art_mkr_stock, art_mkr_sell_price)
 VALUES
-    (1, 1, 'MKR-CLAV-001'),
-    (2, 2, 'MKR-SOUR-002'),
-    (3, 1, 'MKR-ECR-003'),
-    (4, 3, 'MKR-CASQ-004');
+    (1, 1, 'MKR-CLAV-001',1,1.00),
+    (2, 2, 'MKR-SOUR-002',10,10.00),
+    (3, 1, 'MKR-ECR-003',2,2.00),
+    (4, 3, 'MKR-CASQ-004',20,20.00);
 
 --13. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
 INSERT INTO article_category (article_id, category_id)

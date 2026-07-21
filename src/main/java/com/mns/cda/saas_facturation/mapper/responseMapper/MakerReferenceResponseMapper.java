@@ -19,7 +19,9 @@ public class MakerReferenceResponseMapper {
         return new MakerReferenceResponseDTO(
                 makerReference.getMkrRefId(),
                 makerResponseMapper.toResponseDTO(makerReference.getMaker()),
-                makerReference.getMkrRefReference()
+                makerReference.getArtMkrReference(),
+                makerReference.getArtMkrStock(),
+                makerReference.getArtMkrSellPrice()
         );
     }
 }

@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 public class UpdateMakerReferenceDTOUnitTest {
 
     public static Validator validator;
@@ -17,12 +19,14 @@ public class UpdateMakerReferenceDTOUnitTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    // UpdateMakerReferenceDTO mkrRefReference : @NotBlank
+    // UpdateMakerReferenceDTO artMkrReference : @NotBlank
     @Test
     public void validUpdateMakerReferenceDTOWithMkrRefReferenceNull_MustNotBeValidated() {
 
         UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
-                null
+                null,
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -37,7 +41,9 @@ public class UpdateMakerReferenceDTOUnitTest {
     public void validUpdateMakerReferenceDTOWithMkrRefReferenceBlankSpace_MustNotBeValidated() {
 
         UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
-                "  "
+                "  ",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -52,7 +58,9 @@ public class UpdateMakerReferenceDTOUnitTest {
     public void validUpdateMakerReferenceDTOWithMkrRefReferenceBlank_MustNotBeValidated() {
 
         UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
-                ""
+                "",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -67,7 +75,9 @@ public class UpdateMakerReferenceDTOUnitTest {
     public void validUpdateMakerReferenceDTOWithMkrRefReferenceNotBlank_MustBeValidated() {
 
         UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
-                "REF123"
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
@@ -76,5 +86,56 @@ public class UpdateMakerReferenceDTOUnitTest {
                 "NotBlank"
         );
         Assertions.assertFalse(constraintExist);
+    }
+
+    @Test
+    public void validUpdateMakerReferenceDTOWithArtMkrSellPriceNegative_MustNotBeValidated() {
+
+        UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
+                "REF123",
+                0,
+                BigDecimal.valueOf(-1)
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(updateMakerReferenceDTO),
+                "artMkrSellPrice",
+                "DecimalMin"
+        );
+        Assertions.assertTrue(constraintExist);
+    }
+
+    @Test
+    public void validUpdateMakerReferenceDTOWithArtMkrSellPricePositive_MustBeValidated() {
+
+        UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(updateMakerReferenceDTO),
+                "artMkrSellPrice",
+                "DecimalMin"
+        );
+        Assertions.assertFalse(constraintExist);
+    }
+
+    @Test
+    public void validUpdateMakerReferenceDTOWithArtMkrSellPriceNull_MustNotBeValidated() {
+
+        UpdateMakerReferenceDTO updateMakerReferenceDTO = new UpdateMakerReferenceDTO(
+                "REF123",
+                0,
+                null
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(updateMakerReferenceDTO),
+                "artMkrSellPrice",
+                "NotNull"
+        );
+        Assertions.assertTrue(constraintExist);
     }
 }

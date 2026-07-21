@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 public class MakerReferenceRequestDTOUnitTest {
 
     public static Validator validator;
@@ -24,7 +26,9 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 null,
                 1L,
-                "REF123"
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
         );
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
@@ -40,7 +44,9 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                "REF123"
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
         );
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
@@ -57,7 +63,9 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 null,
-                "REF123"
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
         );
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
@@ -72,7 +80,9 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                "REF123"
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
         );
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
@@ -82,19 +92,21 @@ public class MakerReferenceRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // MakerReferenceRequestDTO mkrRefReference : @NotBlank
+    // MakerReferenceRequestDTO artMkrReference : @NotBlank
     @Test
     public void validMakerReferenceRequestDTOWithMkrRefReferenceNull_MustNotBeValidated() {
 
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                null
+                null,
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertTrue(constraintExist);
@@ -106,12 +118,14 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                "  "
+                "  ",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertTrue(constraintExist);
@@ -123,12 +137,14 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                ""
+                "",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertTrue(constraintExist);
@@ -140,14 +156,54 @@ public class MakerReferenceRequestDTOUnitTest {
         MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
                 1L,
                 1L,
-                "REF123"
+                "REF123",
+                0,
+                BigDecimal.valueOf(1)
         );
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReferenceRequestDTO),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertFalse(constraintExist);
+    }
+
+    @Test
+    public void validMakerReferenceRequestDTOWithArtMkrSellPriceNull_MustNotBeValidated() {
+
+        MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
+                1L,
+                1L,
+                "REF123",
+                0,
+                null
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(makerReferenceRequestDTO),
+                "artMkrSellPrice",
+                "NotNull"
+        );
+        Assertions.assertTrue(constraintExist);
+    }
+
+    @Test
+    public void validMakerReferenceRequestDTOWithArtMkrSellPriceNegative_MustNotBeValidated() {
+
+        MakerReferenceRequestDTO makerReferenceRequestDTO = new MakerReferenceRequestDTO(
+                1L,
+                1L,
+                "REF123",
+                0,
+                BigDecimal.valueOf(-1)
+        );
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(makerReferenceRequestDTO),
+                "artMkrSellPrice",
+                "DecimalMin"
+        );
+        Assertions.assertTrue(constraintExist);
     }
 }
