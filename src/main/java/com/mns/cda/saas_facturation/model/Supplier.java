@@ -56,13 +56,13 @@ public class Supplier {
     private String splName;
 
     /**
-     * Adresse splEmail du fournisseur.
+     * Adresse Email du fournisseur.
      * Limité à 50 caractères, ne peut pas être {@code null} ni vide.
-     * Doit respecter le format splEmail standard (ex : {@code contact@fournisseur.fr}).
+     * Doit respecter le format Email standard (ex : {@code contact@fournisseur.fr}).
      */
     @Column(length = 50, nullable = false)
-    @NotBlank(message = "L'splEmail est obligatoire")
-    @Email(message = "L'splEmail est mal formaté")
+    @NotBlank(message = "L'Email est obligatoire")
+    @Email(message = "L'Email est mal formaté")
     private String splEmail;
 
     /**
