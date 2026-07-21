@@ -107,7 +107,7 @@ public class SupplierReferenceService implements ISupplierReferenceService {
 
         splRef.setSplRefReference(dto.splRefReference());
         splRef.setSplRefStock(dto.splRefStock());
-        splRef.setSupplierPrice(dto.supplierPrice());
+        splRef.setSplRefSellPrice(dto.supplierPrice());
 
         SupplierReference saved = supplierReferenceRepository.save(splRef);
         return supplierReferenceMapper.toDTO(saved);

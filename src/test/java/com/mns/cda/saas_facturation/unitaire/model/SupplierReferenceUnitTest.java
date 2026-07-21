@@ -89,7 +89,7 @@ public class SupplierReferenceUnitTest {
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(supplierReference),
-                "SplRefReference",
+                "splRefReference",
                 "NotBlank"
         );
 
@@ -103,7 +103,7 @@ public class SupplierReferenceUnitTest {
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(supplierReference),
-                "SplRefReference",
+                "splRefReference",
                 "NotBlank"
         );
 
@@ -117,7 +117,7 @@ public class SupplierReferenceUnitTest {
 
         boolean constraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(supplierReference),
-                "SplRefReference",
+                "splRefReference",
                 "NotBlank"
         );
 
@@ -131,7 +131,7 @@ public class SupplierReferenceUnitTest {
 
         boolean contraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(supplierReference),
-                "SplRefReference",
+                "splRefReference",
                 "NotBlank"
         );
 
@@ -142,11 +142,11 @@ public class SupplierReferenceUnitTest {
     @Test
     public void validSupplierReferenceWithSupplierPriceNotNull_MustBeValidated() {
         SupplierReference supplierReference = new SupplierReference();
-        supplierReference.setSupplierPrice(new BigDecimal(5));
+        supplierReference.setSplRefSellPrice(new BigDecimal(5));
 
         boolean contraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(supplierReference),
-                "supplierPrice",
+                "splRefSellPrice",
                 "NotNull"
         );
 
@@ -156,11 +156,11 @@ public class SupplierReferenceUnitTest {
     @Test
     public void validSupplierReferenceWithSupplierPriceNull_MustNotBeValidated() {
         SupplierReference supplierReference = new SupplierReference();
-        supplierReference.setSupplierPrice(null);
+        supplierReference.setSplRefSellPrice(null);
 
         boolean contraintExists = TestUtilitaire.constraintViolationExist(
                 validator.validate(supplierReference),
-                "supplierPrice",
+                "splRefSellPrice",
                 "NotNull"
         );
 

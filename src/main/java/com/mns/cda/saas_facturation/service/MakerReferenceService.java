@@ -19,6 +19,7 @@ import com.mns.cda.saas_facturation.repository.MakerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -78,7 +79,9 @@ public class MakerReferenceService implements IMakerReferenceService {
                 new MakerReference.MakerReferenceId(dto.artId(), dto.mkrId()),
                 article,
                 maker,
-                dto.mkrRefReference()
+                dto.mkrRefReference(),
+                1,
+                BigDecimal.valueOf(2.0)
         );
 
         return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
@@ -91,7 +94,7 @@ public class MakerReferenceService implements IMakerReferenceService {
                new MakerReference.MakerReferenceId(artId,mkrId)
        ).orElseThrow(() -> new ResourceNotFoundException("Référence fabricant non existante"));
 
-       makerReference.setMkrRefReference(dto.reference());
+       makerReference.setArtMkrReference(dto.reference());
 
        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
 

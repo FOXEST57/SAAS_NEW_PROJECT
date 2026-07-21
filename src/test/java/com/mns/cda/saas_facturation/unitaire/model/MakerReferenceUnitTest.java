@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 public class MakerReferenceUnitTest {
 
     public static Validator validator;
@@ -17,16 +19,16 @@ public class MakerReferenceUnitTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    // MakerReference mkrRefReference : @NotBlank
+    // MakerReference artMkrReference : @NotBlank
     @Test
     public void validMakerReferenceWithMkrRefReferenceNull_MustNotBeValidated() {
 
         MakerReference makerReference = new MakerReference();
-        makerReference.setMkrRefReference(null);
+        makerReference.setArtMkrReference(null);
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReference),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertTrue(constraintExist);
@@ -36,11 +38,11 @@ public class MakerReferenceUnitTest {
     public void validMakerReferenceWithMkrRefReferenceBlankSpace_MustNotBeValidated() {
 
         MakerReference makerReference = new MakerReference();
-        makerReference.setMkrRefReference("  ");
+        makerReference.setArtMkrReference("  ");
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReference),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertTrue(constraintExist);
@@ -50,11 +52,11 @@ public class MakerReferenceUnitTest {
     public void validMakerReferenceWithMkrRefReferenceBlank_MustNotBeValidated() {
 
         MakerReference makerReference = new MakerReference();
-        makerReference.setMkrRefReference("");
+        makerReference.setArtMkrReference("");
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReference),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertTrue(constraintExist);
@@ -64,13 +66,40 @@ public class MakerReferenceUnitTest {
     public void validMakerReferenceWithMkrRefReferenceNotBlank_MustBeValidated() {
 
         MakerReference makerReference = new MakerReference();
-        makerReference.setMkrRefReference("REF001");
+        makerReference.setArtMkrReference("REF001");
 
         boolean constraintExist = TestUtilitaire.constraintViolationExist(
                 validator.validate(makerReference),
-                "mkrRefReference",
+                "artMkrReference",
                 "NotBlank"
         );
         Assertions.assertFalse(constraintExist);
+    }
+
+    @Test
+    public void validMakerReferenceWithMkrRefSellPriceNotNull_MustBeValidated() {
+
+        MakerReference makerReference = new MakerReference();
+        makerReference.setArtMkrSellPrice(BigDecimal.valueOf(1.0));
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(makerReference),
+                "artMkrSellPrice",
+                "NotNull"
+        );
+        Assertions.assertFalse(constraintExist);
+    }
+
+    @Test
+    public void validMakerReferenceWithMkrRefSellPriceNull_MustNotBeValidated() {
+
+        MakerReference makerReference = new MakerReference();
+
+        boolean constraintExist = TestUtilitaire.constraintViolationExist(
+                validator.validate(makerReference),
+                "artMkrSellPrice",
+                "NotNull"
+        );
+        Assertions.assertTrue(constraintExist);
     }
 }

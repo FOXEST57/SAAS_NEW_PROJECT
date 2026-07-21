@@ -61,11 +61,11 @@ public class SupplierReference {
 
     @NotBlank
     @Column(unique = true)
-    protected String SplRefReference;
+    protected String splRefReference;
 
     @NotNull
-    protected BigDecimal supplierPrice;
+    protected BigDecimal splRefSellPrice;
 
-    protected int SplRefStock;
+    protected int splRefStock;
 
 }

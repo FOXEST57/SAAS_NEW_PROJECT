@@ -2,9 +2,11 @@ package com.mns.cda.saas_facturation.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -41,5 +43,10 @@ public class MakerReference {
 
     @Column(unique = true, nullable = false)
     @NotBlank
-    protected  String mkrRefReference;
+    protected  String artMkrReference;
+
+    protected int artMkrStock;
+
+    @NotNull
+    protected BigDecimal artMkrSellPrice;
 }
