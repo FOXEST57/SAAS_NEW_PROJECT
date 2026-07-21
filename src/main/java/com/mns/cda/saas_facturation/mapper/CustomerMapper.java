@@ -18,7 +18,9 @@ public class CustomerMapper {
                 customer.getCtmLastName(),
                 customer.getCtmEmail(),
                 customer.getCtmPhone(),
-                addressMapper.toDTO(customer.getAddress())
+                addressMapper.toDTO(customer.getAddress()),
+                customer.getCustomers(),
+                customer.getSuperCustomers()
         );
     }
 

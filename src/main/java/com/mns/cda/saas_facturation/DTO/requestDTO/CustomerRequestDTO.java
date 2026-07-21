@@ -5,11 +5,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 public record CustomerRequestDTO(
         @NotBlank String ctmFirstName,
         @NotBlank String ctmLastName,
         @NotBlank @Email String ctmEmail,
         @NotBlank @ValidPhoneNumber String ctmPhone,
-        @NotNull Long addId
+        @NotNull Long addId,
+        List<Integer> customerIds,
+        List<Integer> superCustomerIds
 ) {
 }
