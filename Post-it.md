@@ -8,5 +8,3 @@ et article local ou encore Article depuis constructeur directement ?
 - Pour adresse vérifie seulement avec API ou 
 on enregistre en base de donée les ville et code postal au préalable ? 
 ou on les enregistre en même temps qu'elles ont ajouté ?
-
-- Faut-il prévoir un système d'authentification et donc une table utilisateur pour gérer les droits d'accès à l'application ?
