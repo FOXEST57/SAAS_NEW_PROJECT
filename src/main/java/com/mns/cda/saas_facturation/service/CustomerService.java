@@ -5,8 +5,10 @@ import com.mns.cda.saas_facturation.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.CustomerMapper;
+import com.mns.cda.saas_facturation.model.AccountType;
 import com.mns.cda.saas_facturation.model.Address;
 import com.mns.cda.saas_facturation.model.Customer;
+import com.mns.cda.saas_facturation.repository.AccountTypeRepository;
 import com.mns.cda.saas_facturation.repository.AddressRepository;
 import com.mns.cda.saas_facturation.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class CustomerService implements ICustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
+    private final AccountTypeRepository accountTypeRepository;
 
     @Override
     public List<CustomerDTO> findAll() {
@@ -40,6 +43,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public CustomerDTO create(CustomerRequestDTO dto) throws ResourceNotFoundException {
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
+        AccountType accountType = accountTypeRepository.findById(dto.accTypeId()).orElseThrow(() -> new ResourceNotFoundException("Type de compte non existant"));
 
         Customer customer = new Customer();
         customer.setCtmFirstName(dto.ctmFirstName());
@@ -47,6 +51,7 @@ public class CustomerService implements ICustomerService {
         customer.setCtmEmail(dto.ctmEmail());
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
+        customer.setAccountType(accountType);
 
         return customerMapper.toDTO(customerRepository.save(customer));
     }
@@ -55,12 +60,14 @@ public class CustomerService implements ICustomerService {
     public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws ResourceNotFoundException {
         Customer customer = customerRepository.findById(ctmId).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
+        AccountType accountType = accountTypeRepository.findById(dto.accTypeId()).orElseThrow(() -> new ResourceNotFoundException("Type de compte non existant"));
 
         customer.setCtmFirstName(dto.ctmFirstName());
         customer.setCtmLastName(dto.ctmLastName());
         customer.setCtmEmail(dto.ctmEmail());
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
+        customer.setAccountType(accountType);
 
         return customerMapper.toDTO(customerRepository.save(customer));
     }

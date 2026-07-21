@@ -113,7 +113,7 @@ VALUES
     (5, 3);
 
 -- 14. Table ACCOUNT_TYPE (référencée par ACCOUNT.account_type_id)
-INSERT INTO account_type (acc_type-libelle)
+INSERT INTO account_type (acc_type_libelle)
 VALUES
     ('Super Admin'),
     ('Admin'),
@@ -121,11 +121,11 @@ VALUES
     ('Super User');
 
 -- 15. Table CUSTOMER (référence ADDRESS)
-INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, ctm_phone, add_id)
+INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, ctm_phone, add_id, acc_type_id)
 VALUES
-    ('John', 'Doe', 'john.doe@email.com', '+33754156322', 1),
-    ('Jane', 'Doe', 'jane.doe@email.com', '+33758965410', 1),
-    ('Lily', 'Smith', 'lily.smith@email.com', '0654125532', 2);
+    ('John', 'Doe', 'john.doe@email.com', '+33754156322', 1, 3),
+    ('Jane', 'Doe', 'jane.doe@email.com', '+33758965410', 1, 3),
+    ('Lily', 'Smith', 'lily.smith@email.com', '0654125532', 2, 3);
 
 -- 16. Table CART (référence CUSTOMER)
 INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, customer_id)
