@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class AccountType {
 
     @NotBlank
     @Column(unique = true)
+    @Convert(converter = LowercaseConverter.class)
     protected String accTypeLibelle;
 
 }

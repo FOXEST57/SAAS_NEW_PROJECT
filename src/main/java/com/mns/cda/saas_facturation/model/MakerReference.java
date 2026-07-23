@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -44,6 +45,7 @@ public class MakerReference {
 
     @Column(unique = true, nullable = false)
     @NotBlank
+    @Convert(converter = LowercaseConverter.class)
     protected  String artMkrReference;
 
     protected int artMkrStock;

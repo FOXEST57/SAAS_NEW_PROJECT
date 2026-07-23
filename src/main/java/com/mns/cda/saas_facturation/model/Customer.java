@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -38,6 +39,7 @@ public class Customer {
     @Email
     @NotBlank
     @Column(unique = true)
+    @Convert(converter = LowercaseConverter.class)
     protected String ctmEmail;
 
     @ValidPhoneNumber

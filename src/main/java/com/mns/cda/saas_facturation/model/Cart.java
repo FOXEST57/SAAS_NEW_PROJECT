@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class Cart {
 
     @NotBlank
     @Column(unique = true, nullable = false)
+    @Convert(converter = LowercaseConverter.class)
     protected String crtRef;
 
     @CreatedDate

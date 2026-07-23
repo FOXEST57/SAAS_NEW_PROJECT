@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ public class City {
 
     @NotBlank
     @Column(unique = true)
+    @Convert(converter = LowercaseConverter.class)
     protected String cityName;
 
     @ManyToOne

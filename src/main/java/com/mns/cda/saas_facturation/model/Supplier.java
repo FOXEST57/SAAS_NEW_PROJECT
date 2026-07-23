@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -53,6 +54,7 @@ public class Supplier {
      */
     @Column(length = 50, nullable = false, unique = true)
     @NotBlank(message = "Le nom du fournisseur est obligatoire")
+    @Convert(converter = LowercaseConverter.class)
     private String splName;
 
     /**

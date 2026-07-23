@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -62,6 +63,7 @@ public class SupplierReference {
 
     @NotBlank
     @Column(unique = true)
+    @Convert(converter = LowercaseConverter.class)
     protected String splRefReference;
 
     @NotNull

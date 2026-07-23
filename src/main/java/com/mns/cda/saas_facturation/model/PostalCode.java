@@ -1,9 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.mns.cda.saas_facturation.config.LowercaseConverter;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +20,8 @@ public class PostalCode {
     protected Long pCodeId;
 
     @NotBlank
+    @Column(unique = true)
+    @Convert(converter = LowercaseConverter.class)
     protected String pCodeName;
 
 }
