@@ -15,6 +15,7 @@ import com.mns.cda.saas_facturation.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,17 +77,20 @@ public class CustomerService implements ICustomerService {
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         AccountType accountType = accountTypeRepository.findById(dto.accTypeId()).orElseThrow(() -> new ResourceNotFoundException("Type de compte non existant"));
         List<Customer> customers = dto.customerIds() != null
-                ? dto.customerIds()
-                .stream()
-                .map(id -> {
-                    Customer cust = customerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
-                    if (cust.getAccountType() == accountType) {
+                ? new ArrayList<>(
+                        dto.customerIds()
+                        .stream()
+                        .map(id -> {
+                            Customer cust = customerRepository.findById(id)
+                                    .orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
+                        if (cust.getAccountType() == accountType) {
                         throw new SameAccountException("Le type de compte " + accountType + " ne peut pas avoir une liste de clients du même type");
-                    }
-                    return cust;
-                })
-                .toList()
-                : null;
+                         }
+                        return cust;
+                        })
+                        .toList()
+                )
+                : new ArrayList<>();
 
         customer.setCtmFirstName(dto.ctmFirstName());
         customer.setCtmLastName(dto.ctmLastName());
