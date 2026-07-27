@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.mapper.responseMapper;
 
 import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseSupplierDTO;
 import com.mns.cda.saas_facturation.DTO.responseDTO.CategoryResponseDTO;
+import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.model.Article;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class ArticleResponseSupplierMapper {
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
     private final MakerReferenceResponseMapper makerReferenceResponseMapper;
+    private final ArticleMapper articleMapper;
 
     public ArticleResponseSupplierDTO toResponseDTO(Article article) {
 
@@ -31,7 +33,7 @@ public class ArticleResponseSupplierMapper {
                 article.getArtName(),
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(),
-                article.getArtStock(),
+                articleMapper.calculStock(article),
                 tvaResponseMapper.toResponseDto(article.getTva()),
                 categoriesResponse,
                 article.getMakerReferences()

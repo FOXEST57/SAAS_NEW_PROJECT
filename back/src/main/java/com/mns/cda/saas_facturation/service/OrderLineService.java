@@ -8,6 +8,7 @@ import com.mns.cda.saas_facturation.Iservice.ICartService;
 import com.mns.cda.saas_facturation.Iservice.IOrderLineService;
 import com.mns.cda.saas_facturation.exception.InsufficientStockException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.mapper.CartMapper;
 import com.mns.cda.saas_facturation.mapper.OrderLineMapper;
 import com.mns.cda.saas_facturation.model.Article;
@@ -30,6 +31,7 @@ public class OrderLineService implements IOrderLineService {
     private final CartMapper cartMapper;
     private final ICartService cartService;
     private final ArticleRepository articleRepository;
+    private final ArticleMapper articleMapper;
 
     private final CartRepository cartRepository;
     private final ArticleService articleService;
@@ -74,7 +76,7 @@ public class OrderLineService implements IOrderLineService {
                 .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + dto.articleId() + " n'existe pas"));
 
 
-        if(article.getArtStock() < dto.quantity()) throw
+        if(articleMapper.calculStock(article) < dto.quantity()) throw
         new InsufficientStockException("La quantité en stock de l'article " + article.getArtName() + " n'est pas suffisante pour cette commande");
 
         OrderLine orderLine = new OrderLine(
@@ -96,7 +98,7 @@ public class OrderLineService implements IOrderLineService {
                                 "Ligne de panier introuvable pour articleId=" + artId + ", cartId=" + crtId));
 
 
-        if(orderLine.getArticle().getArtStock() < dto.quantity()) {
+        if(articleMapper.calculStock(orderLine.getArticle()) < dto.quantity()) {
             throw
                     new InsufficientStockException("La quantité en stock de l'article " + orderLine.getArticle().getArtName() + " n'est pas suffisante pour cette commande");
         }

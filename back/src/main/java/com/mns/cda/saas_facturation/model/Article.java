@@ -85,12 +85,6 @@ public class Article {
     @DecimalMin(value = "0.0", inclusive = false)
     protected BigDecimal artPriceExcludeTaxes;
 
-    /**
-     * Quantité disponible en stock.
-     * Doit être supérieure ou égale à 0 — une valeur négative n'est pas autorisée.
-     */
-
-    protected int artStock;
 
     @CreatedDate
     protected LocalDateTime artCreateDate;

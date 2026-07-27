@@ -29,7 +29,6 @@ import java.util.List;
  * @param artName               nom de l'article — ne doit pas être vide
  * @param artDescription        description de l'article — ne doit pas être vide
  * @param artPriceExcludeTaxes  prix hors taxes — doit être strictement supérieur à 0
- * @param artStock              quantité en stock — doit être supérieure ou égale à 0
  * @param tvaId                 identifiant de la TVA à associer — obligatoire, doit être supérieur ou égal à 1
  *
  * @see com.mns.cda.saas_facturation.controller.ArticleController
@@ -41,7 +40,6 @@ public record ArticleRequestDTO(
         @NotBlank String artName,
         @NotBlank String artDescription,
         @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
-        int artStock,
         @NotNull @Min(1) Long tvaId,
         List<Long> categoryIds,
         List<SupplierReferenceRequestDTO> suppliers

@@ -122,7 +122,6 @@ public class ArticleService implements IArticleService {
                 article.setArtName(dto.artName());
                 article.setArtDescription(dto.artDescription());
                 article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
-                article.setArtStock(dto.artStock());
                 article.setTva(articleTva);
 
 
@@ -222,7 +221,6 @@ public class ArticleService implements IArticleService {
         article.setArtName(dto.artName());
         article.setArtDescription(dto.artDescription());
         article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
-        article.setArtStock(dto.artStock());
 
         // Mise à jour de la relation TVA : on charge l'entité Tva depuis sa clé étrangère
         Tva tva = tvaRepository.findById(dto.tvaId())

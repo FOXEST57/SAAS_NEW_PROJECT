@@ -61,7 +61,7 @@ public class ArticleMapper {
                 article.getArtName(),
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(), // Prix HT
-                article.getArtStock(),
+                calculStock(article), // Stock total calculé dynamiquement
                 tvaResponseMapper.toResponseDto(article.getTva()),
                 priceTTC,
                 article.getArtCreateDate(),
@@ -82,7 +82,7 @@ public class ArticleMapper {
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
-                article.getArtStock(),
+                calculStock(article),
                 priceTTC
         );
     }
@@ -123,7 +123,7 @@ public class ArticleMapper {
                 article.getArtName(),
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(),
-                article.getArtStock(),
+                calculStock(article),
                 tvaResponseMapper.toResponseDto(article.getTva()),
                 categories,
                 article.getMakerReferences()
@@ -133,4 +133,17 @@ public class ArticleMapper {
         );
     }
 
+    public int calculStock(Article article) {
+        int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
+                .mapToInt(makerReference -> makerReference.getArtMkrStock())
+                .sum()
+                : 0;
+
+
+        int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
+                .mapToInt(supplierReference -> supplierReference.getSplRefStock())
+                .sum()
+                : 0;
+        return totalStockMarker + totalStockSupplier;
+    }
 }
