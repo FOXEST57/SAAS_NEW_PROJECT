@@ -1,0 +1,218 @@
+Correctif backend — UnsupportedOperationException à la création et à la
+modification d'un article
+=========================================================================
+
+Fichier concerné :
+  back/src/main/java/com/mns/cda/saas_facturation/service/ArticleService.java
+
+Symptôme :
+  java.lang.UnsupportedOperationException
+    at java.util.ImmutableCollections.uoe(ImmutableCollections.java:159)
+    at java.util.ImmutableCollections$AbstractImmutableCollection.clear(...)
+    at org.hibernate.type.CollectionType.replaceElements(CollectionType.java:506)
+    …
+    at com.mns.cda.saas_facturation.service.ArticleService.create(ArticleService.java:165)
+
+
+CAUSE
+-----
+`Stream.toList()` (Java 16+) renvoie une liste **immuable**. Le code l'assigne
+telle quelle à la collection gérée par Hibernate :
+
+    List<Category> categories = dto.categoryIds().stream()
+            .map(...)
+            .toList();          // ← immuable
+
+    article.setCategories(categories);
+
+Au `save()`, Hibernate fait un `merge` et recopie les collections via
+`CollectionType.replaceElements()`, qui commence par un `clear()` sur la
+collection cible. Sur une liste immuable, ce `clear()` lève
+`UnsupportedOperationException`.
+
+Le commentaire présent ligne 73 — « Collecte le résultat dans une liste
+immuable » — montre que le caractère immuable était connu ; c'est sa
+conséquence sur une collection d'entité qui ne l'était pas.
+
+
+PORTÉE — plus large qu'il n'y paraît
+------------------------------------
+Le défaut existe à **deux** endroits, avec des conditions de déclenchement
+différentes :
+
+| Appel | `categoryIds` | Résultat |
+| --- | --- | --- |
+| `POST /article` | `null` ou `[]` | ✅ passe (le bloc est sauté) |
+| `POST /article` | au moins une catégorie | ❌ **crash** |
+| `PUT /article/{id}` | `null` | ✅ passe |
+| `PUT /article/{id}` | `[]` ou davantage | ❌ **crash** |
+
+`update()` teste seulement `!= null`, sans `isEmpty()` : **toute** modification
+d'article envoyant une liste de catégories — même vide — échoue. L'écran de
+modification d'article est donc inutilisable dès qu'il transmet ce champ, ce que
+fait tout client normalement constitué.
+
+
+CORRECTIF RECOMMANDÉ
+--------------------
+Ne pas remplacer la référence de la collection, mais **muter celle que Hibernate
+gère déjà**. C'est la manière idiomatique avec JPA : le wrapper de collection
+persistante est conservé, le suivi des modifications fonctionne normalement, et
+le chemin `merge/replaceElements` n'est plus emprunté.
+
+
+--- 1. create() — vers la ligne 131 ---------------------------------------
+
+AVANT :
+
+        if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
+            List<Category> categories = dto.categoryIds()
+                    .stream()
+                    .map(catId -> categoryRepository.findById(catId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
+                    .toList();
+
+            article.setCategories(categories);
+        }
+
+APRÈS :
+
+        if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
+            List<Category> categories = dto.categoryIds()
+                    .stream()
+                    .map(catId -> categoryRepository.findById(catId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
+                    .toList();
+
+            // On mute la collection gérée par Hibernate au lieu de la remplacer :
+            // `Stream.toList()` renvoie une liste immuable, sur laquelle le
+            // `clear()` interne au merge lèverait UnsupportedOperationException.
+            article.getCategories().clear();
+            article.getCategories().addAll(categories);
+        }
+
+
+--- 2. update() — vers la ligne 233 ---------------------------------------
+
+AVANT :
+
+        if (dto.categoryIds() != null) {
+            List<Category> categories = dto.categoryIds().stream()
+                    .map(catId -> categoryRepository.findById(catId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
+                    .toList();
+
+            article.setCategories(categories);
+        }
+
+APRÈS :
+
+        if (dto.categoryIds() != null) {
+            List<Category> categories = dto.categoryIds().stream()
+                    .map(catId -> categoryRepository.findById(catId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
+                    .toList();
+
+            // Même raison qu'à la création. Une liste vide est ici un cas
+            // légitime : elle retire simplement toutes les catégories.
+            article.getCategories().clear();
+            article.getCategories().addAll(categories);
+        }
+
+
+VARIANTE MINIMALE
+-----------------
+Si vous préférez une modification d'un seul mot, rendre la liste mutable suffit
+à faire disparaître l'exception :
+
+        .collect(Collectors.toCollection(ArrayList::new));   // au lieu de .toList()
+
+C'est correct, mais le correctif recommandé reste préférable : remplacer la
+référence d'une collection gérée par Hibernate force un `merge` là où une simple
+mutation suffirait.
+
+
+À VÉRIFIER AILLEURS
+-------------------
+Le même motif — `.toList()` assigné à une collection d'entité — peut exister
+dans d'autres services. Une recherche de `.toList()` suivie d'un `setXxx(` sur
+une entité JPA vaut le détour :
+
+    grep -rn "\.toList()" src/main/java --include=*.java -A3 | grep -B3 "\.set"
+
+
+=========================================================================
+LE MÊME DÉFAUT DANS CustomerService
+=========================================================================
+
+Fichier :
+  back/src/main/java/com/mns/cda/saas_facturation/service/CustomerService.java
+
+`update()` applique exactement le même motif, vers la ligne 96 :
+
+        List<Customer> customers = dto.customerIds() != null
+                ? dto.customerIds().stream().map(...).toList()   // ← immuable
+                : null;
+        …
+        customer.setCustomers(customers);
+        return customerMapper.toDTO(customerRepository.save(customer));
+
+`customer` vient d'un `findById()` : il est **managé**. Le `save()` déclenche
+donc un `merge`, et le même `clear()` sur liste immuable.
+
+Conséquence : **toute modification de client échoue** dès que `customerIds` est
+transmis — y compris une liste vide, puisque le test porte sur `!= null`. Un
+client envoyant systématiquement ce champ, comme le fait le front livré, ne peut
+enregistrer aucune modification de fiche client.
+
+`create()` n'est pas concerné : l'entité y est neuve (`new Customer()`), donc
+`save()` fait un `persist()` et non un `merge()`.
+
+
+CORRECTIF — update(), vers la ligne 96
+--------------------------------------
+
+AVANT :
+
+        customer.setAccountType(accountType);
+        customer.setCustomers(customers);
+
+APRÈS :
+
+        customer.setAccountType(accountType);
+
+        // Mutation de la collection gérée plutôt que remplacement de la
+        // référence : `Stream.toList()` est immuable et fait échouer le
+        // `clear()` interne au merge d'Hibernate.
+        if (customer.getCustomers() == null) {
+            customer.setCustomers(new java.util.ArrayList<>());
+        }
+        customer.getCustomers().clear();
+        if (customers != null) {
+            customer.getCustomers().addAll(customers);
+        }
+
+Le champ `Customer.customers` n'étant pas initialisé dans l'entité
+(`protected List<Customer> customers;` sans `= new ArrayList<>()`), la garde
+contre `null` est nécessaire. Vous pouvez aussi l'initialiser directement dans
+l'entité, comme le fait déjà `Article.categories` :
+
+    @ManyToMany
+    protected List<Customer> customers = new ArrayList<>();
+
+ce qui simplifierait le correctif et éviterait la même surprise ailleurs.
+
+
+=========================================================================
+RÉCAPITULATIF DES APPELS AUJOURD'HUI EN ÉCHEC
+=========================================================================
+
+| Appel | Condition | État |
+| --- | --- | --- |
+| `POST /article` | avec au moins une catégorie | ❌ crash |
+| `PUT /article/{id}` | `categoryIds` non nul, même vide | ❌ crash |
+| `PUT /customer/{id}` | `customerIds` non nul, même vide | ❌ crash |
+| `POST /customer` | — | ✅ fonctionne (persist, pas merge) |
+
+Les trois correctifs ci-dessus suivent le même principe et tiennent en quelques
+lignes chacun.

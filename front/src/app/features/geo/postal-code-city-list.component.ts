@@ -78,10 +78,10 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
             <tbody>
               @for (l of filtered(); track key(l)) {
                 <tr>
-                  <td class="num font-medium">{{ l.postalCode?.pCodeName }}</td>
-                  <td>{{ l.city?.cityName | capitalize }}</td>
+                  <td class="num font-medium">{{ l.postalCode.pCodeName }}</td>
+                  <td>{{ l.city.cityName | capitalize }}</td>
                   <td>
-                    <span class="badge-neutral">{{ l.city?.country?.cntName | capitalize }}</span>
+                    <span class="badge-neutral">{{ l.city.country?.cntName | capitalize }}</span>
                   </td>
                   <td>
                     <div class="flex justify-end">

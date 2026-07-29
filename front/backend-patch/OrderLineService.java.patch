@@ -1,0 +1,106 @@
+Correctif backend — le stock ne bloque plus la saisie
+=====================================================
+
+Fichier concerné :
+  back/src/main/java/com/mns/cda/saas_facturation/service/OrderLineService.java
+
+POURQUOI
+--------
+`OrderLineService.create()` et `update()` lèvent aujourd'hui une
+`InsufficientStockException` dès que la quantité demandée dépasse
+`article.getArtStock()`. Deux problèmes :
+
+1. **Le blocage est au mauvais moment.** En CVC, on chiffre avant d'acheter :
+   personne ne stocke chaque modèle. Refuser un devis parce que le matériel
+   n'est pas encore en stock interdit le fonctionnement normal du métier. Le
+   contrôle a du sens à la livraison ou à la facturation, pas à la saisie.
+
+2. **Le chiffre est faux.** `artStock` n'est modifié nulle part ailleurs que
+   dans `ArticleService.create()` et `update()`, c'est-à-dire uniquement par
+   saisie manuelle. Aucune vente ne le décrémente. Le contrôle bloque donc les
+   devis en s'appuyant sur une valeur décorative.
+
+Le correctif retire le blocage. Le manque devient une information exploitée par
+le front, qui la transforme en besoin d'approvisionnement à commander chez le
+fournisseur.
+
+APPLICATION
+-----------
+Remplacer les deux blocs `if (...) throw new InsufficientStockException(...)`
+par les versions ci-dessous. Aucune autre modification n'est nécessaire :
+`InsufficientStockException` reste utile si vous ajoutez plus tard un contrôle
+à la livraison.
+
+
+--- 1. create() — supprimer le blocage -------------------------------------
+
+AVANT :
+
+        if(article.getArtStock() < dto.quantity()) throw
+        new InsufficientStockException("La quantité en stock de l'article " + article.getArtName() + " n'est pas suffisante pour cette commande");
+
+APRÈS :
+
+        // Le stock ne conditionne plus la saisie : un devis peut légitimement
+        // porter sur du matériel non encore approvisionné. Le manque éventuel
+        // est calculé côté client et présenté comme un besoin d'achat
+        // fournisseur, pas comme une erreur.
+        //
+        // Un contrôle bloquant retrouverait sa place à la livraison ou à la
+        // facturation, une fois `artStock` réellement tenu à jour.
+
+
+--- 2. update() — supprimer le blocage -------------------------------------
+
+AVANT :
+
+        if(orderLine.getArticle().getArtStock() < dto.quantity()) {
+            throw
+                    new InsufficientStockException("La quantité en stock de l'article " + orderLine.getArticle().getArtName() + " n'est pas suffisante pour cette commande");
+        }
+
+APRÈS :
+
+        // Même raison qu'à la création : la quantité commandée peut dépasser
+        // le stock disponible, c'est le cas nominal d'une commande fournisseur
+        // à passer.
+
+
+ALLER PLUS LOIN (facultatif)
+---------------------------
+Pour que `artStock` devienne une donnée fiable, il faudrait le décrémenter à
+l'émission de la facture et le recréditer à l'annulation. Cela suppose
+d'intercepter le changement de `crtStatus` dans `CartService.modify()` :
+
+    @Transactional
+    public CartDTO modify(Long id, CartRequestDTO dto) {
+        Cart cart = cartRepository.findById(id).orElseThrow(...);
+        String previousStatus = cart.getCrtStatus();
+
+        // … mise à jour de l'en-tête …
+
+        // Sortie de stock au moment où la facture est émise
+        if (!"FACTURE".equals(previousStatus) && "FACTURE".equals(dto.crtStatus())) {
+            orderLineRepository.findByOrdLnId_CartId(id).forEach(line -> {
+                Article a = line.getArticle();
+                a.setArtStock(a.getArtStock() - line.getOrdLnQuantity());
+                articleRepository.save(a);
+            });
+        }
+
+        // Réintégration si le document est annulé après facturation
+        if ("FACTURE".equals(previousStatus) && "ANNULE".equals(dto.crtStatus())) {
+            orderLineRepository.findByOrdLnId_CartId(id).forEach(line -> {
+                Article a = line.getArticle();
+                a.setArtStock(a.getArtStock() + line.getOrdLnQuantity());
+                articleRepository.save(a);
+            });
+        }
+
+        return cartMapper.toDTO(cartRepository.save(cart));
+    }
+
+Ce n'est pas indispensable au fonctionnement du front livré : celui-ci
+raisonne sur le stock tel que vous le saisissez. Mais tant que la
+décrémentation n'existe pas, gardez en tête que `artStock` reflète votre
+dernière saisie manuelle, pas la réalité de votre dépôt.

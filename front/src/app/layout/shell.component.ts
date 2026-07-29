@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { LoadingService } from '../core/interceptors/loading.interceptor';
+import { CommerceStore } from '../core/services/commerce-store.service';
+import { ROLE_LABELS, AuthService } from '../core/auth';
 import { ThemeService } from '../core/services/theme.service';
 import { ConfirmDialogComponent } from '../shared/ui/confirm-dialog.component';
 import { IconComponent } from '../shared/ui/icon.component';
@@ -10,6 +12,8 @@ interface NavItem {
   readonly path: string;
   readonly label: string;
   readonly icon: string;
+  /** Pastille dynamique : nombre de documents à traiter ou d'achats à passer. */
+  readonly badge?: 'actions' | 'supply';
 }
 
 interface NavGroup {
@@ -23,6 +27,9 @@ const NAV: readonly NavGroup[] = [
     label: 'Pilotage',
     items: [
       { path: '/tableau-de-bord', label: 'Tableau de bord', icon: 'dashboard' },
+      { path: '/pipeline', label: 'Pipeline', icon: 'columns' },
+      { path: '/a-traiter', label: 'À traiter', icon: 'bell', badge: 'actions' },
+      { path: '/approvisionnement', label: 'Approvisionnement', icon: 'truck', badge: 'supply' },
       { path: '/documents', label: 'Devis & factures', icon: 'invoice' },
     ],
   },
@@ -125,6 +132,18 @@ const NAV: readonly NavGroup[] = [
                   >
                     <app-icon [name]="item.icon" [size]="17" />
                     <span class="truncate">{{ item.label }}</span>
+                    @if (item.badge === 'actions' && store.actionCount() > 0) {
+                      <span
+                        class="num ml-auto rounded-full bg-amber-100 px-1.5 text-[11px] font-semibold text-amber-800 dark:bg-amber-500/20 dark:text-amber-300"
+                        >{{ store.actionCount() }}</span
+                      >
+                    }
+                    @if (item.badge === 'supply' && store.firmSupplyNeeds().length > 0) {
+                      <span
+                        class="num ml-auto rounded-full bg-heat-100 px-1.5 text-[11px] font-semibold text-heat-800 dark:bg-heat-500/20 dark:text-heat-300"
+                        >{{ store.firmSupplyNeeds().length }}</span
+                      >
+                    }
                   </a>
                 </li>
               }
@@ -173,15 +192,55 @@ const NAV: readonly NavGroup[] = [
             >
               <app-icon [name]="theme.isDark() ? 'sun' : 'moon'" [size]="18" />
             </button>
-            <div class="ml-1.5 flex items-center gap-2.5 border-l border-ink-200 pl-3 dark:border-ink-800">
-              <span
-                class="flex h-8 w-8 items-center justify-center rounded-full bg-ink-100 text-[12px] font-semibold text-ink-600 dark:bg-ink-800 dark:text-ink-300"
-                >KF</span
+            <!-- Utilisateur connecté -->
+            <div
+              class="relative ml-1.5 border-l border-ink-200 pl-3 dark:border-ink-800"
+              (keydown.escape)="menuOpen.set(false)"
+            >
+              <button
+                type="button"
+                class="flex items-center gap-2.5 rounded-lg py-1 pl-1 pr-1.5 transition hover:bg-ink-100 dark:hover:bg-ink-800"
+                (click)="menuOpen.set(!menuOpen())"
+                [attr.aria-expanded]="menuOpen()"
+                aria-haspopup="menu"
               >
-              <div class="hidden leading-tight sm:block">
-                <p class="text-[13px] font-medium">Espace commercial</p>
-                <p class="text-[11px] muted">Klimafact SARL</p>
-              </div>
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-[12px] font-semibold text-white"
+                  >{{ initials() }}</span
+                >
+                <div class="hidden leading-tight text-left sm:block">
+                  <p class="max-w-[13rem] truncate text-[13px] font-medium">{{ displayName() }}</p>
+                  <p class="text-[11px] muted">{{ roleLabel() }}</p>
+                </div>
+                <app-icon name="chevronDown" [size]="14" class="hidden text-ink-400 sm:block" />
+              </button>
+
+              @if (menuOpen()) {
+                <!-- Capteur de clic extérieur -->
+                <div class="fixed inset-0 z-40" (click)="menuOpen.set(false)"></div>
+                <div
+                  class="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-ink-200 bg-white shadow-lg dark:border-ink-800 dark:bg-ink-900"
+                  role="menu"
+                >
+                  <div class="border-b border-ink-100 px-4 py-3 dark:border-ink-800">
+                    <p class="truncate text-[13px] font-medium">{{ displayName() }}</p>
+                    <p class="truncate text-[11.5px] muted">{{ auth.user()?.email }}</p>
+                    <span
+                      class="mt-2 inline-flex items-center rounded-full bg-ink-100 px-2 py-0.5 text-[11px] font-medium text-ink-600 dark:bg-ink-800 dark:text-ink-300"
+                      >{{ roleLabel() }}</span
+                    >
+                  </div>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    class="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13px] transition hover:bg-ink-50 dark:hover:bg-ink-800"
+                    (click)="signOut()"
+                  >
+                    <app-icon name="external" [size]="15" class="text-ink-400" />
+                    Se déconnecter
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </header>
@@ -198,7 +257,48 @@ const NAV: readonly NavGroup[] = [
 })
 export class ShellComponent {
   protected readonly theme = inject(ThemeService);
+  protected readonly auth = inject(AuthService);
+
+  /** Menu du compte, dans l'en-tête. */
+  protected readonly menuOpen = signal(false);
+
+  /**
+   * Le backend n'expose ni prénom ni nom dans le jeton : seule l'adresse
+   * e-mail y figure. On en tire un nom lisible plutôt que d'afficher
+   * l'adresse brute, tout en la conservant dans le menu déroulant.
+   */
+  protected readonly displayName = computed(() => {
+    const email = this.auth.user()?.email ?? '';
+    const local = email.split('@')[0];
+    if (!local) return 'Utilisateur';
+    return local
+      .split(/[.\-_]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  });
+
+  protected readonly initials = computed(() => {
+    const parts = this.displayName().split(' ').filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  });
+
+  protected readonly roleLabel = computed(() => {
+    const user = this.auth.user();
+    if (!user) return '';
+    // Un libellé absent de la nomenclature est affiché tel quel : mieux vaut
+    // montrer la valeur réelle de la base qu'un intitulé inventé.
+    return ROLE_LABELS[user.role] ?? user.rawRole;
+  });
+
+  protected signOut(): void {
+    this.menuOpen.set(false);
+    this.auth.logout();
+  }
   protected readonly loading = inject(LoadingService);
+  protected readonly store = inject(CommerceStore);
   protected readonly nav = NAV;
   protected readonly mobileOpen = signal(false);
 }

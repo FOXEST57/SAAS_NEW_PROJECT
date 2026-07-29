@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Cart, OrderLine, OrderLineRequest, OrderLineUpdate } from '../models/api.models';
+import { silent } from '../interceptors/http-context';
 import { API_BASE_URL } from './api.config';
 
 /** Miroir de `OrderLineController` (`/order-line`). */
@@ -24,12 +25,26 @@ export class OrderLineService {
     return this.http.get<Cart[]>(`${this.url}/list-cart/${articleId}`);
   }
 
-  create(payload: OrderLineRequest): Observable<OrderLine> {
-    return this.http.post<OrderLine>(this.url, payload);
+  /**
+   * @param quiet laisse l'appelant formuler le message d'erreur. La
+   * synchronisation d'un document préfère un message consolidé à une
+   * notification par ligne.
+   */
+  create(payload: OrderLineRequest, quiet = false): Observable<OrderLine> {
+    return this.http.post<OrderLine>(this.url, payload, quiet ? { context: silent() } : {});
   }
 
-  update(articleId: number, cartId: number, payload: OrderLineUpdate): Observable<OrderLine> {
-    return this.http.put<OrderLine>(`${this.url}/${articleId}/${cartId}`, payload);
+  update(
+    articleId: number,
+    cartId: number,
+    payload: OrderLineUpdate,
+    quiet = false,
+  ): Observable<OrderLine> {
+    return this.http.put<OrderLine>(
+      `${this.url}/${articleId}/${cartId}`,
+      payload,
+      quiet ? { context: silent() } : {},
+    );
   }
 
   delete(articleId: number, cartId: number): Observable<void> {

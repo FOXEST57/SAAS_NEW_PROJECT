@@ -160,6 +160,15 @@
     @apply border-b-0;
   }
 
+  /**
+   * Variante dense : pour les tableaux à nombreuses colonnes chiffrées, où le
+   * rembourrage par défaut consomme à lui seul plus de 250 px.
+   */
+  .table-dense thead th,
+  .table-dense tbody td {
+    @apply px-2.5;
+  }
+
   /* --- Badges --- */
   .badge {
     @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[12px] font-medium ring-1 ring-inset;
@@ -182,6 +191,19 @@
   }
   .badge-danger {
     @apply badge bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-400/25;
+  }
+  .badge-violet {
+    @apply badge bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-500/10 dark:text-violet-300 dark:ring-violet-400/25;
+  }
+
+  /**
+   * Surface des graphiques.
+   * En thème sombre elle est plus foncée que celle des cartes : c'est la
+   * surface sur laquelle la palette a été validée (l'orange tombait sous le
+   * seuil de contraste de 3:1 sur la surface des cartes).
+   */
+  .viz-surface {
+    @apply bg-white dark:bg-ink-950;
   }
 
   /* --- Navigation --- */

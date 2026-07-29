@@ -16,7 +16,7 @@ import { IconComponent } from '../../shared/ui/icon.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { SearchInputComponent } from '../../shared/ui/search-input.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
-import { computeTotals } from './document-totals';
+import { computeTotals } from '../../core/models/document-math';
 
 @Component({
   selector: 'app-cart-list',

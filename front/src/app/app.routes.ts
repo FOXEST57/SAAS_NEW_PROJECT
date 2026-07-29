@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/auth';
 import { ShellComponent } from './layout/shell.component';
 
 /**
@@ -6,9 +7,19 @@ import { ShellComponent } from './layout/shell.component';
  * un bundle initial léger.
  */
 export const routes: Routes = [
+  // Hors gabarit applicatif : ni barre latérale ni en-tête avant identification.
+  {
+    path: 'connexion',
+    title: 'Connexion — Klimafact',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/login.component').then((m) => m.LoginComponent),
+  },
   {
     path: '',
     component: ShellComponent,
+    // Le garde est posé sur le parent : il couvre l'ensemble des écrans
+    // applicatifs sans avoir à être répété sur chacun.
+    canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'tableau-de-bord' },
 
@@ -17,6 +28,28 @@ export const routes: Routes = [
         title: 'Tableau de bord — Klimafact',
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+      },
+
+      {
+        path: 'pipeline',
+        title: 'Pipeline commercial — Klimafact',
+        loadComponent: () =>
+          import('./features/pipeline/pipeline.component').then((m) => m.PipelineComponent),
+      },
+      {
+        path: 'a-traiter',
+        title: 'À traiter — Klimafact',
+        loadComponent: () =>
+          import('./features/actions/action-queue.component').then(
+            (m) => m.ActionQueueComponent,
+          ),
+      },
+
+      {
+        path: 'approvisionnement',
+        title: 'Approvisionnement — Klimafact',
+        loadComponent: () =>
+          import('./features/supply/supply.component').then((m) => m.SupplyComponent),
       },
 
       /* ---- Documents commerciaux ---- */

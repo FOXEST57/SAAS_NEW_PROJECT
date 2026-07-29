@@ -7,8 +7,9 @@ import { Article, Cart, OrderLine } from '../../core/models/api.models';
 import { statusMeta } from '../../core/models/document-status';
 import { AddressResolverService } from '../../core/services/address-resolver.service';
 import { CapitalizePipe, EurPipe, FrDatePipe, RefPipe, TauxPctPipe } from '../../shared/pipes/format.pipes';
+import { BackLinkComponent } from '../../shared/ui/back-link.component';
 import { IconComponent } from '../../shared/ui/icon.component';
-import { computeTotals } from './document-totals';
+import { computeTotals } from '../../core/models/document-math';
 
 /**
  * Aperçu imprimable d'un devis ou d'une facture, au format A4.
@@ -19,16 +20,25 @@ import { computeTotals } from './document-totals';
 @Component({
   selector: 'app-document-print',
   standalone: true,
-  imports: [RouterLink, IconComponent, CapitalizePipe, EurPipe, FrDatePipe, RefPipe, TauxPctPipe],
+  imports: [
+    RouterLink,
+    IconComponent,
+    BackLinkComponent,
+    CapitalizePipe,
+    EurPipe,
+    FrDatePipe,
+    RefPipe,
+    TauxPctPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Barre d'actions (masquée à l'impression) -->
     <div class="no-print mb-5 flex flex-wrap items-center justify-between gap-3">
-      <a [routerLink]="['/documents', cartId()]" class="btn-ghost">
-        <app-icon name="arrowLeft" [size]="16" /> Retour au document
-      </a>
+      <app-back-link [fallbackUrl]="'/documents/' + cartId()" fallbackLabel="au document" />
       <div class="flex gap-2">
-        <a routerLink="/documents" class="btn-secondary">Tous les documents</a>
+        <a [routerLink]="['/documents', cartId()]" class="btn-secondary">
+          <app-icon name="edit" [size]="15" /> Modifier
+        </a>
         <button type="button" class="btn-primary" (click)="print()" [disabled]="loading()">
           <app-icon name="print" [size]="16" /> Imprimer / PDF
         </button>
@@ -183,7 +193,17 @@ import { computeTotals } from './document-totals';
 
         <!-- Mentions légales -->
         <footer class="mt-10 space-y-3 border-t border-ink-200 pt-5 text-[11.5px] leading-relaxed text-ink-500">
-          @if (isQuote()) {
+          @if (isOrder()) {
+            <p>
+              <span class="font-semibold text-ink-700">Commande ferme :</span> ce bon de commande
+              vaut acceptation du devis correspondant et engagement des deux parties. La date
+              d'intervention sera convenue par téléphone sous 5 jours ouvrés.
+            </p>
+            <p>
+              Un acompte de 30 % du montant TTC peut être demandé à la commande, le solde étant
+              exigible à la réception des travaux.
+            </p>
+          } @else if (isQuote()) {
             <p>
               <span class="font-semibold text-ink-700">Validité :</span> ce devis est valable
               30 jours à compter de sa date d'émission. Bon pour accord, date et signature du
@@ -235,6 +255,10 @@ export class DocumentPrintComponent implements OnInit {
     () => statusMeta(this.cart()?.crtStatus).value === 'DEVIS',
   );
 
+  protected readonly isOrder = computed(
+    () => statusMeta(this.cart()?.crtStatus).value === 'COMMANDE',
+  );
+
   protected readonly isInvoice = computed(() =>
     ['FACTURE', 'PAYEE'].includes(statusMeta(this.cart()?.crtStatus).value),
   );
@@ -277,13 +301,18 @@ export class DocumentPrintComponent implements OnInit {
   }
 
   dueLabel(): string {
-    return this.isQuote() ? "Valable jusqu'au" : 'Échéance';
+    if (this.isQuote()) return "Valable jusqu'au";
+    if (this.isOrder()) return 'Intervention avant le';
+    return 'Échéance';
   }
 
-  /** Devis : validité 30 jours. Facture : règlement à 30 jours. */
+  /**
+   * Devis : validité 30 jours. Commande : intervention à planifier sous
+   * 30 jours. Facture : règlement à 30 jours.
+   */
   dueDate(): string | null {
     const cart = this.cart();
-    if (!cart || (!this.isQuote() && !this.isInvoice())) return null;
+    if (!cart || (!this.isQuote() && !this.isInvoice() && !this.isOrder())) return null;
     const base = cart.crtCreateDate ? new Date(cart.crtCreateDate) : new Date();
     if (Number.isNaN(base.getTime())) return null;
     base.setDate(base.getDate() + 30);

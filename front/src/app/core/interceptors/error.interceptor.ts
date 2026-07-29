@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ToastService } from '../services/toast.service';
+import { SILENT_ERRORS } from './http-context';
 
 /**
  * Traduit les erreurs HTTP en notifications lisibles.
@@ -17,6 +18,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: HttpErrorResponse) => {
       // Les appels vers l'API Adresse sont gérés localement (autocomplétion).
       if (req.url.includes('api-adresse.data.gouv.fr')) {
+        return throwError(() => err);
+      }
+
+      // L'appelant a demandé à formuler lui-même le message.
+      if (req.context.get(SILENT_ERRORS)) {
         return throwError(() => err);
       }
 
