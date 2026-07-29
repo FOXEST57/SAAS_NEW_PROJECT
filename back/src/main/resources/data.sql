@@ -120,12 +120,13 @@ VALUES
     ('User'),
     ('Super User');
 
+-- Mot de passe Dev : Azerty123!
 -- 15. Table CUSTOMER (référence ADDRESS)
-INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, ctm_phone, add_id, acc_type_id)
+INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, password, ctm_phone, add_id, acc_type_id)
 VALUES
-    ('John', 'Doe', 'john.doe@email.com', '+33754156322', 1, 3),
-    ('Jane', 'Doe', 'jane.doe@email.com', '+33758965410', 1, 3),
-    ('Lily', 'Smith', 'lily.smith@email.com', '0654125532', 2, 3);
+    ('John', 'Doe', 'john.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33754156322', 1, 3),
+    ('Jane', 'Doe', 'jane.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33758965410', 1, 3),
+    ('Lily', 'Smith', 'lily.smith@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '0654125532', 2, 3);
 
 -- 16. Table CART (référence CUSTOMER)
 INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, customer_id)

@@ -13,7 +13,6 @@ public record CustomerDTO(
         String ctmPhone,
         AddressDTO address,
         AccountTypeResponseDTO accountType,
-        String password,
         List<CustomerResponseDTO> customers
 ) {
 }
