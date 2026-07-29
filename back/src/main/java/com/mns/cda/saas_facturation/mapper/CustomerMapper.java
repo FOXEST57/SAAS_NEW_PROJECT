@@ -24,6 +24,7 @@ public class CustomerMapper {
                 customer.getCtmPhone(),
                 addressMapper.toDTO(customer.getAddress()),
                 accountTypeResponseMapper.toResponseDTO(customer.getAccountType()),
+                customer.getPassword(),
                 customer.getCustomers() != null ? customer.getCustomers().stream().map(customerResponseMapper::toDTO).toList() : null
         );
     }
