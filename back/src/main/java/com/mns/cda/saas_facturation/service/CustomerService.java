@@ -13,6 +13,7 @@ import com.mns.cda.saas_facturation.repository.AccountTypeRepository;
 import com.mns.cda.saas_facturation.repository.AddressRepository;
 import com.mns.cda.saas_facturation.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class CustomerService implements ICustomerService {
     private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
     private final AccountTypeRepository accountTypeRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<CustomerDTO> findAll() {
@@ -47,7 +49,7 @@ public class CustomerService implements ICustomerService {
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
         AccountType accountType = accountTypeRepository.findById(dto.accTypeId()).orElseThrow(() -> new ResourceNotFoundException("Type de compte non existant"));
         List<Customer> customers = dto.customerIds() != null
-                ? dto.customerIds()
+                ? new ArrayList<>(dto.customerIds()
                     .stream()
                     .map(id -> {
                             Customer cust = customerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
@@ -57,7 +59,8 @@ public class CustomerService implements ICustomerService {
                             return cust;
                     })
                     .toList()
-                : null;
+        )
+                : new ArrayList<>();
 
         Customer customer = new Customer();
         customer.setCtmFirstName(dto.ctmFirstName());
@@ -66,6 +69,7 @@ public class CustomerService implements ICustomerService {
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
         customer.setAccountType(accountType);
+        customer.setPassword(passwordEncoder.encode(dto.password()));
         customer.setCustomers(customers);
 
         return customerMapper.toDTO(customerRepository.save(customer));
