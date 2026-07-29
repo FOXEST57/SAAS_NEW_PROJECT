@@ -1,10 +1,11 @@
 - Table Remise ?
 
-- Réfléchir au modèle pour pouvoir gérer les stocks en fonction de Article fournisseur
-et article local ou encore Article depuis constructeur directement ?
+- Voir pour les authentifications et les droits d'accès.
+- Enregistrement des commandes et des factures au moment T pour éviter les changements de prix et de conditions.
+- Voir Dashboard admin pour maquettes et suivi des commandes.
 
-- Pour le front la techno ? et est-ce qu'on a les maquettes pour mettre en place ? 
 
-- Pour adresse vérifie seulement avec API ou 
-on enregistre en base de donée les ville et code postal au préalable ? 
-ou on les enregistre en même temps qu'elles ont ajouté ?
+
+- voir payement en fonction du type de paiement choisis
+- préfixe pour référence client en fonction de sont type de référencement a lui 
+- relance et accompte a payer en fonction du type de paiement choisi
