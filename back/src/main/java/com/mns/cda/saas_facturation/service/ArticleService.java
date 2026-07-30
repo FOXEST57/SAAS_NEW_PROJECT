@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.service;
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.InventoryRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
@@ -56,6 +57,7 @@ public class ArticleService implements IArticleService {
     private final MakerReferenceRepository makerReferenceRepository;
     private final InventoryService inventoryService;
     private final InventoryRepository inventoryRepository;
+    private final MakerRepository makerRepository;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
@@ -171,8 +173,31 @@ public class ArticleService implements IArticleService {
                 //On sauvegarde la nouvelle relation qu'on vient de créer
                 supplierReferenceRepository.save(link);
             }
-        }
 
+        }
+        //Vérification si la request contient ou non des relations article_maker ajouter ou non si elle n'en contient pas, on laisse la liste à vide sinon
+        // on boucle pour chaque maker ajouté pour créer la relation maker_supplier nécessite donc le stock et la référence produit fabricant.
+        if (dto.makers() != null) {
+            for (MakerReferenceRequestDTO mkrRef : dto.makers()) {
+
+                Maker maker = makerRepository.findById(mkrRef.mkrId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Fabricant non existant"));
+
+                MakerReference link = new MakerReference(
+                        new MakerReference.MakerReferenceId(article.getArtId(), maker.getMkrId()),
+                        article,
+                        maker,
+                        mkrRef.artMkrReference(),
+                        mkrRef.artMkrStock(),
+                        null,
+                        null,
+                        mkrRef.artMkrSellPrice(),
+                        mkrRef.status()
+                );
+                //On sauvegarde la nouvelle relation qu'on vient de créer
+                makerReferenceRepository.save(link);
+            }
+        }
 
         // save() persiste l'entité et retourne la version avec le splId généré par la base
         return articleMapper.toDTO(articleRepository.save(article));
