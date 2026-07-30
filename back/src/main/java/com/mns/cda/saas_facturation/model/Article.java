@@ -125,4 +125,7 @@ public class Article {
 
     @OneToMany(mappedBy = "article")
     protected List<MakerReference> makerReferences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article")
+    protected List<Inventory> inventories;
 }

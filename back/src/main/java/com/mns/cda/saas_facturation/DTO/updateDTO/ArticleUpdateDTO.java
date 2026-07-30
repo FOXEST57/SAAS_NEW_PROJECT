@@ -12,6 +12,7 @@ public record ArticleUpdateDTO(
         @NotBlank String artDescription,
         @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
         @NotNull @Min(1) Long tvaId,
-        List<Long> categoryIds
+        List<Long> categoryIds,
+        List<Long> invIds
 ) {
 }

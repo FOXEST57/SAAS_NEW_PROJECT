@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.*;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.DTO.requestDTO.InventoryRequestDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.Iservice.*;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.mapper.ArticleMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,15 +52,16 @@ public class ArticleService implements IArticleService {
     private final SupplierRepository supplierRepository;
     private final CategoryRepository categoryRepository;
     private final SupplierReferenceRepository supplierReferenceRepository;
-
     private final ArticleMapper articleMapper;
     private final MakerReferenceRepository makerReferenceRepository;
+    private final InventoryService inventoryService;
+    private final InventoryRepository inventoryRepository;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
      *
      * <p>Chaque entité {@link Article} est convertie en {@link ArticleDTO}
-     * via , ce qui inclut le calcul du prix TTC.</p>
+     * via {@link ArticleMapper}, ce qui inclut le calcul du prix TTC.</p>
      *
      * <p><b>Note :</b> à envisager si le volume d'articles devient important,
      * l'usage de {@code Pageable} (page, size) pour limiter les données retournées.</p>
@@ -76,7 +79,7 @@ public class ArticleService implements IArticleService {
     /**
      * Recherche un article par son identifiant unique.
      *
-     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'splId fourni,
+     * <p>Retourne un {@link Optional} vide si aucun article ne correspond au splId fourni,
      * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
      *
      * @param id l'identifiant unique de l'article à rechercher
@@ -110,12 +113,12 @@ public class ArticleService implements IArticleService {
     @Transactional(rollbackOn = ResourceNotFoundException.class)
     public ArticleDTO create(ArticleRequestDTO dto) throws ResourceNotFoundException {
 
-        // La TVA est obligatoire : orElseThrow lève l'exception si l'splId est inconnu
+        // La TVA est obligatoire : orElseThrow lève l'exception si le splId est inconnu
         Tva articleTva = tvaRepository.findById(dto.tvaId())
                 .orElseThrow(() -> new ResourceNotFoundException("TVA non existante"));
 
 
-        // Construction de l'entité Article : l'splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
+        // Construction de l'entité Article : le splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
         Article article = new Article();
 
                 article.setArtReference(dto.artReference());
@@ -126,6 +129,13 @@ public class ArticleService implements IArticleService {
 
 
         // Création de l'article tel qu'il est pour créer l'entité et lui associer une ID
+        article = articleRepository.save(article);
+
+        // Construction d'un inventaire initial
+        InventoryRequestDTO inventoryRequestDTO = new InventoryRequestDTO(0, article.getArtId());
+        InventoryDTO inventoryDTO = inventoryService.create(inventoryRequestDTO);
+        Inventory inventory = inventoryRepository.findById(inventoryDTO.invId()).orElseThrow(() -> new ResourceNotFoundException("Inventaire non existant"));
+        article.setInventories(List.of(inventory));
         article = articleRepository.save(article);
 
         if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
@@ -139,8 +149,8 @@ public class ArticleService implements IArticleService {
         }
 
 
-        //Vérification si la request contient ou non des relations article_supplier ajouter ou non si elle n'en contient pas on laisse la liste a vide sinon
-        // on boucle pour chaque supplier ajouter pour crée la relation article_supplier nécessite donc le stock et la référence produit fournisseur.
+        //Vérification si la request contient ou non des relations article_supplier ajouter ou non si elle n'en contient pas, on laisse la liste à vide sinon
+        // on boucle pour chaque supplier ajouté pour créer la relation article_supplier nécessite donc le stock et la référence produit fournisseur.
         if (dto.suppliers() != null) {
             for (SupplierReferenceRequestDTO splRef : dto.suppliers()) {
 
@@ -153,7 +163,10 @@ public class ArticleService implements IArticleService {
                         supplier,
                         splRef.splRefReference(),
                         splRef.splRefSellPrice(),
-                        splRef.splRefStock()
+                        splRef.splRefStock(),
+                        null,
+                        null,
+                        splRef.status()
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer
                 supplierReferenceRepository.save(link);
@@ -161,7 +174,7 @@ public class ArticleService implements IArticleService {
         }
 
 
-        // save() persiste l'entité et retourne la version avec l'splId généré par la base
+        // save() persiste l'entité et retourne la version avec le splId généré par la base
         return articleMapper.toDTO(articleRepository.save(article));
     }
 
@@ -221,6 +234,11 @@ public class ArticleService implements IArticleService {
         article.setArtName(dto.artName());
         article.setArtDescription(dto.artDescription());
         article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
+        article.setInventories(dto.invIds()
+                .stream()
+                .map(invId -> inventoryRepository.findById(invId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Inventaire avec id " + invId + " non existant")))
+                .toList());
 
         // Mise à jour de la relation TVA : on charge l'entité Tva depuis sa clé étrangère
         Tva tva = tvaRepository.findById(dto.tvaId())
@@ -238,8 +256,7 @@ public class ArticleService implements IArticleService {
         }
 
         // Persistance des modifications puis conversion en DTO pour la réponse HTTP
-        Article saved = articleRepository.save(article);
-        return articleMapper.toDTO(saved);
+        return articleMapper.toDTO(articleRepository.save(article));
     }
 
 }

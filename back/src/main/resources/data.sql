@@ -87,21 +87,21 @@ VALUES
     ('REF-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99,  current_date, current_date, 2);
 
 -- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference,supplier_price, spl_ref_stock)
-INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_sell_price, spl_ref_stock)
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_sell_price, spl_ref_stock, status)
 VALUES
-    (1, 1, 'TC-USB-64', 120.00, 120),
-    (1, 2, 'OP-USB-64', 80.00, 120),
-    (2, 3, 'FP-CHAIR-ERG', 40.00, 120),
-    (3, 1, 'TC-SCREEN-27', 25.00, 120),
-    (4, 2, 'OP-PAPER-A4', 400.00, 120);
+    (1, 1, 'TC-USB-64', 120.00, 120, 'RECEIVED'),
+    (1, 2, 'OP-USB-64', 80.00, 120, 'PENDING'),
+    (2, 3, 'FP-CHAIR-ERG', 40.00, 120, 'RECEIVED'),
+    (3, 1, 'TC-SCREEN-27', 25.00, 120, 'CANCELLED'),
+    (4, 2, 'OP-PAPER-A4', 400.00, 120, 'PENDING');
 
 -- 12. Table MAKER_REFERENCE (clé composite article_id + maker_id)
-INSERT INTO maker_reference (article_id, maker_id, art_mkr_reference, art_mkr_stock, art_mkr_sell_price)
+INSERT INTO maker_reference (article_id, maker_id, art_mkr_reference, art_mkr_stock, art_mkr_sell_price, status)
 VALUES
-    (1, 1, 'MKR-CLAV-001',1,1.00),
-    (2, 2, 'MKR-SOUR-002',10,10.00),
-    (3, 1, 'MKR-ECR-003',2,2.00),
-    (4, 3, 'MKR-CASQ-004',20,20.00);
+    (1, 1, 'MKR-CLAV-001',1,1.00, 'RECEIVED'),
+    (2, 2, 'MKR-SOUR-002',10,10.00, 'RECEIVED'),
+    (3, 1, 'MKR-ECR-003',2,2.00, 'PENDING'),
+    (4, 3, 'MKR-CASQ-004',20,20.00, 'PENDING');
 
 --13. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
 INSERT INTO article_category (article_id, category_id)

@@ -133,6 +133,14 @@ public class ArticleMapper {
         );
     }
 
+    public ArticleResponseInventoryDTO inventoryToDto(Article article) {
+        return new ArticleResponseInventoryDTO(
+                article.getArtId(),
+                article.getArtName(),
+                article.getArtReference()
+        );
+    }
+
     public int calculStock(Article article) {
         int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
                 .mapToInt(makerReference -> makerReference.getArtMkrStock())

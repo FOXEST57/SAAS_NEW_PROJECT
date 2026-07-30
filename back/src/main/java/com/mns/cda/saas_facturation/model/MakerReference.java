@@ -1,20 +1,26 @@
 package com.mns.cda.saas_facturation.model;
 
 import com.mns.cda.saas_facturation.config.LowercaseConverter;
+import com.mns.cda.saas_facturation.enumeration.DeliveryStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class MakerReference {
 
     @Embeddable
@@ -50,7 +56,18 @@ public class MakerReference {
 
     protected int artMkrStock;
 
+    @CreatedDate
+    protected LocalDateTime artMrkCreateDate;
+
+    @LastModifiedDate
+    protected LocalDateTime artMrkUpdateDate;
+
     @NotNull
     @DecimalMin(value = "0.00", inclusive = true)
     protected BigDecimal artMkrSellPrice;
+
+    @NotBlank
+    @Enumerated(EnumType.STRING)
+    protected DeliveryStatus status;
+
 }

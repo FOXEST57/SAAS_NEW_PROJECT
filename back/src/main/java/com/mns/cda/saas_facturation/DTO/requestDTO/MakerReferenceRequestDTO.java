@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.DTO.requestDTO;
 
+import com.mns.cda.saas_facturation.enumeration.DeliveryStatus;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +13,7 @@ public record MakerReferenceRequestDTO(
         @NotNull Long mkrId,
         @NotBlank @Column(unique = true) String artMkrReference,
         int artMkrStock,
-        @NotNull @DecimalMin(value = "0.00") BigDecimal artMkrSellPrice
-
+        @NotNull @DecimalMin(value = "0.00") BigDecimal artMkrSellPrice,
+        @NotNull DeliveryStatus status
         ) {
 }

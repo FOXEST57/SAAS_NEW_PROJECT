@@ -76,8 +76,8 @@ public class OrderLineService implements IOrderLineService {
                 .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + dto.articleId() + " n'existe pas"));
 
 
-        if(articleMapper.calculStock(article) < dto.quantity()) throw
-        new InsufficientStockException("La quantité en stock de l'article " + article.getArtName() + " n'est pas suffisante pour cette commande");
+        // if(articleMapper.calculStock(article) < dto.quantity()) throw
+        // new InsufficientStockException("La quantité en stock de l'article " + article.getArtName() + " n'est pas suffisante pour cette commande");
 
         OrderLine orderLine = new OrderLine(
                 new OrderLine.OrderLineId(),
@@ -98,10 +98,10 @@ public class OrderLineService implements IOrderLineService {
                                 "Ligne de panier introuvable pour articleId=" + artId + ", cartId=" + crtId));
 
 
-        if(articleMapper.calculStock(orderLine.getArticle()) < dto.quantity()) {
-            throw
-                    new InsufficientStockException("La quantité en stock de l'article " + orderLine.getArticle().getArtName() + " n'est pas suffisante pour cette commande");
-        }
+//         if(articleMapper.calculStock(orderLine.getArticle()) < dto.quantity()) {
+//            throw
+//                    new InsufficientStockException("La quantité en stock de l'article " + orderLine.getArticle().getArtName() + " n'est pas suffisante pour cette commande");
+//        }
 
         orderLine.setOrdLnQuantity(dto.quantity());
 

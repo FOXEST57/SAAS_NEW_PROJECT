@@ -88,7 +88,10 @@ public class SupplierReferenceService implements ISupplierReferenceService {
                 splRefSupplier,
                 dto.splRefReference(),
                 dto.splRefSellPrice(),
-                dto.splRefStock()
+                dto.splRefStock(),
+                null,
+                null,
+                dto.status()
         );
 
         return supplierReferenceMapper.toDTO(supplierReferenceRepository.save(splRef));
@@ -108,6 +111,7 @@ public class SupplierReferenceService implements ISupplierReferenceService {
         splRef.setSplRefReference(dto.splRefReference());
         splRef.setSplRefStock(dto.splRefStock());
         splRef.setSplRefSellPrice(dto.splRefSellPrice());
+        splRef.setStatus(dto.status());
 
         SupplierReference saved = supplierReferenceRepository.save(splRef);
         return supplierReferenceMapper.toDTO(saved);

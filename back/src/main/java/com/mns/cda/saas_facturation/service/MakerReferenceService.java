@@ -81,7 +81,10 @@ public class MakerReferenceService implements IMakerReferenceService {
                 maker,
                 dto.artMkrReference(),
                 dto.artMkrStock(),
-                dto.artMkrSellPrice()
+                null,
+                null,
+                dto.artMkrSellPrice(),
+                dto.status()
         );
 
         return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
@@ -97,6 +100,7 @@ public class MakerReferenceService implements IMakerReferenceService {
        makerReference.setArtMkrReference(dto.reference());
        makerReference.setArtMkrStock(dto.artMkrStock());
        makerReference.setArtMkrSellPrice(dto.artMkrSellPrice());
+       makerReference.setStatus(dto.status());
 
        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
 

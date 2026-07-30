@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.model;
 
 import com.mns.cda.saas_facturation.config.LowercaseConverter;
+import com.mns.cda.saas_facturation.enumeration.DeliveryStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -9,9 +10,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Setter
@@ -19,6 +24,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class SupplierReference {
 
     @Embeddable
@@ -71,5 +77,15 @@ public class SupplierReference {
     protected BigDecimal splRefSellPrice;
 
     protected int splRefStock;
+
+    @CreatedDate
+    protected LocalDateTime splRefCreateDate;
+
+    @LastModifiedDate
+    protected LocalDateTime splRefUpdateDate;
+
+    @NotBlank
+    @Enumerated(EnumType.STRING)
+    protected DeliveryStatus status;
 
 }
