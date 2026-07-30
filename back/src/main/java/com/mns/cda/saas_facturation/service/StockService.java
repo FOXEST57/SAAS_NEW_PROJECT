@@ -14,44 +14,61 @@ import java.util.Comparator;
 @RequiredArgsConstructor
 public class StockService {
 
-    private MakerReference makerReference;
-    private SupplierReference supplierReference;
-    private OrderLine orderLine;
     private final ArticleRepository articleRepository;
 
     /*
-    Stock actuel: Stock actuel présent dans l'entrepôt
+    Stock actuel: Stock actuel présent dans l'entrepôt // retirer ce qui est commandé à partir de la facture
     👍Stock en attente de réception: Stock commandé par nous
-    Stock commandé: Stock commandé par les clients
-    Stock disponible: Stock actuel - stock commandé
+    Stock commandé: Stock commandé par les clients // à partir du devis
+    Stock disponible: Stock actuel - stock commandé // retirer à partir du devis
     Stock théorique: Stock actuel + stock en attente
-    Stock total: Stock actuel - stock commandé + stock en attente
-     */
+    Stock total: Stock actuel - stock commandé + stock en attente // retirer ce qui est en devis + ce qui est en cours livraison status Accepted ou Pending
+    */
 
-    public int calculStockByStatus(Article article, DeliveryStatus status) {
-        int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
-                .filter(makerReference -> makerReference.getStatus() == status)
-                .mapToInt(makerReference -> makerReference.getArtMkrStock())
-                .sum()
-                : 0;
+    public int calculStockByStatus(Article article, DeliveryStatus status, LocalDateTime inventoryDate) {
 
-
-        int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
-                .filter(supplierReference -> supplierReference.getStatus() == status)
-                .mapToInt(supplierReference -> supplierReference.getSplRefStock())
-                .sum()
-                : 0;
-
-        return totalStockMarker + totalStockSupplier;
+        switch (status) {
+            case DeliveryStatus.RECEIVED -> {
+                int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
+                        .filter(makerReference -> makerReference.getStatus() == status
+                                && makerReference.getArtMrkUpdateDate().isAfter(inventoryDate))
+                        .mapToInt(MakerReference::getArtMkrStock)
+                        .sum()
+                        : 0;
+                int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
+                        .filter(supplierReference -> supplierReference.getStatus() == status
+                                && supplierReference.getSplRefUpdateDate().isAfter(inventoryDate))
+                        .mapToInt(SupplierReference::getSplRefStock)
+                        .sum()
+                        : 0;
+                return totalStockMarker + totalStockSupplier;
+            }
+            case DeliveryStatus.PENDING -> {
+                int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
+                        .filter(makerReference -> makerReference.getStatus() == status)
+                        .mapToInt(MakerReference::getArtMkrStock)
+                        .sum()
+                        : 0;
+                int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
+                        .filter(supplierReference -> supplierReference.getStatus() == status)
+                        .mapToInt(SupplierReference::getSplRefStock)
+                        .sum()
+                        : 0;
+                return totalStockMarker + totalStockSupplier;
+            }
+            default -> {
+                return 0;
+            }
+        }
     }
 
     protected int getPendingStock(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
-        return calculStockByStatus(article, DeliveryStatus.PENDING);
+        return calculStockByStatus(article, DeliveryStatus.PENDING, null);
     }
-
-    protected int getActualStock(Long articleId) {
+    
+    protected int getTheoreticalStock(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         Inventory lastInventory = article.getInventories()
@@ -59,11 +76,12 @@ public class StockService {
                 .max(Comparator.comparing(Inventory::getInvDate))
                 .orElse(null);
 
-        int lastInventoryStock = lastInventory != null ? lastInventory.getInvStock() : 0;
-        LocalDateTime lastInventoryDate = lastInventory != null ? lastInventory.getInvDate() : null;
+        int lastInventoryStock = lastInventory.getInvStock();
+        LocalDateTime lastInventoryDate = lastInventory.getInvDate();
 
-        return 0;
-
+        int orderedStock = calculStockByStatus(article, DeliveryStatus.RECEIVED, lastInventoryDate);
+        //TODO retirer ce qui est parti
+        return lastInventoryStock + orderedStock;
     }
 
 

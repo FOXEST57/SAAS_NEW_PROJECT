@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.DTO.requestDTO;
 
+import com.mns.cda.saas_facturation.DTO.responseDTO.MakerReferenceResponseDTO;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 
@@ -42,5 +43,6 @@ public record ArticleRequestDTO(
         @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
         @NotNull @Min(1) Long tvaId,
         List<Long> categoryIds,
-        List<SupplierReferenceRequestDTO> suppliers
+        List<SupplierReferenceRequestDTO> suppliers,
+        List<MakerReferenceRequestDTO> makers
 ) {}

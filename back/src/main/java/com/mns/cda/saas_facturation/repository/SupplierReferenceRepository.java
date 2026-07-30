@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.model.SupplierReference;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,4 +15,6 @@ public interface SupplierReferenceRepository extends JpaRepository<SupplierRefer
     List<SupplierReference> findBySplRefId_SupplierId(Long splRefIdSupplierId);
 
     void deleteBySplRefId_ArticleId(Long splRefIdArticleId);
+
+    List<SupplierReference> getSupplierReferencesBySplRefCreateDateAfter(LocalDateTime lastInventoryDate);
 }
