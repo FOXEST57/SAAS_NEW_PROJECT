@@ -31,6 +31,7 @@ public class Quote {
 
     @CreatedDate
     @NotNull
+    @Column(updatable = false)
     protected LocalDateTime qotCreatedDate;
 
     @NotNull
@@ -41,6 +42,10 @@ public class Quote {
 
     @ManyToOne
     protected Quote qotParent;
+
+    @ManyToOne
+    @NotNull
+    protected Cart cart;
 
     @OneToMany
     @NotNull
