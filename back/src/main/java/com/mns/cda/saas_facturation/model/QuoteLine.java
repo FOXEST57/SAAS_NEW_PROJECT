@@ -38,6 +38,5 @@ public class QuoteLine {
     protected BigDecimal tvaRate;
 
     @ManyToOne
-    @JoinColumn(name = "cart_id")
-    protected Cart cart;
+
 }
