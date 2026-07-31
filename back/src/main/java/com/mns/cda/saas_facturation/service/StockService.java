@@ -82,6 +82,7 @@ public class StockService {
         int orderedStock = calculStockByStatus(article, DeliveryStatus.RECEIVED, lastInventoryDate);
         //TODO retirer ce qui est parti
         return lastInventoryStock + orderedStock;
+
     }
 
 

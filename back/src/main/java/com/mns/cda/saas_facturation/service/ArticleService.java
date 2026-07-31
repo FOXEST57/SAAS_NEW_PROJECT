@@ -259,11 +259,6 @@ public class ArticleService implements IArticleService {
         article.setArtName(dto.artName());
         article.setArtDescription(dto.artDescription());
         article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());
-        article.setInventories(dto.invIds()
-                .stream()
-                .map(invId -> inventoryRepository.findById(invId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Inventaire avec id " + invId + " non existant")))
-                .toList());
 
         // Mise à jour de la relation TVA : on charge l'entité Tva depuis sa clé étrangère
         Tva tva = tvaRepository.findById(dto.tvaId())

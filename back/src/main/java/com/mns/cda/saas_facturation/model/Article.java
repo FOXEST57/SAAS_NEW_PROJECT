@@ -87,6 +87,7 @@ public class Article {
 
 
     @CreatedDate
+    @Column(updatable = false)
     protected LocalDateTime artCreateDate;
 
     @LastModifiedDate
@@ -127,5 +128,5 @@ public class Article {
     protected List<MakerReference> makerReferences = new ArrayList<>();
 
     @OneToMany(mappedBy = "article")
-    protected List<Inventory> inventories;
+    protected List<Inventory> inventories = new ArrayList<>();
 }

@@ -59,6 +59,7 @@ public class Customer {
     protected Address address;
 
     @CreatedDate
+    @Column(updatable = false)
     protected LocalDateTime ctmCreationDate;
 
     @LastModifiedDate

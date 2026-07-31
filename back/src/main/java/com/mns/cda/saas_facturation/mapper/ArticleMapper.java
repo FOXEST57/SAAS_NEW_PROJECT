@@ -136,8 +136,8 @@ public class ArticleMapper {
     public ArticleResponseInventoryDTO inventoryToDto(Article article) {
         return new ArticleResponseInventoryDTO(
                 article.getArtId(),
-                article.getArtName(),
-                article.getArtReference()
+                article.getArtReference(),
+                article.getArtName()
         );
     }
 
