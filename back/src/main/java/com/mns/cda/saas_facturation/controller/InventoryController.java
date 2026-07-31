@@ -108,7 +108,7 @@ public class InventoryController {
         return new ResponseEntity<>(optionalInventory.get(), HttpStatus.OK);
     }
 
-    @GetMapping("/inventories/{articleId}")
+    @GetMapping("/{articleId}")
     public List<InventoryDTO> getByArticle(@PathVariable Long articleId) {
         return inventoryService.findByArticleId(articleId);
     }

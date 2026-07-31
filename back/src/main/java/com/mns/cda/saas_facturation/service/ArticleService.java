@@ -137,7 +137,7 @@ public class ArticleService implements IArticleService {
         InventoryRequestDTO inventoryRequestDTO = new InventoryRequestDTO(0, article.getArtId());
         InventoryDTO inventoryDTO = inventoryService.create(inventoryRequestDTO);
         Inventory inventory = inventoryRepository.findById(inventoryDTO.invId()).orElseThrow(() -> new ResourceNotFoundException("Inventaire non existant"));
-        article.setInventories(List.of(inventory));
+        article.getInventories().add(inventory);
         article = articleRepository.save(article);
 
         if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
