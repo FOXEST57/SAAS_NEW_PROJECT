@@ -13,7 +13,7 @@ public interface IInventoryService {
 
     Optional<InventoryDTO> findById(Long invId);
 
-    public List<InventoryDTO> findByArticleId(Long articleId);
+    List<InventoryDTO> findByArticleId(Long articleId);
 
     InventoryDTO create(InventoryRequestDTO dto) throws ResourceNotFoundException;
 

@@ -79,6 +79,7 @@ public class SupplierReference {
     protected int splRefStock;
 
     @CreatedDate
+    @Column(updatable = false)
     protected LocalDateTime splRefCreateDate;
 
     @LastModifiedDate

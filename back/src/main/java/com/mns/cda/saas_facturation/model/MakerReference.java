@@ -57,6 +57,7 @@ public class MakerReference {
     protected int artMkrStock;
 
     @CreatedDate
+    @Column(updatable = false)
     protected LocalDateTime artMrkCreateDate;
 
     @LastModifiedDate

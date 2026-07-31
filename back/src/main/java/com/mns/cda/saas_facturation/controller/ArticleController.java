@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.controller;
 
+import com.mns.cda.saas_facturation.DTO.InventoryDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
@@ -57,6 +58,7 @@ public class ArticleController {
      * entre le contrôleur et l'implémentation concrète du service.
      */
     protected final IArticleService articleService;
+
 
     /**
      * Récupère la liste complète de tous les articles enregistrés en base de données.

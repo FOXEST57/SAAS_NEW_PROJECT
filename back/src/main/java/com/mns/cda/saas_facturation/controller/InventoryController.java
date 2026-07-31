@@ -108,6 +108,11 @@ public class InventoryController {
         return new ResponseEntity<>(optionalInventory.get(), HttpStatus.OK);
     }
 
+    @GetMapping("/{articleId}")
+    public List<InventoryDTO> getByArticle(@PathVariable Long articleId) {
+        return inventoryService.findByArticleId(articleId);
+    }
+
     /**
      * Crée une nouvelle ville en base de données à partir des données fournies dans le corps de la requête.
      *
