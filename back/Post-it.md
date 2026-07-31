@@ -1,7 +1,8 @@
 - Table Remise ?
 
-- Enregistrement des commandes et des factures au moment T pour éviter les changements de prix et de conditions.
+- Enregistrement des commandes en devis a l'instant T et des factures pour éviter les changements de prix et de conditions.
 - Voir Dashboard admin pour maquettes et suivi des commandes.
+- Voir pour faire un service stock avec liste des stocks par article et findbyIdArticleStock pour eviter d'alourdir le front. 
 
 
 
