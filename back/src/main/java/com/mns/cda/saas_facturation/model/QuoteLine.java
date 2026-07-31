@@ -39,5 +39,6 @@ public class QuoteLine {
     protected BigDecimal tvaRate;
 
     @ManyToOne
-
+    @JoinColumn(name = "quote_id")
+    protected Quote quote;
 }
