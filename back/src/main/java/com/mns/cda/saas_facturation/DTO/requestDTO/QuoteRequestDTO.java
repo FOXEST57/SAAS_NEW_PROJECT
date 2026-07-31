@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public record QuoteRequestDTO(
         @NotBlank String qotNumber,
-        @NotNull LocalDate expirationDate,
+        @NotNull LocalDate qotExpirationDate,
         @NotBlank String qotStatus,
         Long qotParentId,
         @NotNull Long cartId

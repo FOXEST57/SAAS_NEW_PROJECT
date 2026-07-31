@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
+    QuoteLine findByArticleRef(String artRef);
 }

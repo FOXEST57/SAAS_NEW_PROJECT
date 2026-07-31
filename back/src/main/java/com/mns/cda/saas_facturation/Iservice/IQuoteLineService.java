@@ -1,8 +1,10 @@
 package com.mns.cda.saas_facturation.Iservice;
 
 import com.mns.cda.saas_facturation.DTO.QuoteLineDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.QuoteLineRequestDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.model.OrderLine;
+import com.mns.cda.saas_facturation.model.QuoteLine;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,9 +14,9 @@ public interface IQuoteLineService {
 
     Optional<QuoteLineDTO> findById(Long cntId);
 
-    QuoteLineDTO create(QuoteLineRequestDTO dto);
+    QuoteLine create(OrderLine orderLine);
 
-    QuoteLineDTO update(Long cntId, QuoteLineRequestDTO dto) throws ResourceNotFoundException;
+    QuoteLine patchQuantity (Long quoteLineId, PatchQuoteLineQuantity dto) throws ResourceNotFoundException;
 
-    void delete(Long cntId) throws ResourceNotFoundException;
+    void delete(Long quotLineId) throws ResourceNotFoundException;
 }

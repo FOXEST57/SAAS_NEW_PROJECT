@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.DTO.QuoteLineDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -35,7 +37,7 @@ public class Quote {
     protected LocalDateTime qotCreatedDate;
 
     @NotNull
-    protected LocalDate expirationDate;
+    protected LocalDate qotExpirationDate;
 
     @NotNull
     protected String qotStatus;
@@ -49,6 +51,6 @@ public class Quote {
 
     @OneToMany
     @NotNull
-    protected List<QuoteLine> qotLines;
+    protected List<QuoteLine> qotLines = new ArrayList<>();
 
 }

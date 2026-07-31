@@ -4,6 +4,7 @@ package com.mns.cda.saas_facturation.DTO;
 import java.math.BigDecimal;
 
 public record QuoteLineDTO(
+        Long qotLnId,
         int qotLnQuantity,
         BigDecimal qotLnPriceHT,
         String articleName,

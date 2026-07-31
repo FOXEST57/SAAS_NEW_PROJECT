@@ -1,11 +1,11 @@
 package com.mns.cda.saas_facturation.service;
 
 import com.mns.cda.saas_facturation.DTO.QuoteLineDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.QuoteLineRequestDTO;
+import com.mns.cda.saas_facturation.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.Iservice.IQuoteLineService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.QuoteLineMapper;
-import com.mns.cda.saas_facturation.model.Quote;
+import com.mns.cda.saas_facturation.model.OrderLine;
 import com.mns.cda.saas_facturation.model.QuoteLine;
 import com.mns.cda.saas_facturation.repository.QuoteLineRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,6 @@ public class QuoteLineService implements IQuoteLineService {
 
     private final QuoteLineRepository quoteLineRepository;
     private final QuoteLineMapper quoteLineMapper;
-    private final Quote
 
     @Override
     public List<QuoteLineDTO> findAll() {
@@ -36,31 +35,30 @@ public class QuoteLineService implements IQuoteLineService {
     }
 
     @Override
-    public QuoteLineDTO create(QuoteLineRequestDTO dto) {
-        Quote quote = ;
-
+    public QuoteLine create(OrderLine orderLine) {
         QuoteLine quoteLine = new QuoteLine(
-                dto.qotLnQuantity(),
-                dto.qotLnPriceHT(),
-
-
+                null,
+                orderLine.getOrdLnQuantity(),
+                orderLine.getArticle().getArtPriceExcludeTaxes(),
+                orderLine.getArticle().getArtName(),
+                orderLine.getArticle().getArtReference(),
+                orderLine.getArticle().getTva().getTvaTaux()
         );
-
-        return quoteLineMapper.toDTO(quoteLineRepository.save(quoteLine));
+        return quoteLineRepository.save(quoteLine);
     }
 
     @Override
-    public QuoteLineDTO update(Long cntId, QuoteLineRequestDTO dto) throws ResourceNotFoundException {
-        QuoteLine quoteLine = quoteLineRepository.findById(cntId).orElseThrow(() -> new ResourceNotFoundException("Pays non existant"));
+    public QuoteLine patchQuantity (Long quoteLineId, PatchQuoteLineQuantity dto) throws ResourceNotFoundException {
+        QuoteLine quoteLine = quoteLineRepository.findById(quoteLineId).orElseThrow(() -> new ResourceNotFoundException("Ligne de Devis non existant"));
 
-        quoteLine.setCntName(dto.cntName());
+        quoteLine.setQotLnQuantity(dto.qotLineQuantity());
 
-        return quoteLineMapper.toDTO(quoteLineRepository.save(quoteLine));
+        return quoteLineRepository.save(quoteLine);
     }
 
     @Override
-    public void delete(Long cntId) throws ResourceNotFoundException {
-        QuoteLine quoteLine = quoteLineRepository.findById(cntId).orElseThrow(() -> new ResourceNotFoundException("Pays non existant"));
+    public void delete(Long quoteLineId) throws ResourceNotFoundException {
+        QuoteLine quoteLine = quoteLineRepository.findById(quoteLineId).orElseThrow(() -> new ResourceNotFoundException("Ligne de Devis non existant"));
 
         quoteLineRepository.delete(quoteLine);
     }

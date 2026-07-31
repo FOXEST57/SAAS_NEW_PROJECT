@@ -24,6 +24,7 @@ public class QuoteLineMapper {
         BigDecimal totalTTC = totalHT.add(totalTVA);
 
         return new QuoteLineDTO(
+                quoteLine.getQotLnId(),
                 quoteLine.getQotLnQuantity(),
                 quoteLine.getQotLnPriceHT(),
                 quoteLine.getArticleName(),
