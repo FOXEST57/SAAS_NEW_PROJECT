@@ -74,7 +74,9 @@ public class QuoteService implements IQuoteService {
         QuoteLine quoteLine = quoteLineRepository.findByArticleRef(artRef);
         if (quoteLine != null) {
             quoteLineService.patchQuantity(quoteLine.getQotLnId(), quantity);
+            return quoteMapper.toDTO(quote);
         }
+        throw new ResourceNotFoundException("Ligne de devis non existante");
     }
 
     public void delete(Long qotId) {
