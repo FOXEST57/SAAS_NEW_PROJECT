@@ -9,7 +9,6 @@ import java.time.LocalDate;
 public record QuoteRequestDTO(
         @NotBlank String qotNumber,
         @NotNull LocalDate qotExpirationDate,
-        @NotNull QuoteStatus qotStatus,
         Long qotParentId,
         @NotNull Long cartId
 ) {

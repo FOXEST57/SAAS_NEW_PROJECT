@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.EnumSet;
 import java.util.List;
 
 @Service
@@ -45,6 +46,7 @@ public class QuoteService implements IQuoteService {
     }
 
     @Override
+    @Transactional
     public QuoteDTO create(QuoteRequestDTO quoteRequestDTO) {
         Quote qotParent = quoteRequestDTO.qotParentId() != null
                 ? quoteRepository.findById(quoteRequestDTO.qotParentId())
@@ -55,7 +57,7 @@ public class QuoteService implements IQuoteService {
         Quote quote = new Quote();
         quote.setQotNumber(quoteRequestDTO.qotNumber());
         quote.setQotExpirationDate(quoteRequestDTO.qotExpirationDate());
-        quote.setQotStatus(quoteRequestDTO.qotStatus());
+        quote.setQotStatus(QuoteStatus.CREATED);
         quote.setQotParent(qotParent);
         quote.setCart(cart);
         // Création des QuoteLine à partir de cart
@@ -72,9 +74,17 @@ public class QuoteService implements IQuoteService {
     @Transactional
     public QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
-        if (quote.getQotStatus() != QuoteStatus.PENDING ) {
+
+        EnumSet<QuoteStatus> modifiableStatuses = EnumSet.of(
+                QuoteStatus.PENDING,
+                QuoteStatus.CREATED,
+                QuoteStatus.REJECTED
+        );
+
+        if (!modifiableStatuses.contains(quote.getQotStatus())) {
             throw new IllegalStateException("Le devis n'est pas dans un état modifiable");
         }
+
         QuoteLine quoteLine = quote.getQotLines().stream()
                 .filter(line -> line.getArticleRef().equalsIgnoreCase(quantity.artRef()))
                 .findFirst()
