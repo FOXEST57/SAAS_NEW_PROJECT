@@ -8,6 +8,7 @@ import com.mns.cda.saas_facturation.mapper.QuoteLineMapper;
 import com.mns.cda.saas_facturation.model.OrderLine;
 import com.mns.cda.saas_facturation.model.QuoteLine;
 import com.mns.cda.saas_facturation.repository.QuoteLineRepository;
+import com.mns.cda.saas_facturation.repository.QuoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ public class QuoteLineService implements IQuoteLineService {
 
     private final QuoteLineRepository quoteLineRepository;
     private final QuoteLineMapper quoteLineMapper;
+    private final QuoteRepository quoteRepository;
 
     @Override
     public List<QuoteLineDTO> findAll() {
@@ -36,13 +38,16 @@ public class QuoteLineService implements IQuoteLineService {
 
     @Override
     public QuoteLine create(OrderLine orderLine) {
+
         QuoteLine quoteLine = new QuoteLine(
                 null,
                 orderLine.getOrdLnQuantity(),
                 orderLine.getArticle().getArtPriceExcludeTaxes(),
                 orderLine.getArticle().getArtName(),
                 orderLine.getArticle().getArtReference(),
-                orderLine.getArticle().getTva().getTvaTaux()
+                orderLine.getArticle().getTva().getTvaTaux(),
+                null
+
         );
         return quoteLineRepository.save(quoteLine);
     }

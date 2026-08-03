@@ -8,12 +8,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record QuoteDTO(
+        Long quoteId,
         String qotNumber,
         LocalDateTime qotCreatedDate,
         LocalDate expirationDate,
         QuoteStatus qotStatus,
         QuoteDTO qotParent,
-        String cartRef,
+        Long cartId,
         List<QuoteLineDTO> qotLines,
         BigDecimal totalHT,
         BigDecimal totalTva,

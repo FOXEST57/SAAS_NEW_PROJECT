@@ -70,14 +70,20 @@ public class QuoteService implements IQuoteService {
     }
 
     @Override
+    @Transactional
     public QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
-        QuoteLine quoteLine = quoteLineRepository.findByArticleRef(quantity.artRef());
-        if (quoteLine != null) {
-            quoteLineService.patchQuantity(quoteLine.getQotLnId(), quantity);
-            return quoteMapper.toDTO(quote);
+        if (quote.getQotStatus() != QuoteStatus.PENDING ) {
+            throw new IllegalStateException("Le devis n'est pas dans un état modifiable");
         }
-        throw new ResourceNotFoundException("Ligne de devis non existante");
+        QuoteLine quoteLine = quote.getQotLines().stream()
+                .filter(line -> line.getArticleRef().equalsIgnoreCase(quantity.artRef()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Ligne de devis non existante pour la référence " + quantity.artRef()));
+
+        quoteLineService.patchQuantity(quoteLine.getQotLnId(), quantity);
+        return quoteMapper.toDTO(quoteRepository.findById(qotId).orElseThrow());
     }
 
     @Transactional

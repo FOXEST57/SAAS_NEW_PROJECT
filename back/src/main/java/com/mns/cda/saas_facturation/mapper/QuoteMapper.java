@@ -48,12 +48,13 @@ public class QuoteMapper {
         //Total TTC
         totalTTC = BigDecimal.ZERO.add(totalHT.add(totalTVA));
         return new QuoteDTO(
+                quote.getQotId(),
                 quote.getQotNumber(),
                 quote.getQotCreatedDate(),
                 quote.getQotExpirationDate(),
                 quote.getQotStatus(),
                 quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null,
-                quote.getCart().getCrtRef(),
+                quote.getCart().getCrtId(),
                 quote.getQotLines().stream().map(quoteLineMapper::toDTO).toList(),
                 totalHT,
                 totalTVA,

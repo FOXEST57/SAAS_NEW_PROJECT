@@ -37,4 +37,8 @@ public class QuoteLine {
 
     @NotNull
     protected BigDecimal tvaRate;
+
+    @ManyToOne
+    protected Quote quote;
+
 }
