@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.DTO.QuoteDTO;
 import com.mns.cda.saas_facturation.DTO.requestDTO.QuoteRequestDTO;
 import com.mns.cda.saas_facturation.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.Iservice.IQuoteService;
+import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.mapper.QuoteMapper;
 import com.mns.cda.saas_facturation.model.Cart;
@@ -78,6 +79,7 @@ public class QuoteService implements IQuoteService {
         throw new ResourceNotFoundException("Ligne de devis non existante");
     }
 
+    @Override
     public void delete(Long qotId) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
 
@@ -86,4 +88,10 @@ public class QuoteService implements IQuoteService {
         quoteRepository.delete(quote);
     }
 
+    @Override
+    public QuoteDTO updateStatus(Long qotId, QuoteStatus qotStatus) {
+        Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
+        quote.setQotStatus(qotStatus);
+        return quoteMapper.toDTO(quoteRepository.save(quote));
+    }
 }

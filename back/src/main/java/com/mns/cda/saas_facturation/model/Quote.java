@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.model;
 
+import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -39,7 +40,8 @@ public class Quote {
     protected LocalDate qotExpirationDate;
 
     @NotNull
-    protected String qotStatus;
+    @Enumerated(EnumType.STRING)
+    protected QuoteStatus qotStatus;
 
     @ManyToOne
     protected Quote qotParent;
