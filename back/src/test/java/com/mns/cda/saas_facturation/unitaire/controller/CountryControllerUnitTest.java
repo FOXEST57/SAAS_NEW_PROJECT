@@ -1,10 +1,10 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.CountryDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.CountryRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.ICountryService;
-import com.mns.cda.saas_facturation.controller.CountryController;
+import com.mns.cda.saas_facturation.location.DTO.CountryDTO;
+import com.mns.cda.saas_facturation.location.DTO.requestDTO.CountryRequestDTO;
+import com.mns.cda.saas_facturation.location.Iservice.ICountryService;
+import com.mns.cda.saas_facturation.location.controller.CountryController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

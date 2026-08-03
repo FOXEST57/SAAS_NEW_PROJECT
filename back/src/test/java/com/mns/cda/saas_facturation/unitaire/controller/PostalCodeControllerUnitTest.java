@@ -1,11 +1,11 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
-import com.mns.cda.saas_facturation.DTO.CityDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeService;
-import com.mns.cda.saas_facturation.controller.PostalCodeController;
+import com.mns.cda.saas_facturation.location.DTO.PostalCodeDTO;
+import com.mns.cda.saas_facturation.location.DTO.CityDTO;
+import com.mns.cda.saas_facturation.location.DTO.requestDTO.PostalCodeRequestDTO;
+import com.mns.cda.saas_facturation.location.Iservice.IPostalCodeService;
+import com.mns.cda.saas_facturation.location.controller.PostalCodeController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

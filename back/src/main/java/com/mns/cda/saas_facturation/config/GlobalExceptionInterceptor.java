@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.config;
 
-import com.mns.cda.saas_facturation.DTO.GlobalExceptionInterceptorDTO;
+import com.mns.cda.saas_facturation.exception.DTO.GlobalExceptionInterceptorDTO;
 import com.mns.cda.saas_facturation.exception.InsufficientStockException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,8 +1,8 @@
 package com.mns.cda.saas_facturation.unitaire.model;
 
 import com.mns.cda.saas_facturation.TestUtilitaire;
-import com.mns.cda.saas_facturation.model.Article;
-import com.mns.cda.saas_facturation.model.Tva;
+import com.mns.cda.saas_facturation.product.model.Article;
+import com.mns.cda.saas_facturation.product.model.Tva;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;

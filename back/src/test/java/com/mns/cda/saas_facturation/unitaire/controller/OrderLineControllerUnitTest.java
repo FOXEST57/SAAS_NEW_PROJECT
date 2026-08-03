@@ -1,16 +1,16 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.ArticleLightDTO;
-import com.mns.cda.saas_facturation.DTO.CartDTO;
-import com.mns.cda.saas_facturation.DTO.OrderLineDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.OrderLineRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.CartResponseDTO;
-import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateOrderLineDTO;
-import com.mns.cda.saas_facturation.Iservice.IOrderLineService;
-import com.mns.cda.saas_facturation.controller.OrderLineController;
+import com.mns.cda.saas_facturation.product.DTO.ArticleLightDTO;
+import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
+import com.mns.cda.saas_facturation.cart.DTO.OrderLineDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.OrderLineRequestDTO;
+import com.mns.cda.saas_facturation.cart.DTO.responseDTO.CartResponseDTO;
+import com.mns.cda.saas_facturation.cart.DTO.updateDTO.UpdateOrderLineDTO;
+import com.mns.cda.saas_facturation.cart.Iservice.IOrderLineService;
+import com.mns.cda.saas_facturation.cart.controller.OrderLineController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.OrderLine;
+import com.mns.cda.saas_facturation.cart.model.OrderLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

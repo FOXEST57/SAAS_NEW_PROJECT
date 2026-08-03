@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.security;
 
-import com.mns.cda.saas_facturation.model.Customer;
-import com.mns.cda.saas_facturation.repository.CustomerRepository;
+import com.mns.cda.saas_facturation.user.model.Customer;
+import com.mns.cda.saas_facturation.user.repository.CustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

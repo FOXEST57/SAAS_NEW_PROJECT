@@ -1,10 +1,10 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.AccountTypeDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.AccountTypeRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IAccountTypeService;
-import com.mns.cda.saas_facturation.controller.AccountTypeController;
+import com.mns.cda.saas_facturation.user.DTO.AccountTypeDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.AccountTypeRequestDTO;
+import com.mns.cda.saas_facturation.user.Iservice.IAccountTypeService;
+import com.mns.cda.saas_facturation.user.controller.AccountTypeController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

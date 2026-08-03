@@ -1,11 +1,11 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.CartDTO;
-import com.mns.cda.saas_facturation.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.CartRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.ICartService;
-import com.mns.cda.saas_facturation.controller.CartController;
+import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
+import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
+import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
+import com.mns.cda.saas_facturation.cart.controller.CartController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

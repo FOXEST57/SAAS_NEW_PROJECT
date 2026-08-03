@@ -1,0 +1,83 @@
+package com.mns.cda.saas_facturation.product.Iservice;
+
+import com.mns.cda.saas_facturation.product.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleUpdateDTO;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.product.controller.ArticleController;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Interface définissant le contrat du service métier de gestion des articles.
+ *
+ * <p>Cette interface centralise toutes les opérations disponibles sur la ressource
+ * {@code Article}. L'implémentation concrète est injectée par Spring dans les classes
+ * qui en dépendent, garantissant le découplage entre les couches controller et service.</p>
+ *
+ * <p>Les exceptions métier sont définies ici comme classes statiques internes,
+ * ce qui les rattache sémantiquement au domaine article et évite de les disperser
+ * dans des fichiers séparés.</p>
+ *
+ * @see ArticleController
+ * @see ArticleDTO
+ * @see ArticleRequestDTO
+ */
+public interface IArticleService {
+
+    /**
+     * Récupère la liste complète de tous les articles en base de données.
+     *
+     * @return une {@link List} de {@link ArticleDTO} (vide si aucun article n'existe)
+     */
+    List<ArticleDTO> findAll();
+
+    /**
+     * Recherche un article par son identifiant unique.
+     *
+     * <p>Retourne un {@link Optional} vide si aucun article ne correspond à l'splId fourni,
+     * sans lever d'exception — la vérification est laissée à la charge du contrôleur.</p>
+     *
+     * @param id l'identifiant unique de l'article à rechercher
+     * @return un {@link Optional} contenant l'{@link ArticleDTO} si trouvé, vide sinon
+     */
+    Optional<ArticleDTO> findById(Long id);
+
+
+    /**
+     * Crée un nouvel article en base de données à partir d'un DTO de requête.
+     *
+     * <p>Le service vérifie que la TVA et le fournisseur référencés dans le DTO
+     * existent bien en base avant de persister l'article.</p>
+     *
+     * @param dto les données de l'article à créer
+     * @return l'{@link ArticleDTO} de l'article créé, avec son splId généré
+     * @throws ResourceNotFoundException si la TVA ou le fournisseur non référencé en base
+     */
+    ArticleDTO create(ArticleRequestDTO dto) throws ResourceNotFoundException;
+
+    /**
+     * Supprime un article par son identifiant unique.
+     *
+     * <p>L'existence de l'article est vérifiée en amont dans le contrôleur
+     * avant d'appeler cette méthode.</p>
+     *
+     * @param id l'identifiant unique de l'article à supprimer
+     */
+    void delete(Long id) throws ResourceNotFoundException;
+
+    /**
+     * Met à jour intégralement un article existant à partir de son identifiant.
+     *
+     * <p>Tous les champs de l'article sont remplacés par les valeurs fournies dans le DTO
+     * (sémantique HTTP PUT). Le service vérifie que l'article, la TVA et le fournisseur
+     * référencés existent bien en base avant toute modification.</p>
+     *
+     * @param id  l'identifiant unique de l'article à modifier
+     * @param dto les nouvelles données de l'article
+     * @return l'{@link ArticleDTO} de l'article après mise à jour
+     * @throws ResourceNotFoundException si l'article ciblé, la TVA ou le fournisseur référencé n'existe pas en base
+     */
+    ArticleDTO update(long id, ArticleUpdateDTO dto) throws ResourceNotFoundException;
+}

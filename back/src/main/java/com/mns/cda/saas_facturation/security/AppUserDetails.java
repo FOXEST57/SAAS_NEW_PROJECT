@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.security;
 
-import com.mns.cda.saas_facturation.model.Customer;
+import com.mns.cda.saas_facturation.user.model.Customer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

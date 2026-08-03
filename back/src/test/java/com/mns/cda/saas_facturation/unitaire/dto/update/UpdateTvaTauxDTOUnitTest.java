@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.unitaire.dto.update;
 
-import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateTvaTauxDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateTvaTauxDTO;
 import com.mns.cda.saas_facturation.TestUtilitaire;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

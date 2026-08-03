@@ -1,14 +1,15 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.AddressDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierDTO;
-import com.mns.cda.saas_facturation.DTO.SupplierReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.*;
-import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateSupplierReferenceDTO;
-import com.mns.cda.saas_facturation.Iservice.ISupplierReferenceService;
-import com.mns.cda.saas_facturation.controller.SupplierReferenceController;
+import com.mns.cda.saas_facturation.location.DTO.AddressDTO;
+import com.mns.cda.saas_facturation.product.DTO.SupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.SupplierReferenceDTO;
+import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.SupplierResponseDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateSupplierReferenceDTO;
+import com.mns.cda.saas_facturation.product.Iservice.ISupplierReferenceService;
+import com.mns.cda.saas_facturation.product.controller.SupplierReferenceController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

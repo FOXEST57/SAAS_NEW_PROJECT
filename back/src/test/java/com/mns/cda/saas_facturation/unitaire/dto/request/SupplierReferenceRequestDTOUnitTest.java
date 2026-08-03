@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.unitaire.dto.request;
 
 import com.mns.cda.saas_facturation.TestUtilitaire;
-import com.mns.cda.saas_facturation.DTO.requestDTO.SupplierReferenceRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;

@@ -1,14 +1,14 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.ArticleDTO;
-import com.mns.cda.saas_facturation.DTO.CityDTO;
-import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.TvaResponseDTO;
-import com.mns.cda.saas_facturation.DTO.updateDTO.ArticleUpdateDTO;
-import com.mns.cda.saas_facturation.Iservice.IArticleService;
-import com.mns.cda.saas_facturation.controller.ArticleController;
+import com.mns.cda.saas_facturation.product.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.location.DTO.CityDTO;
+import com.mns.cda.saas_facturation.location.DTO.PostalCodeDTO;
+import com.mns.cda.saas_facturation.product.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.TvaResponseDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleUpdateDTO;
+import com.mns.cda.saas_facturation.product.Iservice.IArticleService;
+import com.mns.cda.saas_facturation.product.controller.ArticleController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,7 +62,7 @@ class ArticleControllerUnitTest {
     private MockMvc mockMvc;
 
     /**
-     * Faux service métier injecté à la place du vrai {@link com.mns.cda.saas_facturation.Iservice.IArticleService} dans le
+     * Faux service métier injecté à la place du vrai {@link IArticleService} dans le
      * contexte Spring. {@code @WebMvcTest} ne connaît pas l'implémentation réelle du
      * service (pas de base de données ici), donc {@code @MockitoBean} fournit un mock
      * Mockito pour que le controller puisse quand même être instancié.

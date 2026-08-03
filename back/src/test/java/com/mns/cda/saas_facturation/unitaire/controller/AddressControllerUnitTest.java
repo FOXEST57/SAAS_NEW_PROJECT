@@ -1,12 +1,12 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.AddressDTO;
-import com.mns.cda.saas_facturation.DTO.CityDTO;
-import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.AddressRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IAddressService;
-import com.mns.cda.saas_facturation.controller.AddressController;
+import com.mns.cda.saas_facturation.location.DTO.AddressDTO;
+import com.mns.cda.saas_facturation.location.DTO.CityDTO;
+import com.mns.cda.saas_facturation.location.DTO.PostalCodeDTO;
+import com.mns.cda.saas_facturation.location.DTO.requestDTO.AddressRequestDTO;
+import com.mns.cda.saas_facturation.location.Iservice.IAddressService;
+import com.mns.cda.saas_facturation.location.controller.AddressController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

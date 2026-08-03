@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.unitaire.dto.request;
 
-import com.mns.cda.saas_facturation.DTO.requestDTO.ArticleRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.TestUtilitaire;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

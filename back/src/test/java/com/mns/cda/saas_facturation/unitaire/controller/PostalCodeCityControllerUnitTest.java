@@ -1,12 +1,12 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.PostalCodeCityDTO;
-import com.mns.cda.saas_facturation.DTO.CityDTO;
-import com.mns.cda.saas_facturation.DTO.PostalCodeDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.PostalCodeCityRequestDTO;
-import com.mns.cda.saas_facturation.Iservice.IPostalCodeCityService;
-import com.mns.cda.saas_facturation.controller.PostalCodeCityController;
+import com.mns.cda.saas_facturation.location.DTO.PostalCodeCityDTO;
+import com.mns.cda.saas_facturation.location.DTO.CityDTO;
+import com.mns.cda.saas_facturation.location.DTO.PostalCodeDTO;
+import com.mns.cda.saas_facturation.location.DTO.requestDTO.PostalCodeCityRequestDTO;
+import com.mns.cda.saas_facturation.location.Iservice.IPostalCodeCityService;
+import com.mns.cda.saas_facturation.location.controller.PostalCodeCityController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

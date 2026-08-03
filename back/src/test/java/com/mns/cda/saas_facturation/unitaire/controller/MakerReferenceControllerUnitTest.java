@@ -1,15 +1,14 @@
 package com.mns.cda.saas_facturation.unitaire.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mns.cda.saas_facturation.DTO.MakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.requestDTO.MakerReferenceRequestDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
-import com.mns.cda.saas_facturation.DTO.responseDTO.MakerResponseDTO;
-import com.mns.cda.saas_facturation.DTO.updateDTO.UpdateMakerReferenceDTO;
-import com.mns.cda.saas_facturation.Iservice.IMakerReferenceService;
-import com.mns.cda.saas_facturation.controller.MakerReferenceController;
+import com.mns.cda.saas_facturation.product.DTO.MakerReferenceDTO;
+import com.mns.cda.saas_facturation.product.DTO.requestDTO.MakerReferenceRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseMakerReferenceDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.MakerResponseDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateMakerReferenceDTO;
+import com.mns.cda.saas_facturation.product.Iservice.IMakerReferenceService;
+import com.mns.cda.saas_facturation.product.controller.MakerReferenceController;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.model.MakerReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
