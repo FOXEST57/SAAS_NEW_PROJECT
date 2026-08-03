@@ -20,7 +20,7 @@ import java.util.List;
 @CrossOrigin
 public class QuoteController {
 
-    IQuoteService quoteService;
+    private final IQuoteService quoteService;
 
     @GetMapping("/list")
     public List<QuoteDTO> getQuotes() {
@@ -38,8 +38,8 @@ public class QuoteController {
     }
 
     @PatchMapping("/quantity/{id}")
-    public ResponseEntity<QuoteDTO> updateQuantityQuote(@PathVariable Long id, @RequestBody PatchQuoteLineQuantity quantity, @RequestBody String artRef) {
-        return new ResponseEntity<>(quoteService.updateQuantity(id, quantity, artRef), HttpStatus.OK);
+    public ResponseEntity<QuoteDTO> updateQuantityQuote(@PathVariable Long id, @RequestBody PatchQuoteLineQuantity quantity) {
+        return new ResponseEntity<>(quoteService.updateQuantity(id, quantity), HttpStatus.OK);
     }
 
     @PatchMapping("/status/{id}")

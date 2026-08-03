@@ -29,6 +29,7 @@ public class Quote {
     protected Long qotId;
 
     @NotBlank
+    @Column(unique = true)
     protected String qotNumber;
 
     @CreatedDate

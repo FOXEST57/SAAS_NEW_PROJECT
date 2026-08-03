@@ -14,7 +14,7 @@ public interface IQuoteService {
 
     QuoteDTO create(QuoteRequestDTO quoteRequestDTO);
 
-    QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity, String artRef);
+    QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity);
 
     void delete(Long qotId);
 

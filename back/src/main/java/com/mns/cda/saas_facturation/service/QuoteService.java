@@ -13,6 +13,7 @@ import com.mns.cda.saas_facturation.model.QuoteLine;
 import com.mns.cda.saas_facturation.repository.CartRepository;
 import com.mns.cda.saas_facturation.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.repository.QuoteRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,7 @@ public class QuoteService implements IQuoteService {
         Quote quote = new Quote();
         quote.setQotNumber(quoteRequestDTO.qotNumber());
         quote.setQotExpirationDate(quoteRequestDTO.qotExpirationDate());
-        quote.setQotStatus(quote.getQotStatus());
+        quote.setQotStatus(quoteRequestDTO.qotStatus());
         quote.setQotParent(qotParent);
         quote.setCart(cart);
         quote.setQotLines(qotLines);
@@ -69,9 +70,9 @@ public class QuoteService implements IQuoteService {
     }
 
     @Override
-    public QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity, String artRef) {
+    public QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
-        QuoteLine quoteLine = quoteLineRepository.findByArticleRef(artRef);
+        QuoteLine quoteLine = quoteLineRepository.findByArticleRef(quantity.artRef());
         if (quoteLine != null) {
             quoteLineService.patchQuantity(quoteLine.getQotLnId(), quantity);
             return quoteMapper.toDTO(quote);
@@ -79,6 +80,7 @@ public class QuoteService implements IQuoteService {
         throw new ResourceNotFoundException("Ligne de devis non existante");
     }
 
+    @Transactional
     @Override
     public void delete(Long qotId) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));

@@ -16,23 +16,44 @@ public class QuoteMapper {
     private final QuoteLineMapper quoteLineMapper;
 
     public QuoteDTO toDTO(Quote quote) {
+
+        BigDecimal totalHT,totalTVA,totalTTC;
+        totalHT = BigDecimal.ZERO;
+        totalTVA = BigDecimal.ZERO;
+
         //Total des prix HT et TVA calculés à partir des lignes de devis
-        BigDecimal totalHT = quote.getQotLines()
-                        .stream()
-                        .map(quoteLine -> quoteLine.getQotLnPriceHT()
-                                .multiply(BigDecimal.valueOf(quoteLine.getQotLnQuantity())))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (quote.getQotParent() != null) {
+            totalHT = totalHT.add(quote.getQotParent().getQotLines()
+                    .stream()
+                    .map(quoteLine -> quoteLine.getQotLnPriceHT()
+                            .multiply(BigDecimal.valueOf(quoteLine.getQotLnQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+        }
+        totalHT = totalHT.add(quote.getQotLines()
+                .stream()
+                .map(quoteLine -> quoteLine.getQotLnPriceHT()
+                        .multiply(BigDecimal.valueOf(quoteLine.getQotLnQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+
 
         //Total de la TVA calculés à partir des lignes de devis
-        BigDecimal totalTva = quote.getQotLines()
+        if (quote.getQotParent() != null) {
+            totalTVA = totalTVA.add(quote.getQotParent().getQotLines()
+                    .stream()
+                    .map(quoteLine -> quoteLine.getQotLnPriceHT()
+                            .multiply(quoteLine.getTvaRate())
+                            .multiply(BigDecimal.valueOf(quoteLine.getQotLnQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+        }
+        totalTVA = totalTVA.add(quote.getQotLines()
                 .stream()
                 .map(quoteLine -> quoteLine.getQotLnPriceHT()
                         .multiply(quoteLine.getTvaRate())
                         .multiply(BigDecimal.valueOf(quoteLine.getQotLnQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         //Total TTC
-        BigDecimal totalTTC = totalHT.add(totalTva);
+        totalTTC = BigDecimal.ZERO.add(totalHT.add(totalTVA));
         return new QuoteDTO(
                 quote.getQotNumber(),
                 quote.getQotCreatedDate(),
@@ -42,7 +63,7 @@ public class QuoteMapper {
                 quote.getCart().getCrtRef(),
                 quote.getQotLines().stream().map(quoteLineMapper::toDTO).toList(),
                 totalHT,
-                totalTva,
+                totalTVA,
                 totalTTC
                 );
     }
