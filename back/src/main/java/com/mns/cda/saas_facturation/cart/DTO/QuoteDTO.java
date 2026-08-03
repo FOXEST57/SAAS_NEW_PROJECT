@@ -15,9 +15,9 @@ public record QuoteDTO(
         QuoteStatus qotStatus,
         QuoteDTO qotParent,
         Long cartId,
-        List<QuoteLineDTO> qotLines,
-        BigDecimal totalHT,
-        BigDecimal totalTva,
-        BigDecimal totalTTC
+        List<QuoteLineDTO> qotLines
+//        BigDecimal totalHT,
+//        BigDecimal totalTva,
+//        BigDecimal totalTTC
 ) {
 }

@@ -15,7 +15,7 @@ public class QuoteMapper {
     private final QuoteLineMapper quoteLineMapper;
 
     public QuoteDTO toDTO(Quote quote) {
-        QuoteDTO quoteParent = quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null;
+//        QuoteDTO quoteParent = quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null;
 
         BigDecimal totalHT,totalTVA,totalTTC;
         totalHT = BigDecimal.ZERO;
@@ -23,10 +23,10 @@ public class QuoteMapper {
 
 
         // Récupère les totaux du parent direct et les initialise aux totaux.
-        if (quote.getQotParent() != null) {
-            totalHT = totalHT.add(quoteParent.totalHT());
-            totalTVA = totalTVA.add(quoteParent.totalTva());
-        }
+//        if (quote.getQotParent() != null) {
+//            totalHT = totalHT.add(quoteParent.totalHT());
+//            totalTVA = totalTVA.add(quoteParent.totalTva());
+//        }
 
         //Total des prix HT et TVA calculés à partir des lignes de devis
         totalHT = totalHT.add(quote.getQotLines()
@@ -54,10 +54,10 @@ public class QuoteMapper {
                 quote.getQotStatus(),
                 quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null,
                 quote.getCart().getCrtId(),
-                quote.getQotLines().stream().map(quoteLineMapper::toDTO).toList(),
-                totalHT,
-                totalTVA,
-                totalTTC
+                quote.getQotLines().stream().map(quoteLineMapper::toDTO).toList()
+//                totalHT,
+//                totalTVA,
+//                totalTTC
                 );
     }
 }
