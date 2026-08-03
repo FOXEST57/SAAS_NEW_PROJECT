@@ -141,11 +141,11 @@ public class ArticleService implements IArticleService {
         article = articleRepository.save(article);
 
         if (dto.categoryIds() != null && !dto.categoryIds().isEmpty()) {
-            List<Category> categories = dto.categoryIds()
+            List<Category> categories = new ArrayList<>(dto.categoryIds()
                     .stream()
                     .map(catId -> categoryRepository.findById(catId)
                             .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
-                    .toList();
+                    .toList());
 
             article.setCategories(categories);
         }
@@ -267,10 +267,10 @@ public class ArticleService implements IArticleService {
 
         // La catégorie est optionnelle : on ne met à jour la relation que si un splId est fourni
         if (dto.categoryIds() != null) {
-            List<Category> categories = dto.categoryIds().stream()
+            List<Category> categories = new ArrayList<>(dto.categoryIds().stream()
                     .map(catId -> categoryRepository.findById(catId)
                             .orElseThrow(() -> new ResourceNotFoundException("Catégorie non existante")))
-                    .toList();
+                    .toList());
 
             article.setCategories(categories);
         }
