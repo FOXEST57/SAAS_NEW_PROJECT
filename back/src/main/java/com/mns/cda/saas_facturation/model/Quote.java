@@ -1,6 +1,5 @@
 package com.mns.cda.saas_facturation.model;
 
-import com.mns.cda.saas_facturation.DTO.QuoteLineDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
