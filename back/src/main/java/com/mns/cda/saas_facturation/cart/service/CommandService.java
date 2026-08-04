@@ -6,14 +6,20 @@ import com.mns.cda.saas_facturation.cart.DTO.requestDTO.PatchCommandStatus;
 import com.mns.cda.saas_facturation.cart.mapper.CommandMapper;
 import com.mns.cda.saas_facturation.cart.model.Command;
 import com.mns.cda.saas_facturation.cart.model.Quote;
+import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import com.mns.cda.saas_facturation.cart.repository.CommandRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
+import com.mns.cda.saas_facturation.config.GlobalExceptionInterceptor;
 import com.mns.cda.saas_facturation.enumeration.CommandStatus;
+import com.mns.cda.saas_facturation.exception.DTO.GlobalExceptionInterceptorDTO;
+import com.mns.cda.saas_facturation.exception.ResourceAlreadyExistException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +45,13 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
     }
 
     @Override
-    public CommandDTO create(CommandRequestDTO dto) {
+    public CommandDTO create(CommandRequestDTO dto) throws ResourceAlreadyExistException {
 
         Quote quote = quoteRepository.findById(dto.qotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Quote not found with id: " + dto.qotId()));
+        if (commandRepository.existsByQuote_QotId(quote.getQotId())) {
+            throw new ResourceAlreadyExistException("Une Commande existe déjà pour ce Devis.");
+        }
 
         Command command = new Command();
         command.setQuote(quote);

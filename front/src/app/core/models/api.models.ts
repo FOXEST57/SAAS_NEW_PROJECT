@@ -466,6 +466,142 @@ export interface CartRequest {
 }
 
 /* ==================================================================
+   Devis / commandes / factures
+   ================================================================== */
+
+/** `enumeration/QuoteStatus.java` */
+export type QuoteStatus =
+  | 'CREATED'
+  | 'ACCEPTED'
+  | 'PENDING'
+  | 'REJECTED'
+  | 'EXPIRED'
+  | 'CLOSED'
+  | 'REVISITED';
+
+/** `enumeration/CommandStatus.java` */
+export type CommandStatus = 'CREATED' | 'PENDING' | 'ACCEPTED' | 'DELIVERED';
+
+/** `enumeration/InvoiceStatus.java` */
+export type InvoiceStatus =
+  | 'CREATED'
+  | 'ISSUED'
+  | 'SENT'
+  | 'OVERDUE'
+  | 'PARTIALLY_PAID'
+  | 'PAID'
+  | 'CANCELLED';
+
+/** `DTO/QuoteLineDTO.java` */
+export interface QuoteLine {
+  qotLnId: number;
+  qotLnQuantity: number;
+  qotLnPriceHT: number;
+  articleName: string;
+  articleRef: string;
+  tvaRate: number;
+  totalHT: number;
+  totalTVA: number;
+  totalTTC: number;
+}
+
+/** `DTO/QuoteDTO.java` */
+export interface Quote {
+  quoteId: number;
+  qotNumber: string;
+  qotCreatedDate: string;
+  expirationDate: string;
+  qotStatus: QuoteStatus;
+  qotParent: Quote | null;
+  cartId: number;
+  qotLines: QuoteLine[];
+}
+
+/** `DTO/requestDTO/QuoteRequestDTO.java` */
+export interface QuoteRequest {
+  qotNumber: string;
+  qotExpirationDate: string;
+  qotParentId: number | null;
+  cartId: number;
+}
+
+/** `DTO/updateDTO/PatchQuoteLineQuantity.java` */
+export interface PatchQuoteLineQuantity {
+  artRef: string;
+  qotLineQuantity: number;
+}
+
+/**
+ * `DTO/CommandDTO.java`.
+ *
+ * Attention : le champ d'identifiant s'appelle `cmfId` côté backend (coquille
+ * pour `cmdId`, non corrigée ici — voir la note sur les DTO dans le README).
+ * `CommandDTO` n'expose ni client ni identifiant de devis, seulement son
+ * numéro : la mise en correspondance avec un `Cart`/`Customer` se fait par
+ * `quoteNumber` (voir `commerce-store.service.ts`).
+ */
+export interface Command {
+  cmfId: number;
+  cmdCreatedDate: string;
+  cmdModifiedDate: string;
+  cmdStatus: CommandStatus;
+  quoteNumber: string;
+  quoteLines: QuoteLine[];
+}
+
+/** `DTO/requestDTO/CommandRequestDTO.java` */
+export interface CommandRequest {
+  qotId: number;
+}
+
+/** `DTO/requestDTO/PatchCommandStatus.java` */
+export interface PatchCommandStatus {
+  cmdId: number;
+  cmdStatus: CommandStatus;
+}
+
+/** `DTO/InvoiceLineDTO.java` */
+export interface InvoiceLine {
+  invLnId: number;
+  invLnQuantity: number;
+  invLnPriceHT: number;
+  articleName: string;
+  articleRef: string;
+  tvaRate: number;
+  totalHT: number;
+  totalTVA: number;
+  totalTTC: number;
+}
+
+/**
+ * `DTO/InvoiceDTO.java`.
+ *
+ * Ne porte aucune référence vers la `Command` ni le `Quote` d'origine : il est
+ * impossible, depuis ce DTO seul, de savoir quelle commande a été facturée.
+ * Voir la note dans le README sur ce manque côté backend.
+ */
+export interface Invoice {
+  invoiceId: number;
+  invoiceNumber: string;
+  invoiceCreatedDate: string;
+  invoicePathPDF: string;
+  invoiceStatus: InvoiceStatus;
+  invoiceLines: InvoiceLine[];
+}
+
+/** `DTO/requestDTO/InvoiceRequestDTO.java` */
+export interface InvoiceRequest {
+  invoiceNumber: string;
+  commandId: number;
+}
+
+/** `DTO/requestDTO/PatchInvoiceStatus.java` */
+export interface PatchInvoiceStatus {
+  invoiceId: number;
+  invoiceStatus: InvoiceStatus;
+}
+
+/* ==================================================================
    Erreurs
    ================================================================== */
 

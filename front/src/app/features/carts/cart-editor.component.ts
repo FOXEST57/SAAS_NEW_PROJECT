@@ -22,7 +22,6 @@ import {
   DOCUMENT_STATUSES,
   DocumentStatus,
   normalizeStatus,
-  reprefixReference,
   statusMeta,
   transitionLabel,
 } from '../../core/models/document-status';
@@ -82,7 +81,7 @@ interface DraftLine {
     <app-page-header [title]="pageTitle()" [subtitle]="pageSubtitle()">
       <app-back-link fallbackUrl="/pipeline" fallbackLabel="au pipeline" />
       @if (cart()) {
-        <a [routerLink]="['/documents', cart()!.crtId, 'impression']" class="btn-secondary">
+        <a [routerLink]="['/documents', 'cart', cart()!.crtId, 'impression']" class="btn-secondary">
           <app-icon name="print" [size]="16" /> Aperçu
         </a>
       }
@@ -1159,7 +1158,7 @@ export class CartEditorComponent implements OnInit {
         );
         this.toast.success('Document créé', created.crtRef?.toUpperCase());
         this.store.reload();
-        await this.router.navigate(['/documents', created.crtId]);
+        await this.router.navigate(['/documents', 'cart', created.crtId]);
         return;
       }
 
@@ -1235,80 +1234,49 @@ export class CartEditorComponent implements OnInit {
     }
   }
 
-  /** Change le statut et renumérote la référence selon la nouvelle étape. */
+  /**
+   * Fait avancer (ou supprime) le panier.
+   *
+   * Depuis l'introduction de `Quote` / `Command` / `Invoice`, ce composant ne
+   * représente plus qu'un panier (`PANIER.next` ne contient donc que `DEVIS`
+   * et `ANNULE` — les branches COMMANDE/FACTURE d'origine sont mortes et ont
+   * été retirées). Les étapes suivantes (valider la commande, facturer,
+   * marquer payée) vivent désormais dans `document-print.component.ts`, seul
+   * écran commun aux quatre natures de document.
+   */
   protected async transition(next: DocumentStatus): Promise<void> {
     const existing = this.cart();
     if (!existing) return;
 
-    const meta = DOCUMENT_STATUSES[next];
-
-    // Le passage en commande est le moment où l'engagement devient ferme :
-    // c'est là qu'il faut savoir ce qu'il reste à acheter.
-    if (next === 'COMMANDE' && this.shortages().length > 0) {
-      const detail = this.shortages()
-        .map(
-          (s) =>
-            `${s.missing} × ${s.name}${s.supplierName ? ` (${s.supplierName})` : ' — aucun fournisseur référencé'}`,
-        )
-        .join(' · ');
-
-      const ok = await this.confirm.ask({
-        title: 'Approvisionnement nécessaire',
-        message: `Cette commande engage du matériel que vous n'avez pas en stock : ${detail}. Le besoin sera ajouté à l'écran Approvisionnement. Confirmez-vous la validation ?`,
-        confirmLabel: 'Valider la commande',
-      });
-      if (!ok) return;
-    }
-
-    if (next === 'FACTURE') {
-      const ok = await this.confirm.ask({
-        title: 'Émettre la facture',
-        message:
-          "Une fois facturé, le contenu du document ne sera plus modifiable. Confirmez-vous l'émission ?",
-        confirmLabel: 'Émettre la facture',
-      });
-      if (!ok) return;
+    if (next === 'DEVIS') {
+      this.saving.set(true);
+      try {
+        const quoteId = await this.store.transitionToQuote(existing.crtId);
+        if (quoteId !== null) {
+          this.toast.success('Devis créé', 'Le panier a été transformé en devis.');
+          await this.router.navigate(['/documents', 'quote', quoteId]);
+        }
+      } finally {
+        this.saving.set(false);
+      }
+      return;
     }
 
     if (next === 'ANNULE') {
-      const ok = await this.confirm.ask({
-        title: 'Annuler le document',
-        message: 'Le document sera marqué comme annulé. Vous pourrez le repasser en panier ensuite.',
-        confirmLabel: 'Annuler le document',
-        danger: true,
-      });
+      const ok = await this.confirm.askDelete(`le panier « ${existing.crtRef?.toUpperCase()} »`);
       if (!ok) return;
-    }
 
-    const reference = reprefixReference(
-      this.form.controls.crtRef.value?.trim() || existing.crtRef,
-      next,
-    );
-
-    this.saving.set(true);
-    try {
-      await firstValueFrom(
-        this.cartApi.update(existing.crtId, {
-          crtRef: reference,
-          crtStatus: next,
-          ctmId: Number(this.form.controls.ctmId.value ?? existing.customer?.ctmId),
-          orderLines: [],
-        }),
-      );
-      this.status.set(next);
-      const shortageCount = this.shortages().length;
-      this.toast.success(
-        `${meta.docLabel} ${reference.toUpperCase()}`,
-        next === 'COMMANDE' && shortageCount > 0
-          ? `${shortageCount} article(s) à commander — voir l'écran Approvisionnement.`
-          : `Document passé au statut « ${meta.label} ».`,
-      );
-      await this.loadCart(existing.crtId);
-      this.store.reload();
-    } catch {
-      /* déjà notifié */
-    } finally {
-      this.saving.set(false);
+      this.saving.set(true);
+      try {
+        await firstValueFrom(this.cartApi.delete(existing.crtId));
+        this.toast.success('Panier supprimé');
+        this.store.reload();
+        await this.router.navigate(['/documents']);
+      } catch {
+        /* déjà notifié */
+      } finally {
+        this.saving.set(false);
+      }
     }
   }
 }

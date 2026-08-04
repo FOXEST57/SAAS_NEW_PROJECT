@@ -1,4 +1,5 @@
-import { Article, Cart, OrderLine } from './api.models';
+import { Article, Cart, Command, Customer, Invoice, InvoiceLine, OrderLine, Quote, QuoteLine } from './api.models';
+import { DocumentKind, DocumentStatus, commandBucket, invoiceBucket, quoteBucket } from './document-status';
 
 /**
  * Calculs commerciaux d'un document : totaux, ventilation de TVA et
@@ -47,14 +48,20 @@ const CHAUFFAGE_PATTERN =
  */
 export function familyOf(article: Article | null | undefined): ProductFamily {
   if (!article) return 'autre';
-  const haystack = [
-    article.artName,
-    article.artDescription,
-    ...(article.categories ?? []).map((c) => c.catName),
-  ]
-    .filter(Boolean)
-    .join(' ');
+  return familyOfText(
+    [article.artName, article.artDescription, ...(article.categories ?? []).map((c) => c.catName)]
+      .filter(Boolean)
+      .join(' '),
+  );
+}
 
+/**
+ * Variante utilisée pour les lignes figées (`QuoteLine` / `InvoiceLine`) :
+ * ces DTO ne portent que le nom de l'article, ni description ni catégories.
+ * La détection de famille est donc moins fiable une fois le document devenu
+ * devis ou facture — c'est le prix de la donnée figée.
+ */
+function familyOfText(haystack: string): ProductFamily {
   if (CHAUFFAGE_PATTERN.test(haystack)) return 'chauffage';
   if (CLIM_PATTERN.test(haystack)) return 'clim';
   return 'autre';
@@ -263,6 +270,51 @@ export function computeTotals(
   return totalsOf(lines);
 }
 
+/**
+ * Construit une ligne de document à partir d'une ligne **figée**
+ * (`QuoteLine` ou `InvoiceLine`) : prix, TVA et totaux ont déjà été calculés
+ * côté serveur au moment de la création, ils ne sont pas recalculés ici.
+ *
+ * Deux pertes assumées par rapport à `buildLine` :
+ * - **le coût d'achat**, donc la marge, n'est pas figé par ces DTO : la
+ *   rentabilité d'un devis ou d'une facture n'est donc plus visible une fois
+ *   le document créé (elle reste disponible pendant la saisie du panier) ;
+ * - **`articleId`** n'est pas transmis, seulement `articleRef` : les
+ *   agrégations par article (`topArticles`) doivent donc utiliser la
+ *   référence comme clé plutôt que l'identifiant numérique.
+ */
+export function buildFrozenLine(line: QuoteLine | InvoiceLine): DocumentLine {
+  const quantity = 'qotLnQuantity' in line ? line.qotLnQuantity : line.invLnQuantity;
+  const unitHt = 'qotLnPriceHT' in line ? line.qotLnPriceHT : line.invLnPriceHT;
+  const vatRate = normalizeRate(line.tvaRate);
+
+  return {
+    articleId: 0,
+    reference: line.articleRef,
+    name: line.articleName,
+    description: '',
+    family: familyOfText(line.articleName),
+    quantity,
+    unitHt,
+    unitCost: null,
+    costSupplier: null,
+    vatRate,
+    vatLabel: `${Math.round(vatRate * 100)} %`,
+    totalHt: line.totalHT,
+    totalVat: line.totalTVA,
+    totalTtc: line.totalTTC,
+    totalCost: null,
+    margin: null,
+    marginRate: null,
+    stock: 0,
+  };
+}
+
+/** Agrège les lignes figées d'un devis ou d'une facture. */
+export function computeFrozenTotals(lines: readonly (QuoteLine | InvoiceLine)[]): DocumentTotals {
+  return totalsOf(lines.map(buildFrozenLine));
+}
+
 /* ==================================================================
    Références
    ================================================================== */
@@ -289,31 +341,120 @@ export function buildReference(
    Analyse d'un portefeuille de documents
    ================================================================== */
 
-/** Document enrichi de ses totaux, utilisé par le tableau de bord. */
+/**
+ * Document enrichi de ses totaux, utilisé par le pipeline, le tableau de bord
+ * et la file « à traiter ».
+ *
+ * Représentation polymorphe : selon `kind`, le document sous-jacent est un
+ * `Cart` (panier, encore sans devis), un `Quote`, une `Command` ou une
+ * `Invoice`. `CommerceStore.load()` compose ce tableau à partir des quatre
+ * sources — voir ce fichier pour le détail de la mise en correspondance et
+ * ses limites (certains DTO backend ne portent pas de lien vers l'entité
+ * parente, voir les notes dans `api.models.ts`).
+ */
 export interface ValuedDocument {
-  readonly cart: Cart;
+  readonly kind: DocumentKind;
+  /** Identifiant de l'entité elle-même (`crtId`, `quoteId`, `cmfId`, `invoiceId`). */
+  readonly id: number;
+  readonly reference: string;
+  /** Étape métier affichée (PANIER…PAYEE, ANNULE), déjà projetée par `document-status.ts`. */
+  readonly status: DocumentStatus;
+  /** Valeur brute du statut réel (`crtStatus`, `qotStatus`, `cmdStatus`, `invoiceStatus`). */
+  readonly rawStatus: string;
+  /**
+   * `null` quand le lien vers le client est rompu par un DTO qui ne le porte
+   * pas (`Command`, `Invoice` — voir `api.models.ts`).
+   */
+  readonly customer: Customer | null;
   readonly totals: DocumentTotals;
   /** Date de référence (dernière modification, à défaut la création). */
   readonly date: Date | null;
   /** Ancienneté en jours depuis cette date. */
   readonly ageDays: number | null;
+  /** Le contenu peut-il encore être modifié à ce stade ? */
+  readonly editable: boolean;
 }
 
-export function valueDocument(
+function ageDaysSince(date: Date | null, now: Date): number | null {
+  return date ? Math.floor((now.getTime() - date.getTime()) / 86_400_000) : null;
+}
+
+function parseDate(raw: string | null | undefined): Date | null {
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+export function valueCart(
   cart: Cart,
   lines: readonly OrderLine[],
   catalog: ReadonlyMap<number, Article>,
   now: Date,
 ): ValuedDocument {
-  const raw = cart.crtLastModifieDate ?? cart.crtCreateDate;
-  const date = raw ? new Date(raw) : null;
-  const valid = date && !Number.isNaN(date.getTime()) ? date : null;
-
+  const date = parseDate(cart.crtLastModifieDate ?? cart.crtCreateDate);
   return {
-    cart,
+    kind: 'cart',
+    id: cart.crtId,
+    reference: cart.crtRef,
+    status: 'PANIER',
+    rawStatus: cart.crtStatus,
+    customer: cart.customer,
     totals: computeTotals(lines, catalog),
-    date: valid,
-    ageDays: valid ? Math.floor((now.getTime() - valid.getTime()) / 86_400_000) : null,
+    date,
+    ageDays: ageDaysSince(date, now),
+    editable: true,
+  };
+}
+
+export function valueQuote(quote: Quote, customer: Customer | null, now: Date): ValuedDocument {
+  const date = parseDate(quote.qotCreatedDate);
+  return {
+    kind: 'quote',
+    id: quote.quoteId,
+    reference: quote.qotNumber,
+    status: quoteBucket(quote.qotStatus),
+    rawStatus: quote.qotStatus,
+    customer,
+    totals: computeFrozenTotals(quote.qotLines),
+    date,
+    ageDays: ageDaysSince(date, now),
+    editable: ['CREATED', 'PENDING', 'REJECTED'].includes(quote.qotStatus),
+  };
+}
+
+export function valueCommand(command: Command, customer: Customer | null, now: Date): ValuedDocument {
+  const date = parseDate(command.cmdCreatedDate);
+  return {
+    kind: 'command',
+    id: command.cmfId,
+    reference: command.quoteNumber,
+    status: commandBucket(command.cmdStatus),
+    rawStatus: command.cmdStatus,
+    customer,
+    totals: computeFrozenTotals(command.quoteLines),
+    date,
+    ageDays: ageDaysSince(date, now),
+    editable: false,
+  };
+}
+
+export function valueInvoice(invoice: Invoice, now: Date): ValuedDocument {
+  const date = parseDate(invoice.invoiceCreatedDate);
+  return {
+    kind: 'invoice',
+    id: invoice.invoiceId,
+    reference: invoice.invoiceNumber,
+    status: invoiceBucket(invoice.invoiceStatus),
+    rawStatus: invoice.invoiceStatus,
+    // InvoiceDTO ne porte aucun lien vers la Command/le Quote/le Cart d'origine :
+    // le client n'est pas identifiable depuis ce seul DTO. Voir la note dans
+    // `api.models.ts` — une correction backend (exposer `commandId`, ou
+    // directement le client) est nécessaire pour lever cette limite.
+    customer: null,
+    totals: computeFrozenTotals(invoice.invoiceLines),
+    date,
+    ageDays: ageDaysSince(date, now),
+    editable: false,
   };
 }
 

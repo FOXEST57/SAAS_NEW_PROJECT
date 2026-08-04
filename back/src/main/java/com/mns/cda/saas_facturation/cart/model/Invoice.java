@@ -54,5 +54,6 @@ public class Invoice {
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
     
     @OneToOne
+    @JoinColumn(unique = true)
     protected Command command;
 }

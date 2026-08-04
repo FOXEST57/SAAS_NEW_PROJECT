@@ -206,28 +206,32 @@ import { StatTileComponent } from './stat-tile.component';
                 </tr>
               </thead>
               <tbody>
-                @for (d of recent(); track d.cart.crtId) {
+                @for (d of recent(); track d.kind + ':' + d.id) {
                   <tr>
                     <td>
                       <a
-                        [routerLink]="['/documents', d.cart.crtId]"
+                        [routerLink]="['/documents', d.kind, d.id]"
                         class="font-mono text-[13px] font-medium text-brand-700 hover:underline dark:text-brand-400"
                       >
-                        {{ d.cart.crtRef | ref }}
+                        {{ d.reference | ref }}
                       </a>
                     </td>
                     <td class="truncate">
-                      {{ d.cart.customer?.ctmFirstName | capitalize }}
-                      {{ d.cart.customer?.ctmLastName | capitalize }}
+                      @if (d.customer) {
+                        {{ d.customer.ctmFirstName | capitalize }}
+                        {{ d.customer.ctmLastName | capitalize }}
+                      } @else {
+                        <span class="italic muted">Client non identifié</span>
+                      }
                     </td>
-                    <td><app-status-badge [status]="d.cart.crtStatus" /></td>
+                    <td><app-status-badge [status]="d.status" /></td>
                     <td class="num whitespace-nowrap text-right font-semibold">
                       {{ d.totals.totalTtc | eur }}
                     </td>
                     <td class="num whitespace-nowrap text-right" [class]="marginClass(d.totals.marginRate)">
                       {{ d.totals.marginRate === null ? '—' : pct(d.totals.marginRate) }}
                     </td>
-                    <td class="text-[13px] muted">{{ d.cart.crtCreateDate | frDate }}</td>
+                    <td class="text-[13px] muted">{{ d.date | frDate }}</td>
                   </tr>
                 }
               </tbody>
@@ -305,7 +309,9 @@ export class DashboardComponent implements OnInit {
 
   protected readonly recent = computed(() =>
     [...this.store.documents()]
-      .sort((a, b) => (b.cart.crtId ?? 0) - (a.cart.crtId ?? 0))
+      // Les id ne sont plus comparables entre eux : chaque entité a sa propre
+      // séquence (`crtId`, `quoteId`, `cmfId`, `invoiceId`). On trie par date.
+      .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
       .slice(0, 8),
   );
 
@@ -326,7 +332,7 @@ export class DashboardComponent implements OnInit {
   }
 
   protected revenueHint(): string {
-    const count = this.store.documents().filter((d) => statusMeta(d.cart.crtStatus).isRevenue).length;
+    const count = this.store.documents().filter((d) => statusMeta(d.status).isRevenue).length;
     return `${count} facture(s) émise(s)`;
   }
 

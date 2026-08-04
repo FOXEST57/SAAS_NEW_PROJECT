@@ -1,18 +1,26 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { ArticleService, CartService, OrderLineService } from '../../core/api';
-import { Article, Cart, OrderLine } from '../../core/models/api.models';
-import { statusMeta } from '../../core/models/document-status';
+import { DocumentKind, statusMeta } from '../../core/models/document-status';
+import { ValuedDocument } from '../../core/models/document-math';
+import { CommerceStore } from '../../core/services/commerce-store.service';
 import { AddressResolverService } from '../../core/services/address-resolver.service';
+import { ConfirmService } from '../../core/services/confirm.service';
+import { ToastService } from '../../core/services/toast.service';
 import { CapitalizePipe, EurPipe, FrDatePipe, RefPipe, TauxPctPipe } from '../../shared/pipes/format.pipes';
 import { BackLinkComponent } from '../../shared/ui/back-link.component';
 import { IconComponent } from '../../shared/ui/icon.component';
-import { computeTotals } from '../../core/models/document-math';
 
 /**
- * Aperçu imprimable d'un devis ou d'une facture, au format A4.
+ * Aperçu imprimable — et écran de détail — d'un document commercial.
+ *
+ * Sert les quatre natures de document (`Cart`, `Quote`, `Command`,
+ * `Invoice`). Seul le panier reste éditable en ligne (`cart-editor`) : les
+ * trois autres n'ont plus de contenu modifiable une fois créés (lignes
+ * figées côté serveur, ou pas de lignes propres du tout pour `Command`).
+ * C'est donc ici, plutôt que dans un éditeur dédié à chacun, que se trouvent
+ * les actions de transition (valider la commande, facturer, marquer payée)
+ * quand le document le permet.
  *
  * L'impression passe par la fonction native du navigateur (`window.print()`),
  * qui permet également l'export PDF sans dépendance supplémentaire.
@@ -34,11 +42,28 @@ import { computeTotals } from '../../core/models/document-math';
   template: `
     <!-- Barre d'actions (masquée à l'impression) -->
     <div class="no-print mb-5 flex flex-wrap items-center justify-between gap-3">
-      <app-back-link [fallbackUrl]="'/documents/' + cartId()" fallbackLabel="au document" />
-      <div class="flex gap-2">
-        <a [routerLink]="['/documents', cartId()]" class="btn-secondary">
-          <app-icon name="edit" [size]="15" /> Modifier
-        </a>
+      <app-back-link fallbackUrl="/documents" fallbackLabel="aux documents" />
+      <div class="flex flex-wrap gap-2">
+        @if (kind() === 'cart') {
+          <a [routerLink]="['/documents', 'cart', id()]" class="btn-secondary">
+            <app-icon name="edit" [size]="15" /> Modifier
+          </a>
+        }
+        @if (doc()?.status === 'DEVIS') {
+          <button type="button" class="btn-secondary" (click)="toCommand()" [disabled]="acting()">
+            <app-icon name="clipboard" [size]="15" /> Valider la commande
+          </button>
+        }
+        @if (doc()?.status === 'COMMANDE') {
+          <button type="button" class="btn-secondary" (click)="toInvoice()" [disabled]="acting()">
+            <app-icon name="invoice" [size]="15" /> Facturer
+          </button>
+        }
+        @if (doc()?.status === 'FACTURE') {
+          <button type="button" class="btn-secondary" (click)="markPaid()" [disabled]="acting()">
+            <app-icon name="checkCircle" [size]="15" /> Marquer comme payée
+          </button>
+        }
         <button type="button" class="btn-primary" (click)="print()" [disabled]="loading()">
           <app-icon name="print" [size]="16" /> Imprimer / PDF
         </button>
@@ -47,7 +72,7 @@ import { computeTotals } from '../../core/models/document-math';
 
     @if (loading()) {
       <div class="skeleton mx-auto h-[900px] w-full max-w-3xl"></div>
-    } @else if (!cart()) {
+    } @else if (!doc()) {
       <div class="card card-pad mx-auto max-w-3xl text-center">
         <p class="muted">Document introuvable.</p>
       </div>
@@ -80,10 +105,8 @@ import { computeTotals } from '../../core/models/document-math';
             <p class="text-2xl font-bold uppercase tracking-tight text-ink-950">
               {{ docLabel() }}
             </p>
-            <p class="mt-1 font-mono text-sm font-semibold">{{ cart()!.crtRef | ref }}</p>
-            <p class="mt-2 text-[12.5px] text-ink-600">
-              Émis le {{ cart()!.crtCreateDate | frDate }}
-            </p>
+            <p class="mt-1 font-mono text-sm font-semibold">{{ doc()!.reference | ref }}</p>
+            <p class="mt-2 text-[12.5px] text-ink-600">Émis le {{ doc()!.date | frDate }}</p>
             @if (dueDate()) {
               <p class="text-[12.5px] text-ink-600">{{ dueLabel() }} : {{ dueDate() }}</p>
             }
@@ -96,7 +119,7 @@ import { computeTotals } from '../../core/models/document-math';
             <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-400">
               Adressé à
             </p>
-            @if (cart()!.customer; as c) {
+            @if (doc()!.customer; as c) {
               <p class="mt-1.5 font-semibold">
                 {{ c.ctmFirstName | capitalize }} {{ c.ctmLastName | capitalize }}
               </p>
@@ -109,14 +132,19 @@ import { computeTotals } from '../../core/models/document-math';
                 </p>
               }
             } @else {
-              <p class="mt-1.5 text-[13px] text-ink-500">Client non renseigné</p>
+              <p class="mt-1.5 text-[13px] text-ink-500">
+                Client non identifiable pour ce document
+                @if (kind() === 'invoice' || kind() === 'command') {
+                  — le backend ne relie pas encore cette étape au client d'origine.
+                }
+              </p>
             }
           </div>
 
           <div class="text-right text-[12.5px] text-ink-600">
             <p><span class="text-ink-400">Statut :</span> {{ statusLabel() }}</p>
-            <p><span class="text-ink-400">Lignes :</span> {{ totals().lines.length }}</p>
-            <p><span class="text-ink-400">Quantité totale :</span> {{ totals().itemCount }}</p>
+            <p><span class="text-ink-400">Lignes :</span> {{ doc()!.totals.lines.length }}</p>
+            <p><span class="text-ink-400">Quantité totale :</span> {{ doc()!.totals.itemCount }}</p>
           </div>
         </section>
 
@@ -143,7 +171,7 @@ import { computeTotals } from '../../core/models/document-math';
               </tr>
             </thead>
             <tbody>
-              @for (line of totals().lines; track line.articleId) {
+              @for (line of doc()!.totals.lines; track line.reference) {
                 <tr class="border-b border-ink-100 align-top">
                   <td class="py-2.5 pr-3">
                     <p class="font-medium">{{ line.name | capitalize }}</p>
@@ -173,9 +201,9 @@ import { computeTotals } from '../../core/models/document-math';
           <dl class="w-full max-w-xs space-y-1.5 text-[13px]">
             <div class="flex justify-between">
               <dt class="text-ink-600">Total HT</dt>
-              <dd class="tabular-nums font-medium">{{ totals().totalHt | eur }}</dd>
+              <dd class="tabular-nums font-medium">{{ doc()!.totals.totalHt | eur }}</dd>
             </div>
-            @for (b of totals().buckets; track b.rate) {
+            @for (b of doc()!.totals.buckets; track b.rate) {
               <div class="flex justify-between">
                 <dt class="text-ink-600">
                   TVA {{ b.rate | tauxPct }}
@@ -186,7 +214,7 @@ import { computeTotals } from '../../core/models/document-math';
             }
             <div class="flex justify-between border-t-2 border-ink-900 pt-2">
               <dt class="text-base font-bold">Total TTC</dt>
-              <dd class="tabular-nums text-base font-bold">{{ totals().totalTtc | eur }}</dd>
+              <dd class="tabular-nums text-base font-bold">{{ doc()!.totals.totalTtc | eur }}</dd>
             </div>
           </dl>
         </section>
@@ -235,69 +263,52 @@ import { computeTotals } from '../../core/models/document-math';
   `,
 })
 export class DocumentPrintComponent implements OnInit {
-  private readonly cartApi = inject(CartService);
-  private readonly lineApi = inject(OrderLineService);
-  private readonly articleApi = inject(ArticleService);
+  private readonly store = inject(CommerceStore);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
+  private readonly confirm = inject(ConfirmService);
 
   protected readonly company = environment.company;
-  protected readonly cart = signal<Cart | null>(null);
   protected readonly loading = signal(true);
-  protected readonly cartId = signal<number | null>(null);
-  private readonly orderLines = signal<OrderLine[]>([]);
-  private readonly articles = signal<Article[]>([]);
+  protected readonly acting = signal(false);
+  protected readonly kind = signal<DocumentKind>('cart');
+  protected readonly id = signal<number>(0);
 
-  protected readonly totals = computed(() =>
-    computeTotals(this.orderLines(), new Map(this.articles().map((a) => [a.artId, a]))),
+  protected readonly doc = computed<ValuedDocument | undefined>(() =>
+    this.store.find(this.kind(), this.id()),
   );
 
-  protected readonly isQuote = computed(
-    () => statusMeta(this.cart()?.crtStatus).value === 'DEVIS',
-  );
-
-  protected readonly isOrder = computed(
-    () => statusMeta(this.cart()?.crtStatus).value === 'COMMANDE',
-  );
-
+  protected readonly isQuote = computed(() => this.doc()?.status === 'DEVIS');
+  protected readonly isOrder = computed(() => this.doc()?.status === 'COMMANDE');
   protected readonly isInvoice = computed(() =>
-    ['FACTURE', 'PAYEE'].includes(statusMeta(this.cart()?.crtStatus).value),
+    ['FACTURE', 'PAYEE'].includes(this.doc()?.status ?? ''),
   );
 
   async ngOnInit(): Promise<void> {
+    const kindParam = (this.route.snapshot.paramMap.get('kind') ?? 'cart') as DocumentKind;
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.cartId.set(id);
-    if (!id) {
-      this.loading.set(false);
-      return;
-    }
+    this.kind.set(kindParam);
+    this.id.set(id);
 
     this.loading.set(true);
     try {
-      const [cart, lines, articles] = await Promise.all([
-        firstValueFrom(this.cartApi.getById(id)),
-        firstValueFrom(this.lineApi.listByCart(id)).catch(() => [] as OrderLine[]),
-        firstValueFrom(this.articleApi.list()).catch(() => [] as Article[]),
-      ]);
-      this.cart.set(cart);
-      this.orderLines.set(lines);
-      this.articles.set(articles);
-    } catch {
-      this.cart.set(null);
+      await this.store.load();
     } finally {
       this.loading.set(false);
     }
   }
 
   docLabel(): string {
-    return statusMeta(this.cart()?.crtStatus).docLabel;
+    return statusMeta(this.doc()?.status).docLabel;
   }
 
   statusLabel(): string {
-    return statusMeta(this.cart()?.crtStatus).label;
+    return statusMeta(this.doc()?.status).label;
   }
 
   addressLine(): string {
-    return AddressResolverService.format(this.cart()?.customer?.address);
+    return AddressResolverService.format(this.doc()?.customer?.address);
   }
 
   dueLabel(): string {
@@ -311,9 +322,9 @@ export class DocumentPrintComponent implements OnInit {
    * 30 jours. Facture : règlement à 30 jours.
    */
   dueDate(): string | null {
-    const cart = this.cart();
-    if (!cart || (!this.isQuote() && !this.isInvoice() && !this.isOrder())) return null;
-    const base = cart.crtCreateDate ? new Date(cart.crtCreateDate) : new Date();
+    const doc = this.doc();
+    if (!doc || (!this.isQuote() && !this.isInvoice() && !this.isOrder())) return null;
+    const base = doc.date ? new Date(doc.date) : new Date();
     if (Number.isNaN(base.getTime())) return null;
     base.setDate(base.getDate() + 30);
     return base.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -321,5 +332,54 @@ export class DocumentPrintComponent implements OnInit {
 
   print(): void {
     window.print();
+  }
+
+  async toCommand(): Promise<void> {
+    const doc = this.doc();
+    if (!doc) return;
+    this.acting.set(true);
+    try {
+      const newId = await this.store.transitionToCommand(doc.id);
+      if (newId !== null) {
+        this.toast.success('Commande créée', `${doc.reference?.toUpperCase()} est validé en commande.`);
+        await this.router.navigate(['/documents', 'command', newId]);
+      }
+    } finally {
+      this.acting.set(false);
+    }
+  }
+
+  async toInvoice(): Promise<void> {
+    const doc = this.doc();
+    if (!doc) return;
+    const ok = await this.confirm.ask({
+      title: 'Émettre la facture',
+      message: `Le document ${doc.reference?.toUpperCase()} sera facturé et ses lignes figées définitivement.`,
+      confirmLabel: 'Émettre la facture',
+    });
+    if (!ok) return;
+
+    this.acting.set(true);
+    try {
+      const newId = await this.store.transitionToInvoice(doc.id);
+      if (newId !== null) {
+        this.toast.success('Facture émise', `${doc.reference?.toUpperCase()} est facturé.`);
+        await this.router.navigate(['/documents', 'invoice', newId]);
+      }
+    } finally {
+      this.acting.set(false);
+    }
+  }
+
+  async markPaid(): Promise<void> {
+    const doc = this.doc();
+    if (!doc) return;
+    this.acting.set(true);
+    try {
+      const ok = await this.store.markInvoicePaid(doc.id);
+      if (ok) this.toast.success('Facture réglée', `${doc.reference?.toUpperCase()} est marquée payée.`);
+    } finally {
+      this.acting.set(false);
+    }
   }
 }

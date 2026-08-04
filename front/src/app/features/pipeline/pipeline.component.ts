@@ -1,15 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
-import { CartService } from '../../core/api';
-import {
-  DOCUMENT_STATUSES,
-  DocumentStatus,
-  normalizeStatus,
-  reprefixReference,
-  statusMeta,
-  transitionLabel,
-} from '../../core/models/document-status';
+import { DocumentStatus, statusMeta, transitionLabel } from '../../core/models/document-status';
 import { ValuedDocument } from '../../core/models/document-math';
 import { CommerceStore } from '../../core/services/commerce-store.service';
 import { ConfirmService } from '../../core/services/confirm.service';
@@ -24,12 +15,13 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
  *
  * Le glisser-déposer utilise l'API HTML5 native — aucune dépendance. Il est
  * doublé d'un chemin clavier complet : sur une carte focalisée, les flèches
- * gauche/droite déplacent le document d'une étape. Un tableau de bord qui ne
- * s'utilise qu'à la souris exclut une partie des utilisateurs.
+ * gauche/droite déplacent le document d'une étape.
  *
- * Les transitions passent par les mêmes règles métier que l'éditeur : seules
- * les étapes déclarées dans `next` sont acceptées, et la facturation demande
- * une confirmation puisqu'elle verrouille le document.
+ * Depuis l'introduction de `Quote` / `Command` / `Invoice`, avancer un
+ * document n'est plus un simple changement de champ (`PATCH /cart`) : c'est
+ * la création d'une entité distincte, avec son propre id. Il n'y a donc plus
+ * de mise à jour optimiste locale — la carte ne bouge qu'une fois l'appel
+ * réseau confirmé, puis le magasin est rechargé.
  */
 @Component({
   selector: 'app-pipeline',
@@ -89,7 +81,7 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
             </p>
 
             <div class="flex-1 space-y-2 overflow-y-auto p-2.5">
-              @for (d of col.documents; track d.cart.crtId) {
+              @for (d of col.documents; track d.kind + ':' + d.id) {
                 <article
                   class="group cursor-grab rounded-lg border border-ink-200 bg-white p-3 shadow-card transition-shadow hover:shadow-pop focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 active:cursor-grabbing dark:border-ink-700 dark:bg-ink-900"
                   draggable="true"
@@ -101,10 +93,10 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
                 >
                   <div class="flex items-start justify-between gap-2">
                     <a
-                      [routerLink]="['/documents', d.cart.crtId]"
+                      [routerLink]="['/documents', d.kind, d.id]"
                       class="font-mono text-[12.5px] font-semibold text-brand-700 hover:underline dark:text-brand-400"
                     >
-                      {{ d.cart.crtRef | ref }}
+                      {{ d.reference | ref }}
                     </a>
                     <div class="flex shrink-0 items-center gap-0.5">
                       <!--
@@ -112,7 +104,7 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
                         ou facture selon l'étape), sans passer par l'éditeur.
                       -->
                       <a
-                        [routerLink]="['/documents', d.cart.crtId, 'impression']"
+                        [routerLink]="['/documents', d.kind, d.id, 'impression']"
                         class="rounded p-1 text-ink-400 transition-colors hover:bg-ink-100 hover:text-brand-700 dark:hover:bg-ink-800 dark:hover:text-brand-400"
                         [title]="'Ouvrir le document : ' + docLabel(d)"
                         [attr.aria-label]="'Ouvrir le document : ' + docLabel(d)"
@@ -127,8 +119,11 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
                   </div>
 
                   <p class="mt-1.5 truncate text-[13px] font-medium">
-                    {{ d.cart.customer?.ctmFirstName | capitalize }}
-                    {{ d.cart.customer?.ctmLastName | capitalize }}
+                    @if (d.customer) {
+                      {{ d.customer.ctmFirstName | capitalize }} {{ d.customer.ctmLastName | capitalize }}
+                    } @else {
+                      <span class="italic muted">Client non identifié</span>
+                    }
                   </p>
 
                   <div class="mt-2 flex items-end justify-between gap-2">
@@ -154,7 +149,7 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
 
                   <!-- Le document produit à cette étape, accessible d'un clic -->
                   <a
-                    [routerLink]="['/documents', d.cart.crtId, 'impression']"
+                    [routerLink]="['/documents', d.kind, d.id, 'impression']"
                     class="mt-2 flex items-center justify-center gap-1.5 rounded-md border border-ink-200 py-1.5 text-[11.5px] font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 dark:border-ink-700 dark:text-ink-300 dark:hover:border-brand-500/40 dark:hover:bg-brand-500/10 dark:hover:text-brand-400"
                   >
                     <app-icon [name]="col.meta.icon" [size]="12" />
@@ -170,6 +165,7 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
                         <button
                           type="button"
                           class="btn-secondary btn-sm flex-1 text-[11.5px]"
+                          [disabled]="moving().has(d.kind + ':' + d.id)"
                           (click)="moveTo(d, next)"
                           [title]="label(next)"
                         >
@@ -202,13 +198,14 @@ import { SearchInputComponent } from '../../shared/ui/search-input.component';
 })
 export class PipelineComponent implements OnInit {
   protected readonly store = inject(CommerceStore);
-  private readonly cartApi = inject(CartService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
 
   protected readonly search = signal('');
   protected readonly dragged = signal<ValuedDocument | null>(null);
   protected readonly dropTarget = signal<DocumentStatus | null>(null);
+  /** Clés `kind:id` des documents dont une transition est en cours. */
+  protected readonly moving = signal<Set<string>>(new Set());
 
   protected readonly columns = computed(() => {
     const q = this.search().trim().toLowerCase();
@@ -216,7 +213,7 @@ export class PipelineComponent implements OnInit {
     return this.store.pipelineColumns().map((col) => {
       if (!q) return col;
       const documents = col.documents.filter((d) =>
-        [d.cart.crtRef, d.cart.customer?.ctmFirstName, d.cart.customer?.ctmLastName]
+        [d.reference, d.customer?.ctmFirstName, d.customer?.ctmLastName]
           .filter(Boolean)
           .join(' ')
           .toLowerCase()
@@ -238,7 +235,7 @@ export class PipelineComponent implements OnInit {
 
   protected onDragStart(event: DragEvent, doc: ValuedDocument): void {
     this.dragged.set(doc);
-    event.dataTransfer?.setData('text/plain', String(doc.cart.crtId));
+    event.dataTransfer?.setData('text/plain', `${doc.kind}:${doc.id}`);
     if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
   }
 
@@ -274,9 +271,8 @@ export class PipelineComponent implements OnInit {
   protected onCardKeydown(event: KeyboardEvent, doc: ValuedDocument): void {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
 
-    const current = normalizeStatus(doc.cart.crtStatus);
     const order = this.store.pipelineColumns().map((c) => c.status);
-    const index = order.indexOf(current);
+    const index = order.indexOf(doc.status);
     const target = order[index + (event.key === 'ArrowRight' ? 1 : -1)];
 
     if (!target || !this.canMove(doc, target)) return;
@@ -287,16 +283,15 @@ export class PipelineComponent implements OnInit {
   /* ---------------- Transition ---------------- */
 
   private canMove(doc: ValuedDocument, target: DocumentStatus): boolean {
-    const current = normalizeStatus(doc.cart.crtStatus);
-    if (current === target) return false;
-    return statusMeta(current).next.includes(target);
+    if (doc.status === target) return false;
+    return statusMeta(doc.status).next.includes(target);
   }
 
   protected async moveTo(doc: ValuedDocument, target: DocumentStatus): Promise<void> {
     if (!this.canMove(doc, target)) {
       this.toast.warning(
         'Transition impossible',
-        `Un document au statut « ${statusMeta(doc.cart.crtStatus).label} » ne peut pas passer directement à « ${DOCUMENT_STATUSES[target].label} ».`,
+        `Un document au statut « ${statusMeta(doc.status).label} » ne peut pas passer directement à « ${statusMeta(target).label} ».`,
       );
       return;
     }
@@ -304,41 +299,51 @@ export class PipelineComponent implements OnInit {
     if (target === 'FACTURE') {
       const ok = await this.confirm.ask({
         title: 'Émettre la facture',
-        message: `Le document ${doc.cart.crtRef?.toUpperCase()} sera verrouillé et ne pourra plus être modifié. Confirmez-vous l'émission ?`,
+        message: `Le document ${doc.reference?.toUpperCase()} sera facturé et ses lignes figées définitivement. Confirmez-vous l'émission ?`,
         confirmLabel: 'Émettre la facture',
       });
       if (!ok) return;
     }
 
-    const customerId = doc.cart.customer?.ctmId;
-    if (customerId === undefined || customerId === null) {
+    if (doc.kind === 'quote' && doc.customer === null) {
+      // Un devis sans client resterait un document orphelin en commande.
       this.toast.error('Client manquant', 'Ce document doit être rattaché à un client.');
       return;
     }
 
-    const reference = reprefixReference(doc.cart.crtRef, target);
-    const previousStatus = normalizeStatus(doc.cart.crtStatus);
-    const previousRef = doc.cart.crtRef;
-
-    // Mise à jour optimiste : la carte bouge immédiatement.
-    this.store.patchStatus(doc.cart.crtId, target, reference);
+    const key = `${doc.kind}:${doc.id}`;
+    this.moving.update((s) => new Set(s).add(key));
 
     try {
-      await firstValueFrom(
-        this.cartApi.update(doc.cart.crtId, {
-          crtRef: reference,
-          crtStatus: target,
-          ctmId: customerId,
-          orderLines: [],
-        }),
-      );
-      this.toast.success(
-        `${DOCUMENT_STATUSES[target].docLabel} ${reference.toUpperCase()}`,
-        `Document passé au statut « ${DOCUMENT_STATUSES[target].label} ».`,
-      );
-    } catch {
-      // L'intercepteur a déjà notifié : on remet la carte à sa place.
-      this.store.patchStatus(doc.cart.crtId, previousStatus, previousRef);
+      let ok = false;
+      switch (doc.kind) {
+        case 'cart':
+          ok = (await this.store.transitionToQuote(doc.id)) !== null;
+          break;
+        case 'quote':
+          ok = (await this.store.transitionToCommand(doc.id)) !== null;
+          break;
+        case 'command':
+          ok = (await this.store.transitionToInvoice(doc.id)) !== null;
+          break;
+        case 'invoice':
+          ok = target === 'PAYEE' ? await this.store.markInvoicePaid(doc.id) : false;
+          break;
+      }
+
+      if (ok) {
+        this.toast.success(
+          `${statusMeta(target).docLabel} créé${target === 'PAYEE' ? 'e' : ''}`,
+          `${doc.reference?.toUpperCase()} est passé à l'étape « ${statusMeta(target).label} ».`,
+        );
+      }
+      // L'intercepteur a déjà notifié l'erreur éventuelle ; sinon on recharge.
+    } finally {
+      this.moving.update((s) => {
+        const next = new Set(s);
+        next.delete(key);
+        return next;
+      });
     }
   }
 
@@ -350,11 +355,11 @@ export class PipelineComponent implements OnInit {
 
   /** Nom du document produit à l'étape courante (devis, bon de commande…). */
   protected docLabel(d: ValuedDocument): string {
-    return statusMeta(d.cart.crtStatus).docLabel;
+    return statusMeta(d.status).docLabel;
   }
 
   protected cardLabel(d: ValuedDocument): string {
-    return `${d.cart.crtRef?.toUpperCase()}, ${statusMeta(d.cart.crtStatus).label}. Utilisez les flèches gauche et droite pour changer d'étape.`;
+    return `${d.reference?.toUpperCase()}, ${statusMeta(d.status).label}. Utilisez les flèches gauche et droite pour changer d'étape.`;
   }
 
   protected ageLabel(d: ValuedDocument): string {

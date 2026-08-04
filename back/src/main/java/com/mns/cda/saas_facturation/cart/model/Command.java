@@ -37,6 +37,6 @@ public class Command {
     protected CommandStatus cmdStatus;
 
     @OneToOne
-    @JoinColumn(name = "quote_id")
+    @JoinColumn(name = "quote_id", unique = true)
     protected Quote quote;
 }
