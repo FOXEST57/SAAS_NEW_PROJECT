@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
-    boolean existByCommand_CommandId(Long id);
+    boolean existsByCommand_CmdId(Long id);
 }

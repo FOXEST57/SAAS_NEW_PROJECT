@@ -48,10 +48,10 @@ public class InvoiceService implements IInvoiceService {
     public InvoiceDTO create(InvoiceRequestDTO invoiceRequestDTO) {
         Command command = commandRepository.findById(invoiceRequestDTO.commandId()).orElseThrow(() -> new ResourceNotFoundException("Commande non existante"));
 
-        if (invoiceRepository.existByCommand_CommandId(command.getCmdId())) {
+        if (invoiceRepository.existsByCommand_CmdId(command.getCmdId())) {
             throw new ResourceAlreadyExistException("Une facture existe déjà pour cette commande.");
         }
-        
+
         Invoice invoice = new Invoice();
         invoice.setInvoiceNumber(invoiceRequestDTO.invoiceNumber());
         invoice.setInvoiceStatus(InvoiceStatus.CREATED);
