@@ -30,6 +30,7 @@ public class CommandMapper {
                 command.getCmdCreateDate(),
                 command.getCmdModifiedDate(),
                 command.getCmdStatus(),
+                command.getQuote().getQotId(),
                 command.getQuote().getQotNumber(),
                 quoteLines
         );

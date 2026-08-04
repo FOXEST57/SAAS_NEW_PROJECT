@@ -37,21 +37,21 @@ public class QuoteLineService implements IQuoteLineService {
         return quoteLineRepository.findById(cntId).map(quoteLineMapper::toDTO);
     }
 
-    @Override
-    public QuoteLine create(OrderLine orderLine) {
-
-        QuoteLine quoteLine = new QuoteLine(
-                null,
-                orderLine.getOrdLnQuantity(),
-                orderLine.getArticle().getArtPriceExcludeTaxes(),
-                orderLine.getArticle().getArtName(),
-                orderLine.getArticle().getArtReference(),
-                orderLine.getArticle().getTva().getTvaTaux(),
-                null
-
-        );
-        return quoteLineRepository.save(quoteLine);
-    }
+//    @Override
+//    public QuoteLine create(OrderLine orderLine) {
+//
+//        QuoteLine quoteLine = new QuoteLine(
+//                null,
+//                orderLine.getOrdLnQuantity(),
+//                orderLine.getArticle().getArtPriceExcludeTaxes(),
+//                orderLine.getArticle().getArtName(),
+//                orderLine.getArticle().getArtReference(),
+//                orderLine.getArticle().getTva().getTvaTaux(),
+//                null
+//
+//        );
+//        return quoteLineRepository.save(quoteLine);
+//    }
 
     @Override
     public QuoteLine build(OrderLine orderLine) {

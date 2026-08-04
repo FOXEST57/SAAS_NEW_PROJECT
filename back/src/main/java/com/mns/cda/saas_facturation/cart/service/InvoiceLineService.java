@@ -33,21 +33,21 @@ public class InvoiceLineService implements IInvoiceLineService {
         return invoiceLineRepository.findById(invLnId).map(invoiceLineMapper::toDTO);
     }
 
-    @Override
-    public InvoiceLine create(QuoteLine quoteLine) {
-
-        InvoiceLine invoiceLine = new InvoiceLine(
-                null,
-                quoteLine.getQotLnQuantity(),
-                quoteLine.getQotLnPriceHT(),
-                quoteLine.getArticleName(),
-                quoteLine.getArticleRef(),
-                quoteLine.getTvaRate(),
-                null
-
-        );
-        return invoiceLineRepository.save(invoiceLine);
-    }
+//    @Override
+//    public InvoiceLine create(QuoteLine quoteLine) {
+//
+//        InvoiceLine invoiceLine = new InvoiceLine(
+//                null,
+//                quoteLine.getQotLnQuantity(),
+//                quoteLine.getQotLnPriceHT(),
+//                quoteLine.getArticleName(),
+//                quoteLine.getArticleRef(),
+//                quoteLine.getTvaRate(),
+//                null
+//
+//        );
+//        return invoiceLineRepository.save(invoiceLine);
+//    }
 
     @Override
     public InvoiceLine build(QuoteLine quoteLine) {

@@ -6,10 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record CommandDTO(
-        Long cmfId,
+        Long cmdId,
         LocalDateTime cmdCreatedDate,
         LocalDateTime cmdModifiedDate,
         CommandStatus cmdStatus,
+        Long quoteId,
         String quoteNumber,
         List<QuoteLineDTO> quoteLines
 ) {

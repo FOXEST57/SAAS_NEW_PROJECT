@@ -14,7 +14,7 @@ public interface IQuoteLineService {
 
     Optional<QuoteLineDTO> findById(Long cntId);
 
-    QuoteLine create(OrderLine orderLine);
+//    QuoteLine create(OrderLine orderLine);
 
     // Construit la ligne figée sans la persister : le devis s'en charge par cascade.
     QuoteLine build(OrderLine orderLine);

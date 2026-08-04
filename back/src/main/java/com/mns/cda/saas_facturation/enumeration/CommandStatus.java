@@ -4,6 +4,7 @@ public enum CommandStatus {
 
     CREATED,
     PENDING,
+    CANCELED,
     ACCEPTED,
     DELIVERED
 

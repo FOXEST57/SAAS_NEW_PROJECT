@@ -14,7 +14,7 @@ public interface IInvoiceLineService {
 
     Optional<InvoiceLineDTO> findById(Long invLnId);
 
-    InvoiceLine create(QuoteLine quoteLine);
+//    InvoiceLine create(QuoteLine quoteLine);
 
     // Construit la ligne figée sans la persister : le devis s'en charge par cascade.
     InvoiceLine build(QuoteLine quoteLine);

@@ -11,6 +11,7 @@ import com.mns.cda.saas_facturation.cart.model.InvoiceLine;
 import com.mns.cda.saas_facturation.cart.repository.CommandRepository;
 import com.mns.cda.saas_facturation.cart.repository.InvoiceRepository;
 import com.mns.cda.saas_facturation.enumeration.InvoiceStatus;
+import com.mns.cda.saas_facturation.exception.ResourceAlreadyExistException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,10 @@ public class InvoiceService implements IInvoiceService {
     public InvoiceDTO create(InvoiceRequestDTO invoiceRequestDTO) {
         Command command = commandRepository.findById(invoiceRequestDTO.commandId()).orElseThrow(() -> new ResourceNotFoundException("Commande non existante"));
 
+        if (invoiceRepository.existByCommand_CommandId(command.getCmdId())) {
+            throw new ResourceAlreadyExistException("Une facture existe déjà pour cette commande.");
+        }
+        
         Invoice invoice = new Invoice();
         invoice.setInvoiceNumber(invoiceRequestDTO.invoiceNumber());
         invoice.setInvoiceStatus(InvoiceStatus.CREATED);

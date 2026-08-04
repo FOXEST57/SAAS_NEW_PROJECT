@@ -14,6 +14,7 @@ import com.mns.cda.saas_facturation.enumeration.CommandStatus;
 import com.mns.cda.saas_facturation.exception.DTO.GlobalExceptionInterceptorDTO;
 import com.mns.cda.saas_facturation.exception.ResourceAlreadyExistException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
     }
 
     @Override
+    @Transactional
     public CommandDTO create(CommandRequestDTO dto) throws ResourceAlreadyExistException {
 
         Quote quote = quoteRepository.findById(dto.qotId())
@@ -61,6 +63,7 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
     }
 
     @Override
+    @Transactional
     public CommandDTO patchStatus(PatchCommandStatus dto) {
 
         Command command = commandRepository.findById(dto.cmdId())
@@ -71,6 +74,7 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
     }
 
     @Override
+    @Transactional
     public CommandDTO delete(Long id) {
         Command command = commandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Command not found with id: " + id));
