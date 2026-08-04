@@ -67,24 +67,54 @@ En production, renseignez l'URL publique de l'API dans
 
 ### Documents commerciaux
 
-Le backend ne possède pas d'entités `Devis` / `Facture` : un `Cart` porte un
-champ texte `crtStatus`. Le front s'appuie dessus pour matérialiser le cycle de
-vie commercial :
+Depuis le 4 août 2026, le backend possède de vraies entités `Quote`,
+`Command`, `Invoice` (+ `InvoiceLine`, prix figé) en plus du `Cart` d'origine.
+Un document commercial n'est donc plus une seule ligne de `Cart` dont on
+relit le statut : c'est l'une de quatre entités, chacune avec son propre id
+et son propre statut. Le front les compose en un seul portefeuille via
+`CommerceStore` (`core/services/commerce-store.service.ts`) et les projette
+sur un vocabulaire à 6 étapes, purement présentationnel :
 
 ```
 PANIER ──▶ DEVIS ──▶ COMMANDE ──▶ FACTURE ──▶ PAYEE
    └─────────┴──────────┴───────────┴──────▶ ANNULE
 ```
 
-- **PANIER / DEVIS / COMMANDE** : lignes et client librement modifiables
-- **FACTURE / PAYEE** : contenu verrouillé (règle métier appliquée côté front)
-- La **commande** matérialise le devis accepté : engagement du client pris, pose à
-  planifier, stock réputé engagé
-- À chaque transition, la référence est renumérotée en conservant le millésime et
-  le numéro d'ordre : `DEV-2026-0007` → `CDE-2026-0007` → `FAC-2026-0007`
-- Les statuts historiques du `data.sql` (`OPEN`, `VALIDATED`, `ABANDONED`) sont
-  reconnus et normalisés automatiquement — voir
-  `core/models/document-status.ts`
+- **PANIER** (`Cart` + `OrderLine`) : seule étape encore éditable en ligne,
+  dans `cart-editor.component.ts`. Passer à l'étape suivante crée un `Quote`
+  (`POST /quote`) — ce n'est plus un changement de champ.
+- **DEVIS** (`Quote` + `QuoteLine`, prix figé) : la quantité reste modifiable
+  tant que le devis est dans un statut ouvert (`CREATED`, `PENDING`,
+  `REJECTED`), via `PATCH /quote/quantity/{id}`.
+- **COMMANDE** (`Command`) : n'a pas de lignes propres, seulement un statut de
+  suivi logistique et une référence vers le `Quote` d'origine. Plus rien n'y
+  est modifiable côté front.
+- **FACTURE / PAYEE** (`Invoice` + `InvoiceLine`, prix figé) : verrouillée par
+  construction — `InvoiceLine` fige prix, TVA et totaux au moment de la
+  création (`POST /invoice`), qui recopie les lignes du `Quote` d'origine via
+  la `Command`.
+- Chaque route de transition (`/quote`, `/command`, `/invoice`) est appelée
+  depuis `CommerceStore` (`transitionToQuote`, `transitionToCommand`,
+  `transitionToInvoice`, `markInvoicePaid`) — c'est le seul point d'entrée,
+  utilisé aussi bien par le pipeline que par l'écran de détail.
+- Les routes de détail portent désormais la nature du document :
+  `/documents/:kind/:id` (`kind` = `cart | quote | command | invoice`), et
+  `/documents/:kind/:id/impression` pour l'aperçu imprimable. Seul `cart`
+  pointe vers un éditeur ; les trois autres pointent vers
+  `document-print.component.ts`, qui sert aussi d'écran de détail (actions de
+  transition comprises) faute d'éditeur dédié à chacun.
+- Les statuts historiques du `data.sql` (`OPEN`, `VALIDATED`, `ABANDONED`) sur
+  `Cart.crtStatus` restent reconnus par `normalizeStatus()` mais ne pilotent
+  plus le cycle de vie : celui-ci se déduit désormais de la présence ou non
+  d'un `Quote` / `Command` / `Invoice`, pas d'un texte libre.
+
+**Une limite vient encore d'un DTO backend, pas d'un choix du front** — voir
+les notes dans `core/models/api.models.ts` et
+`core/services/commerce-store.service.ts` : `InvoiceDTO` n'expose aucun lien
+vers sa `Command` d'origine (une commande facturée peut donc continuer
+d'apparaître dans la colonne « Commande » du pipeline). `CommandDTO` portait
+la même limite côté client, corrigée le 4 août 2026 par l'ajout de
+`quoteId`.
 
 Chaque document dispose d'un **aperçu A4 imprimable** (`/documents/:id/impression`)
 avec ventilation de la TVA par taux, et mentions légales de devis (validité
@@ -306,8 +336,14 @@ referait ce N+1 à chaque navigation.
 `CommerceStore` charge une fois, expose des `signal`, et les vues ne contiennent
 que des `computed`. Le rafraîchissement reste explicite (`load()` au montage,
 `reload()` après écriture) : pas de rechargement implicite, le comportement reste
-prévisible. Le pipeline y ajoute une mise à jour optimiste (`patchStatus`) pour
-que le glisser-déposer soit instantané, avec retour arrière si l'appel échoue.
+prévisible.
+
+Le pipeline n'a plus de mise à jour optimiste locale : avancer un document
+crée une entité distincte (un `Quote` n'est pas un `Cart` renommé), donc
+chaque transition (`transitionToQuote`, `transitionToCommand`,
+`transitionToInvoice`, `markInvoicePaid`) attend la confirmation du serveur
+avant de recharger le magasin — la carte ne bouge qu'une fois l'appel réseau
+abouti.
 
 ### Correspondance avec les DTO
 
@@ -317,6 +353,9 @@ front :
 
 - `SupplierRequestDTO` utilise `name` / `email` / `phoneNumber`, alors que
   `SupplierDTO` renvoie `splName` / `splEmail` / `splPhone`
+- `CommandDTO` portait son identifiant dans un champ nommé `cmfId` (coquille
+  pour `cmdId`) — corrigé côté backend le 4 août 2026, reproduit sous
+  `Command.cmdId` côté front
 - La route des types de compte est en PascalCase : `/AccountType`
 - `PUT /article/{id}` attend un `ArticleUpdateDTO` **sans** le champ `suppliers`
   (les références se gèrent depuis l'écran dédié)

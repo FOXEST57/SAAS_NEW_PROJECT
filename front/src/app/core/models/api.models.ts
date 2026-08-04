@@ -534,17 +534,18 @@ export interface PatchQuoteLineQuantity {
 /**
  * `DTO/CommandDTO.java`.
  *
- * Attention : le champ d'identifiant s'appelle `cmfId` côté backend (coquille
- * pour `cmdId`, non corrigée ici — voir la note sur les DTO dans le README).
- * `CommandDTO` n'expose ni client ni identifiant de devis, seulement son
- * numéro : la mise en correspondance avec un `Cart`/`Customer` se fait par
- * `quoteNumber` (voir `commerce-store.service.ts`).
+ * Depuis la correction backend du 4 août 2026, porte `cmdId` (la coquille
+ * `cmfId` a été corrigée) et `quoteId` : la mise en correspondance avec le
+ * `Cart`/`Customer` d'origine se fait donc par id plutôt que par le fragile
+ * `quoteNumber` (voir `commerce-store.service.ts`). `CommandDTO` n'expose
+ * toujours pas le client directement.
  */
 export interface Command {
-  cmfId: number;
+  cmdId: number;
   cmdCreatedDate: string;
   cmdModifiedDate: string;
   cmdStatus: CommandStatus;
+  quoteId: number;
   quoteNumber: string;
   quoteLines: QuoteLine[];
 }

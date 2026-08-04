@@ -310,7 +310,7 @@ export class DashboardComponent implements OnInit {
   protected readonly recent = computed(() =>
     [...this.store.documents()]
       // Les id ne sont plus comparables entre eux : chaque entité a sa propre
-      // séquence (`crtId`, `quoteId`, `cmfId`, `invoiceId`). On trie par date.
+      // séquence (`crtId`, `quoteId`, `cmdId`, `invoiceId`). On trie par date.
       .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
       .slice(0, 8),
   );

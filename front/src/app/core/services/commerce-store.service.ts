@@ -42,15 +42,16 @@ import { SupplyGroup, SupplyLine, computeSupplyNeeds, groupBySupplier } from '..
  * panier actif) et compose un seul tableau `ValuedDocument[]` — voir
  * `document-math.ts` pour le détail par entité.
  *
- * Deux limites viennent des DTO backend eux-mêmes, pas d'un choix du front :
- * - `CommandDTO` n'expose ni identifiant de devis ni client, seulement
- *   `quoteNumber` : la mise en correspondance commande → devis → panier →
- *   client se fait donc par ce numéro plutôt que par une clé étrangère.
- * - `InvoiceDTO` n'expose aucun lien vers sa `Command` d'origine : il est
- *   impossible de savoir quelle commande a été facturée, donc impossible
- *   d'écarter une commande déjà facturée de la colonne « Commande ». Une
- *   commande facturée continuera donc d'apparaître dans les deux colonnes
- *   jusqu'à ce que `InvoiceDTO` porte `commandId` (ou `quoteNumber`).
+ * Une limite vient encore d'un DTO backend, pas d'un choix du front :
+ * `InvoiceDTO` n'expose aucun lien vers sa `Command` d'origine : il est
+ * impossible de savoir quelle commande a été facturée, donc impossible
+ * d'écarter une commande déjà facturée de la colonne « Commande ». Une
+ * commande facturée continuera donc d'apparaître dans les deux colonnes
+ * jusqu'à ce que `InvoiceDTO` porte `commandId`.
+ *
+ * (`CommandDTO` portait la même limite pour le client — corrigé le
+ * 4 août 2026 par l'ajout de `quoteId`, qui permet désormais de remonter
+ * jusqu'au panier et au client par id plutôt que par `quoteNumber`.)
  *
  * Le rafraîchissement reste explicite : `load()` au montage, `reload()` après
  * une écriture. Les transitions de pipeline (`transitionToQuote`, etc.) ne
@@ -377,18 +378,18 @@ export class CommerceStore {
 
       const catalog = new Map(articles.map((a) => [a.artId, a]));
       const cartsById = new Map(carts.map((c) => [c.crtId, c]));
-      const quotesByNumber = new Map(quotes.map((q) => [q.qotNumber, q]));
+      const quotesById = new Map(quotes.map((q) => [q.quoteId, q]));
 
       // Un panier qui a déjà engendré un devis n'est plus un document actif :
       // son contenu vit désormais dans ce devis.
       const cartIdsWithQuote = new Set(quotes.map((q) => q.cartId));
       // Un devis déjà transformé en commande sort de la colonne « Devis ».
-      // `CommandDTO` n'exposant pas l'id du devis, la correspondance se fait
-      // par numéro (`quoteNumber`), seul champ commun aux deux DTO.
-      const quoteNumbersWithCommand = new Set(commands.map((c) => c.quoteNumber));
+      // Depuis la correction backend du 4 août 2026, `CommandDTO` porte
+      // `quoteId` : la correspondance se fait par id, plus par `quoteNumber`.
+      const quoteIdsWithCommand = new Set(commands.map((c) => c.quoteId));
 
       const activeCarts = carts.filter((c) => !cartIdsWithQuote.has(c.crtId));
-      const activeQuotes = quotes.filter((q) => !quoteNumbersWithCommand.has(q.qotNumber));
+      const activeQuotes = quotes.filter((q) => !quoteIdsWithCommand.has(q.quoteId));
 
       // Le backend n'expose pas les lignes de panier en masse : une requête
       // par panier actif, lancées en parallèle.
@@ -407,10 +408,10 @@ export class CommerceStore {
       });
 
       // NB : aucun filtre n'écarte ici une commande déjà facturée — impossible
-      // à détecter, `InvoiceDTO` ne porte pas l'id de la commande d'origine.
-      // Voir la note en tête de fichier.
+      // à détecter, `InvoiceDTO` ne porte toujours pas l'id de la commande
+      // d'origine. Voir la note en tête de fichier.
       const commandDocs = commands.map((command) => {
-        const quote = quotesByNumber.get(command.quoteNumber);
+        const quote = quotesById.get(command.quoteId);
         const customer = (quote && cartsById.get(quote.cartId)?.customer) ?? null;
         return valueCommand(command, customer, now);
       });
@@ -466,7 +467,7 @@ export class CommerceStore {
     try {
       const created = await firstValueFrom(this.commandApi.create({ qotId: quoteId }));
       await this.reload();
-      return created.cmfId;
+      return created.cmdId;
     } catch {
       return null;
     }

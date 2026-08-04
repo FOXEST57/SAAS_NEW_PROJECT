@@ -354,7 +354,7 @@ export function buildReference(
  */
 export interface ValuedDocument {
   readonly kind: DocumentKind;
-  /** Identifiant de l'entité elle-même (`crtId`, `quoteId`, `cmfId`, `invoiceId`). */
+  /** Identifiant de l'entité elle-même (`crtId`, `quoteId`, `cmdId`, `invoiceId`). */
   readonly id: number;
   readonly reference: string;
   /** Étape métier affichée (PANIER…PAYEE, ANNULE), déjà projetée par `document-status.ts`. */
@@ -426,7 +426,7 @@ export function valueCommand(command: Command, customer: Customer | null, now: D
   const date = parseDate(command.cmdCreatedDate);
   return {
     kind: 'command',
-    id: command.cmfId,
+    id: command.cmdId,
     reference: command.quoteNumber,
     status: commandBucket(command.cmdStatus),
     rawStatus: command.cmdStatus,
