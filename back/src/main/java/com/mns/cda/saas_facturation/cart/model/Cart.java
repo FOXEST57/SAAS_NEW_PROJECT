@@ -33,6 +33,7 @@ public class Cart {
     protected String crtRef;
 
     @CreatedDate
+    @Column(updatable = false)
     protected LocalDateTime crtCreateDate;
 
     @LastModifiedDate

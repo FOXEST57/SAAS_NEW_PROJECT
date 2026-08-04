@@ -16,19 +16,19 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class QuoteLine {
+public class InvoiceLine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long qotLnId;
+    protected Long invLnId;
 
     @NotNull
     @Min(1)
-    protected int qotLnQuantity;
+    protected int invLnQuantity;
 
     @NotNull
     @Min(0)
-    protected BigDecimal qotLnPriceHT;
+    protected BigDecimal invLnPriceHT;
 
     @NotBlank
     protected String articleName;
@@ -41,6 +41,6 @@ public class QuoteLine {
 
     @ManyToOne
     @NotNull
-    protected Quote quote;
+    protected Invoice invoice;
 
 }

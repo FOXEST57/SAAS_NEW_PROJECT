@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.cart.model;
 
-import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
+import com.mns.cda.saas_facturation.enumeration.InvoiceStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +12,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,42 +20,39 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Quote {
+@Entity
+public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long qotId;
+    protected Long invoiceId;
 
     @NotBlank
     @Column(unique = true)
-    protected String qotNumber;
+    protected String invoiceNumber;
 
     @CreatedDate
     @NotNull
     @Column(updatable = false)
-    protected LocalDateTime qotCreatedDate;
+    protected LocalDateTime invoiceCreatedDate;
 
     @LastModifiedDate
-    protected LocalDateTime qotModifiedDate;
-
     @NotNull
-    protected LocalDate qotExpirationDate;
+    protected LocalDateTime invoiceModifiedDate;
+
+    @NotBlank
+    @Column(nullable = false)
+    protected String invoicePathPDF;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    protected QuoteStatus qotStatus;
+    protected InvoiceStatus invoiceStatus;
 
-    @ManyToOne
-    protected Quote qotParent;
-
-    @ManyToOne
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     @NotNull
-    protected Cart cart;
-
-    @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL, orphanRemoval = true)
-    @NotNull
-    protected List<QuoteLine> qotLines = new ArrayList<>();
-
+    protected List<InvoiceLine> invoiceLines = new ArrayList<>();
+    
+    @OneToOne
+    protected Command command;
 }
