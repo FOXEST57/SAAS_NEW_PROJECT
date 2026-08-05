@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="'Devis ' + ${quote.quoteNumber}">Devis</title>
+    <style type="text/css">
+        /* Format de page et marges : A4 portrait, marges d'usage. */
+        @page {
+            size: A4 portrait;
+            margin: 18mm 16mm 20mm 16mm;
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 10pt;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        /* Les tableaux servent ici à la mise en page : pas de bordure visible. */
+        table.layout {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.layout td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .company-name { font-size: 15pt; font-weight: bold; }
+        .company-tagline { font-size: 9pt; color: #666666; }
+        .company-details { font-size: 8.5pt; color: #555555; line-height: 1.5; }
+
+        .doc-title { font-size: 20pt; font-weight: bold; text-transform: uppercase; }
+        .doc-number { font-size: 11pt; font-weight: bold; }
+        .doc-dates { font-size: 8.5pt; color: #555555; line-height: 1.5; }
+        .text-right { text-align: right; }
+
+        .rule { border-bottom: 2px solid #1a1a1a; margin: 10px 0 14px 0; }
+
+        /* Bandeau de révision : visible sans être criard. */
+        .revision-notice {
+            margin: 12px 0 0 0;
+            padding: 7px 10px;
+            background-color: #f4f4f4;
+            border-left: 3px solid #999999;
+            font-size: 8.5pt;
+            color: #444444;
+        }
+
+        .block-label {
+            font-size: 7.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #888888;
+        }
+        .customer-name { font-weight: bold; font-size: 10.5pt; }
+        .customer-details { font-size: 9pt; color: #444444; line-height: 1.5; }
+
+        /* Tableau des lignes : celui-ci, lui, a des bordures. */
+        table.lines {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+        table.lines th {
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666666;
+            text-align: left;
+            border-bottom: 1px solid #999999;
+            padding: 0 6px 5px 6px;
+        }
+        table.lines td {
+            padding: 7px 6px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        .col-num { text-align: right; white-space: nowrap; }
+        .col-center { text-align: center; }
+        .line-ref { font-size: 7.5pt; color: #999999; }
+
+        /* Bloc des totaux, aligné à droite via une marge automatique. */
+        table.totals {
+            width: 46%;
+            margin-left: 54%;
+            margin-top: 14px;
+            border-collapse: collapse;
+        }
+        table.totals td { padding: 3px 0; font-size: 9.5pt; }
+        table.totals td.amount { text-align: right; white-space: nowrap; }
+        table.totals tr.grand td {
+            border-top: 2px solid #1a1a1a;
+            padding-top: 7px;
+            font-size: 12pt;
+            font-weight: bold;
+        }
+        .tva-base { font-size: 8pt; color: #888888; }
+
+        /* Cadre à retourner signé. */
+        .signature-box {
+            width: 62%;
+            margin-left: 38%;
+            margin-top: 24px;
+            border: 1px solid #999999;
+            padding: 10px 12px 34px 12px;
+        }
+        .signature-title {
+            font-size: 8.5pt;
+            font-weight: bold;
+            margin: 0 0 3px 0;
+        }
+        .signature-hint {
+            font-size: 7.5pt;
+            color: #777777;
+            margin: 0;
+        }
+
+        .legal {
+            margin-top: 22px;
+            padding-top: 10px;
+            border-top: 1px solid #d0d0d0;
+            font-size: 7.5pt;
+            color: #666666;
+            line-height: 1.6;
+        }
+        .legal strong { color: #333333; }
+    </style>
+</head>
+<body>
+
+<!-- En-tête : tes coordonnées à gauche, l'identité du document à droite -->
+<table class="layout">
+    <tr>
+        <td style="width: 58%;">
+            <div class="company-name" th:text="${company.name}">Klimafact SARL</div>
+            <div class="company-tagline" th:text="${company.tagline}">Climatisation &amp; Chauffage</div>
+            <div class="company-details">
+                <div th:text="${company.address}">12 rue de la Paix, 69001 Lyon</div>
+                <div th:text="${company.email} + ' · ' + ${company.phone}">contact@klimafact.fr</div>
+                <div th:text="'SIRET ' + ${company.siret} + ' · TVA ' + ${company.tvaNumber}">SIRET</div>
+            </div>
+        </td>
+        <td class="text-right">
+            <div class="doc-title">Devis</div>
+            <div class="doc-number" th:text="${quote.quoteNumber}">DEV-2026-0007</div>
+            <div class="doc-dates">
+                <div th:text="'Émis le ' + ${quote.issuedDate}">Émis le 05/08/2026</div>
+                <div th:text="'Valable jusqu''au ' + ${quote.expirationDate}">Valable jusqu'au 05/11/2026</div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<div class="rule"></div>
+
+<!-- Affiché uniquement si ce devis en remplace un précédent -->
+<div class="revision-notice" th:if="${quote.replacesQuoteNumber != null}">
+    Ce devis remplace et annule le devis
+    <strong th:text="${quote.replacesQuoteNumber}">DEV-2026-0007</strong>.
+    Seule la présente version fait foi.
+</div>
+
+<!-- Destinataire -->
+<div class="block-label" style="margin-top: 12px;">Adressé à</div>
+<div class="customer-name" th:text="${quote.customerName}">Jean Dupont</div>
+<div class="customer-details">
+    <div th:text="${quote.customerAddress}">3 allée des Tilleuls, 69100 VILLEURBANNE</div>
+    <div th:text="${quote.customerEmail}">jean.dupont@example.fr</div>
+    <div th:text="${quote.customerPhone}">+33 6 12 34 56 78</div>
+</div>
+
+<!-- Lignes proposées -->
+<table class="lines">
+    <thead>
+    <tr>
+        <th style="width: 46%;">Désignation</th>
+        <th class="col-num" style="width: 16%;">P.U. HT</th>
+        <th class="col-center" style="width: 10%;">Qté</th>
+        <th class="col-center" style="width: 12%;">TVA</th>
+        <th class="col-num" style="width: 16%;">Total HT</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="line : ${quote.lines}">
+        <td>
+            <div th:text="${line.articleName}">Climatiseur réversible</div>
+            <div class="line-ref" th:text="${line.articleRef}">CLIM-001</div>
+        </td>
+        <td class="col-num"
+            th:text="${#numbers.formatDecimal(line.unitPriceHT, 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">1 250,00 €</td>
+        <td class="col-center" th:text="${line.quantity}">2</td>
+        <td class="col-center" th:text="${line.tvaLabel}">20 %</td>
+        <td class="col-num"
+            th:text="${#numbers.formatDecimal(line.totalHT, 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">2 500,00 €</td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Totaux et récapitulatif de TVA -->
+<table class="totals">
+    <tr>
+        <td>Total HT</td>
+        <td class="amount"
+            th:text="${#numbers.formatDecimal(quote.totalHT, 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">2 500,00 €</td>
+    </tr>
+    <tr th:each="tva : ${quote.tvaBreakdown}">
+        <td>
+            <span th:text="'TVA ' + ${tva.tvaLabel}">TVA 20 %</span>
+            <span class="tva-base"
+                  th:text="'(base ' + ${#numbers.formatDecimal(tva.baseHT, 1, 'WHITESPACE', 2, 'COMMA')} + ' €)'">(base 2 500,00 €)</span>
+        </td>
+        <td class="amount"
+            th:text="${#numbers.formatDecimal(tva.amount, 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">500,00 €</td>
+    </tr>
+    <tr class="grand">
+        <td>Total TTC</td>
+        <td class="amount"
+            th:text="${#numbers.formatDecimal(quote.totalTTC, 1, 'WHITESPACE', 2, 'COMMA')} + ' €'">3 000,00 €</td>
+    </tr>
+</table>
+
+<!-- Ce que le client doit te retourner -->
+<div class="signature-box">
+    <p class="signature-title">Bon pour accord</p>
+    <p class="signature-hint">
+        Date, signature et mention « bon pour accord » manuscrite
+    </p>
+</div>
+
+<!-- Mentions propres au devis -->
+<div class="legal">
+    <p>
+        <strong>Validité :</strong> ce devis est valable jusqu'au
+        <span th:text="${quote.expirationDate}">05/11/2026</span>. Passé cette date, les prix et
+        les délais sont susceptibles d'être révisés.
+    </p>
+    <p>
+        L'acceptation du devis vaut engagement des deux parties. La date d'intervention sera
+        convenue par téléphone après réception de l'exemplaire signé. Un acompte peut être demandé
+        à la commande, le solde étant exigible à la réception des travaux.
+    </p>
+    <p>
+        <span th:text="${company.name}">Klimafact SARL</span> —
+        SIRET <span th:text="${company.siret}">000</span> —
+        TVA intracommunautaire <span th:text="${company.tvaNumber}">FR00</span>.
+    </p>
+</div>
+
+</body>
+</html>
