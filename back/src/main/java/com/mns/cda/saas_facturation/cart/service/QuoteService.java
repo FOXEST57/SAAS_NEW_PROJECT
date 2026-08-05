@@ -9,6 +9,7 @@ import com.mns.cda.saas_facturation.cart.mapper.CartPipelineMapper;
 import com.mns.cda.saas_facturation.cart.service.pipeline.CartValidatedEvent;
 import com.mns.cda.saas_facturation.cart.service.pipeline.QuoteAcceptedEvent;
 import com.mns.cda.saas_facturation.cart.service.pipeline.QuoteRevisitedEvent;
+import com.mns.cda.saas_facturation.cart.Iservice.IQuotePdfService;
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.QuoteMapper;
@@ -34,6 +35,8 @@ public class QuoteService implements IQuoteService {
     private final QuoteMapper quoteMapper;
     private final CartRepository cartRepository;
     private final QuoteLineService quoteLineService;
+    private final QuoteLineRepository quoteLineRepository;
+    private final IQuotePdfService quotePdfService;
 
     private final ApplicationEventPublisher publisher;
 
@@ -114,8 +117,20 @@ public class QuoteService implements IQuoteService {
     @Override
     @Transactional
     public QuoteDTO updateStatus(Long qotId, QuoteStatus qotStatus) {
-        Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
+        Quote quote = quoteRepository.findById(qotId)
+                .orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
+
         quote.setQotStatus(qotStatus);
+
+        // La transmission au client est le moment où le devis cesse de bouger :
+        // c'est là qu'on fige son PDF. La condition sur qotPathPDF garantit
+        // qu'on ne le refabrique jamais — repasser un devis en PENDING après un
+        // refus ne doit pas produire un document différent de celui que le
+        // client a déjà entre les mains.
+        if (qotStatus == QuoteStatus.PENDING && quote.getQotPathPDF() == null) {
+            quote.setQotPathPDF(quotePdfService.generate(quote));
+        }
+
         if(quote.getQotStatus() == QuoteStatus.REVISITED) {
             publisher.publishEvent(new QuoteRevisitedEvent(quote));
 

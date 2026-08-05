@@ -4,6 +4,11 @@ import com.mns.cda.saas_facturation.cart.DTO.InvoiceDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.InvoiceRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchInvoiceStatus;
 import com.mns.cda.saas_facturation.cart.Iservice.IInvoiceService;
+import com.mns.cda.saas_facturation.cart.Iservice.IInvoicePdfService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,6 +29,7 @@ import java.util.List;
 public class InvoiceController {
 
     private final IInvoiceService invoiceService;
+    private final IInvoicePdfService invoicePdfService;
 
     @GetMapping("/list")
     @Operation(
@@ -46,6 +52,33 @@ public class InvoiceController {
     })
     public ResponseEntity<InvoiceDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(invoiceService.findById(id));
+    }
+
+    @GetMapping("/{id}/pdf")
+    @Operation(
+            summary = "Télécharge le PDF d'une facture",
+            description = "Renvoie le fichier tel qu'il a été généré à l'émission de la facture. "
+                    + "Aucune régénération : le document ne change jamais après son émission."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "PDF renvoyé"),
+            @ApiResponse(responseCode = "404", description = "Facture introuvable")
+    })
+    public ResponseEntity<Resource> downloadPdf(@PathVariable Long id) {
+        Resource pdf = invoicePdfService.retrieve(id);
+
+        // Le nom du fichier stocké est déjà celui de la facture
+        // (FAC-2026-0001.pdf) : c'est celui qu'on propose au navigateur.
+        String filename = pdf.getFilename() != null ? pdf.getFilename() : "facture.pdf";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                // « inline » : le navigateur affiche le PDF dans un onglet, avec
+                // son bouton d'impression. Remplacer par « attachment » forcerait
+                // le téléchargement direct.
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline().filename(filename).build().toString())
+                .body(pdf);
     }
 
     @PostMapping("")

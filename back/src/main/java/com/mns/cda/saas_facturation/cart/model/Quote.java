@@ -44,6 +44,8 @@ public class Quote {
     @NotNull
     protected LocalDate qotExpirationDate;
 
+    protected String qotPathPDF;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     protected QuoteStatus qotStatus;

@@ -5,6 +5,11 @@ import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.cart.Iservice.IQuoteService;
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
+import com.mns.cda.saas_facturation.cart.Iservice.IQuotePdfService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +26,7 @@ import java.util.List;
 public class QuoteController {
 
     private final IQuoteService quoteService;
+    private final IQuotePdfService quotePdfService;
 
     @GetMapping("/list")
     public List<QuoteDTO> getQuotes() {
@@ -30,6 +36,21 @@ public class QuoteController {
     @GetMapping("/{id}")
     public ResponseEntity<QuoteDTO> getQuoteById(@PathVariable Long id) {
         return new ResponseEntity<>(quoteService.findById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<Resource> downloadPdf(@PathVariable Long id) {
+        Resource pdf = quotePdfService.retrieve(id);
+
+        // Le nom du fichier stocké est déjà celui du devis (DEV-2026-0007.pdf) :
+        // c'est celui qu'on propose au navigateur.
+        String filename = pdf.getFilename() != null ? pdf.getFilename() : "devis.pdf";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.inline().filename(filename).build().toString())
+                .body(pdf);
     }
 
     @PostMapping
