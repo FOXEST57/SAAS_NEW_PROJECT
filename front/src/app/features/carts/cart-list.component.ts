@@ -1,10 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { CartService, CommandService, InvoiceService, QuoteService } from '../../core/api';
-import { DOCUMENT_STATUS_LIST, DocumentStatus } from '../../core/models/document-status';
-import { ValuedDocument } from '../../core/models/document-math';
-import { CommerceStore } from '../../core/services/commerce-store.service';
+import { ArticleService, CartService, OrderLineService } from '../../core/api';
+import { Article, Cart } from '../../core/models/api.models';
+import {
+  DOCUMENT_STATUS_LIST,
+  DocumentStatus,
+  normalizeStatus,
+} from '../../core/models/document-status';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ToastService } from '../../core/services/toast.service';
 import { CapitalizePipe, EurPipe, FrDatePipe, RefPipe } from '../../shared/pipes/format.pipes';
@@ -13,15 +16,8 @@ import { IconComponent } from '../../shared/ui/icon.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { SearchInputComponent } from '../../shared/ui/search-input.component';
 import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
+import { computeTotals } from '../../core/models/document-math';
 
-/**
- * Liste de tous les documents commerciaux, toutes étapes confondues.
- *
- * Depuis l'introduction de `Quote` / `Command` / `Invoice`, ces documents ne
- * sont plus tous des `Cart` : la source unique est désormais `CommerceStore`,
- * qui compose déjà le portefeuille à partir des quatre entités (voir
- * `commerce-store.service.ts`). Cet écran ne fait plus sa propre requête.
- */
 @Component({
   selector: 'app-cart-list',
   standalone: true,
@@ -43,7 +39,7 @@ import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
       title="Devis & factures"
       subtitle="Tous vos documents commerciaux, du panier de travail à la facture réglée."
     >
-      <button type="button" class="btn-secondary" (click)="store.reload()" [disabled]="store.loading()">
+      <button type="button" class="btn-secondary" (click)="load()">
         <app-icon name="refresh" [size]="16" /> Actualiser
       </button>
       <a routerLink="/documents/nouveau" class="btn-primary">
@@ -79,7 +75,7 @@ import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
         <p class="text-[13px] muted">{{ filtered().length }} / {{ items().length }} documents</p>
       </div>
 
-      @if (store.loading()) {
+      @if (loading()) {
         <div class="space-y-3 p-5">
           @for (i of [1, 2, 3, 4]; track i) {
             <div class="skeleton h-14 w-full"></div>
@@ -110,37 +106,37 @@ import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
               </tr>
             </thead>
             <tbody>
-              @for (d of filtered(); track d.kind + ':' + d.id) {
+              @for (c of filtered(); track c.crtId) {
                 <tr>
                   <td>
                     <a
-                      [routerLink]="['/documents', d.kind, d.id]"
+                      [routerLink]="['/documents', c.crtId]"
                       class="font-mono text-[13px] font-medium text-brand-700 hover:underline dark:text-brand-400"
                     >
-                      {{ d.reference | ref }}
+                      {{ c.crtRef | ref }}
                     </a>
                   </td>
                   <td>
-                    @if (d.customer) {
+                    @if (c.customer) {
                       <p class="font-medium">
-                        {{ d.customer.ctmFirstName | capitalize }} {{ d.customer.ctmLastName | capitalize }}
+                        {{ c.customer.ctmFirstName | capitalize }} {{ c.customer.ctmLastName | capitalize }}
                       </p>
-                      <p class="truncate text-[12.5px] muted">{{ d.customer.ctmEmail }}</p>
+                      <p class="truncate text-[12.5px] muted">{{ c.customer.ctmEmail }}</p>
                     } @else {
-                      <span class="text-[13px] italic muted">Client non identifié</span>
+                      <span class="text-[13px] muted">Client supprimé</span>
                     }
                   </td>
-                  <td><app-status-badge [status]="d.status" /></td>
-                  <td class="num text-center">{{ d.totals.lines.length }}</td>
-                  <td class="num text-right font-semibold">{{ d.totals.totalTtc | eur }}</td>
-                  <td class="text-[13px] muted">{{ d.date | frDate }}</td>
+                  <td><app-status-badge [status]="c.crtStatus" /></td>
+                  <td class="num text-center">{{ c.orderLines?.length ?? 0 }}</td>
+                  <td class="num text-right font-semibold">{{ totalOf(c.crtId) | eur }}</td>
+                  <td class="text-[13px] muted">{{ c.crtLastModifieDate || c.crtCreateDate | frDate }}</td>
                   <td>
                     <div class="flex justify-end gap-1">
-                      <a [routerLink]="['/documents', d.kind, d.id]" class="btn-icon" title="Ouvrir">
+                      <a [routerLink]="['/documents', c.crtId]" class="btn-icon" title="Ouvrir">
                         <app-icon name="edit" [size]="16" />
                       </a>
                       <a
-                        [routerLink]="['/documents', d.kind, d.id, 'impression']"
+                        [routerLink]="['/documents', c.crtId, 'impression']"
                         class="btn-icon"
                         title="Aperçu / impression"
                       >
@@ -149,7 +145,7 @@ import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
                       <button
                         type="button"
                         class="btn-icon hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
-                        (click)="remove(d)"
+                        (click)="remove(c)"
                         title="Supprimer"
                       >
                         <app-icon name="trash" [size]="16" />
@@ -166,11 +162,9 @@ import { StatusBadgeComponent } from '../../shared/ui/status-badge.component';
   `,
 })
 export class CartListComponent implements OnInit {
-  protected readonly store = inject(CommerceStore);
-  private readonly cartApi = inject(CartService);
-  private readonly quoteApi = inject(QuoteService);
-  private readonly commandApi = inject(CommandService);
-  private readonly invoiceApi = inject(InvoiceService);
+  private readonly api = inject(CartService);
+  private readonly lineApi = inject(OrderLineService);
+  private readonly articleApi = inject(ArticleService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
 
@@ -180,56 +174,84 @@ export class CartListComponent implements OnInit {
     'border-ink-200 bg-white text-ink-700 hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300 dark:hover:bg-ink-800';
 
   protected readonly statuses = DOCUMENT_STATUS_LIST;
+  protected readonly items = signal<Cart[]>([]);
+  protected readonly loading = signal(true);
   protected readonly search = signal('');
   protected readonly statusFilter = signal<DocumentStatus | null>(null);
-
-  protected readonly items = computed(() => this.store.documents());
+  /** Total TTC calculé par document, indexé par `crtId`. */
+  protected readonly totals = signal<Record<number, number>>({});
 
   protected readonly filtered = computed(() => {
     const q = this.search().trim().toLowerCase();
     const status = this.statusFilter();
 
     return this.items()
-      .filter((d) => {
-        if (status && d.status !== status) return false;
+      .filter((c) => {
+        if (status && normalizeStatus(c.crtStatus) !== status) return false;
         if (!q) return true;
-        const haystack = [d.reference, d.customer?.ctmFirstName, d.customer?.ctmLastName, d.customer?.ctmEmail]
+        const haystack = [
+          c.crtRef,
+          c.customer?.ctmFirstName,
+          c.customer?.ctmLastName,
+          c.customer?.ctmEmail,
+        ]
           .filter(Boolean)
           .join(' ')
           .toLowerCase();
         return haystack.includes(q);
       })
-      .sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+      .sort((a, b) => (b.crtId ?? 0) - (a.crtId ?? 0));
   });
 
   ngOnInit(): void {
-    this.store.load();
+    this.load();
   }
 
   countBy(status: DocumentStatus): number {
-    return this.items().filter((d) => d.status === status).length;
+    return this.items().filter((c) => normalizeStatus(c.crtStatus) === status).length;
   }
 
-  async remove(doc: ValuedDocument): Promise<void> {
-    const ok = await this.confirm.askDelete(`le document « ${doc.reference?.toUpperCase()} »`);
+  totalOf(crtId: number): number {
+    return this.totals()[crtId] ?? 0;
+  }
+
+  async load(): Promise<void> {
+    this.loading.set(true);
+    try {
+      const [carts, articles] = await Promise.all([
+        firstValueFrom(this.api.list()),
+        firstValueFrom(this.articleApi.list()).catch(() => [] as Article[]),
+      ]);
+      this.items.set(carts);
+
+      const catalog = new Map(articles.map((a) => [a.artId, a]));
+
+      // Les totaux exigent le détail des lignes : une requête par document.
+      const entries = await Promise.all(
+        carts.map(async (cart) => {
+          try {
+            const lines = await firstValueFrom(this.lineApi.listByCart(cart.crtId));
+            return [cart.crtId, computeTotals(lines, catalog).totalTtc] as const;
+          } catch {
+            return [cart.crtId, 0] as const;
+          }
+        }),
+      );
+      this.totals.set(Object.fromEntries(entries));
+    } catch {
+      this.items.set([]);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async remove(cart: Cart): Promise<void> {
+    const ok = await this.confirm.askDelete(`le document « ${cart.crtRef?.toUpperCase()} »`);
     if (!ok) return;
     try {
-      switch (doc.kind) {
-        case 'cart':
-          await firstValueFrom(this.cartApi.delete(doc.id));
-          break;
-        case 'quote':
-          await firstValueFrom(this.quoteApi.delete(doc.id));
-          break;
-        case 'command':
-          await firstValueFrom(this.commandApi.delete(doc.id));
-          break;
-        case 'invoice':
-          await firstValueFrom(this.invoiceApi.delete(doc.id));
-          break;
-      }
+      await firstValueFrom(this.api.delete(cart.crtId));
       this.toast.success('Document supprimé');
-      await this.store.reload();
+      await this.load();
     } catch {
       /* déjà notifié */
     }

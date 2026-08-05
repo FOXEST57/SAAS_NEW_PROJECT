@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Article, ArticleRequest, ArticleUpdate } from '../models/api.models';
+import { silent } from '../interceptors/http-context';
 import { API_BASE_URL } from './api.config';
 
 /** Miroir de `ArticleController` (`/article`). */
@@ -18,8 +19,12 @@ export class ArticleService {
     return this.http.get<Article>(`${this.url}/${id}`);
   }
 
-  create(payload: ArticleRequest): Observable<Article> {
-    return this.http.post<Article>(this.url, payload);
+  /**
+   * @param quiet laisse l'appelant formuler le message d'erreur, plutôt que
+   * d'ajouter une notification générique à celle qu'il produira lui-même.
+   */
+  create(payload: ArticleRequest, quiet = false): Observable<Article> {
+    return this.http.post<Article>(this.url, payload, quiet ? { context: silent() } : {});
   }
 
   /** `PUT /article/{id}` attend un `ArticleUpdateDTO` (sans les fournisseurs). */
