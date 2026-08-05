@@ -3,9 +3,16 @@ package com.mns.cda.saas_facturation.cart.service;
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.OrderLineRequestDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
+import com.mns.cda.saas_facturation.cart.mapper.CartPipelineMapper;
+import com.mns.cda.saas_facturation.cart.model.Quote;
+import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
+import com.mns.cda.saas_facturation.cart.service.pipeline.CartValidatedEvent;
 import com.mns.cda.saas_facturation.enumeration.CartStatus;
+import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.CartMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
@@ -18,6 +25,7 @@ import com.mns.cda.saas_facturation.user.repository.CustomerRepository;
 import com.mns.cda.saas_facturation.cart.repository.OrderLineRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +39,10 @@ public class CartService implements ICartService {
     private final CartMapper cartMapper;
     private final ArticleRepository  articleRepository;
     private final OrderLineRepository orderLineRepository;
+    private final CartPipelineMapper cartPipelineMapper;
+    private final QuoteRepository quoteRepository;
+
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public List<CartDTO> findAll() {
@@ -53,10 +65,14 @@ public class CartService implements ICartService {
         Customer customer = customerRepository.findById(dto.ctmId())
                 .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
+        Quote quote = quoteRepository.findById(dto.parentQuoteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Le devis avec l'id " +dto.parentQuoteId()+ " n'existe pas" ));
+
         Cart cart = new Cart();
         cart.setCrtRef(dto.crtRef());
         cart.setCrtStatus(CartStatus.OPEN);
         cart.setCustomer(customer);
+        cart.setParentQuoteId(quote.getQotId());
 
         cartRepository.save(cart);
 
@@ -75,8 +91,14 @@ public class CartService implements ICartService {
                 orderLineRepository.save(link);
             }
         }
-
         return cartMapper.toDTO(cartRepository.save(cart));
+    }
+
+    @Override
+    public CartDTO quoteToRevisitedCart(Long quoteId) {
+        Quote parent = quoteRepository.findById(quoteId).orElseThrow(() -> new RuntimeException("Quote not found"));
+        CartRequestDTO dto = cartPipelineMapper.quoteToCartRevision(parent);
+        return this.create(dto);
     }
 
     @Override
@@ -94,11 +116,15 @@ public class CartService implements ICartService {
         return cartMapper.toDTO(cartRepository.save(cart));
     }
 
+    @Override
+    @Transactional
     public CartDTO patchStatus(PatchCartStatus dto) {
         Cart cart = cartRepository.findById(dto.crtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " + dto.crtId() + " n'existe pas"));
-
         cart.setCrtStatus(dto.crtStatus());
+        if (cart.getCrtStatus() == CartStatus.VALIDATED) {
+            publisher.publishEvent(new CartValidatedEvent(cart));
+        }
         return cartMapper.toDTO(cartRepository.save(cart));
     }
 

@@ -51,4 +51,6 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart")
     protected List<OrderLine> orderLines;
+
+    private Long parentQuoteId;
 }

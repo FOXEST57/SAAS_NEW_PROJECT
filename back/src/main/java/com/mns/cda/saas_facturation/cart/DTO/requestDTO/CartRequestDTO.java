@@ -9,7 +9,8 @@ import java.util.List;
 public record CartRequestDTO (
         @NotBlank @Column(unique = true,nullable = false) String crtRef,
         @NotNull Long ctmId,
-        List<OrderLineRequestDTO> orderLines
+        List<OrderLineRequestDTO> orderLines,
+        Long parentQuoteId
 
 ){
 
