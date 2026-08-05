@@ -1,9 +1,11 @@
 package com.mns.cda.saas_facturation.cart.service;
 
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.OrderLineRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
+import com.mns.cda.saas_facturation.enumeration.CartStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.CartMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
@@ -53,7 +55,7 @@ public class CartService implements ICartService {
 
         Cart cart = new Cart();
         cart.setCrtRef(dto.crtRef());
-        cart.setCrtStatus(dto.crtStatus());
+        cart.setCrtStatus(CartStatus.OPEN);
         cart.setCustomer(customer);
 
         cartRepository.save(cart);
@@ -87,9 +89,16 @@ public class CartService implements ICartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
         cart.setCrtRef(dto.crtRef());
-        cart.setCrtStatus(dto.crtStatus());
         cart.setCustomer(customer);
 
+        return cartMapper.toDTO(cartRepository.save(cart));
+    }
+
+    public CartDTO patchStatus(PatchCartStatus dto) {
+        Cart cart = cartRepository.findById(dto.crtId())
+                .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " + dto.crtId() + " n'existe pas"));
+
+        cart.setCrtStatus(dto.crtStatus());
         return cartMapper.toDTO(cartRepository.save(cart));
     }
 

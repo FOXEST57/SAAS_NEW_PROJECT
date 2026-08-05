@@ -2,16 +2,13 @@ package com.mns.cda.saas_facturation.cart.service;
 
 import com.mns.cda.saas_facturation.cart.DTO.CommandDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.PatchCommandStatus;
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCommandStatus;
 import com.mns.cda.saas_facturation.cart.mapper.CommandMapper;
 import com.mns.cda.saas_facturation.cart.model.Command;
 import com.mns.cda.saas_facturation.cart.model.Quote;
-import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import com.mns.cda.saas_facturation.cart.repository.CommandRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
-import com.mns.cda.saas_facturation.config.GlobalExceptionInterceptor;
 import com.mns.cda.saas_facturation.enumeration.CommandStatus;
-import com.mns.cda.saas_facturation.exception.DTO.GlobalExceptionInterceptorDTO;
 import com.mns.cda.saas_facturation.exception.ResourceAlreadyExistException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
@@ -19,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.CONFLICT;
 
 @Service
 @RequiredArgsConstructor

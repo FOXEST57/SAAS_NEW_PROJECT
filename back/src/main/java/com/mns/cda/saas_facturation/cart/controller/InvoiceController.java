@@ -2,9 +2,8 @@ package com.mns.cda.saas_facturation.cart.controller;
 
 import com.mns.cda.saas_facturation.cart.DTO.InvoiceDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.InvoiceRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.PatchInvoiceStatus;
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchInvoiceStatus;
 import com.mns.cda.saas_facturation.cart.Iservice.IInvoiceService;
-import com.mns.cda.saas_facturation.enumeration.InvoiceStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
