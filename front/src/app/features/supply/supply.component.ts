@@ -173,7 +173,7 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
                   </tr>
                 </thead>
                 <tbody>
-                  @for (line of group.lines; track line.reference) {
+                  @for (line of group.lines; track line.articleId) {
                     <tr>
                       <td>
                         <p class="font-medium leading-snug">{{ line.name | capitalize }}</p>
@@ -182,13 +182,13 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
                         </p>
                         <!-- L'origine du besoin : indispensable pour arbitrer -->
                         <ul class="mt-1 space-y-0.5">
-                          @for (src of line.sources; track src.kind + ':' + src.id) {
+                          @for (src of line.sources; track src.crtId) {
                             <li class="text-[11.5px] muted">
                               <a
-                                [routerLink]="['/documents', src.kind, src.id]"
+                                [routerLink]="['/documents', src.crtId]"
                                 class="font-mono text-brand-700 hover:underline dark:text-brand-400"
                               >
-                                {{ src.reference | ref }}
+                                {{ src.crtRef | ref }}
                               </a>
                               · {{ src.customer | capitalize }} · {{ src.quantity }} u.
                               @if (!src.firm) {

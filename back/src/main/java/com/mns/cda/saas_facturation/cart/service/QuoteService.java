@@ -1,9 +1,14 @@
 package com.mns.cda.saas_facturation.cart.service;
 
 import com.mns.cda.saas_facturation.cart.DTO.QuoteDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.cart.Iservice.IQuoteService;
+import com.mns.cda.saas_facturation.cart.mapper.CartPipelineMapper;
+import com.mns.cda.saas_facturation.cart.service.pipeline.CartValidatedEvent;
+import com.mns.cda.saas_facturation.cart.service.pipeline.QuoteAcceptedEvent;
+import com.mns.cda.saas_facturation.cart.service.pipeline.QuoteRevisitedEvent;
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.QuoteMapper;
@@ -15,6 +20,7 @@ import com.mns.cda.saas_facturation.cart.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
@@ -28,7 +34,9 @@ public class QuoteService implements IQuoteService {
     private final QuoteMapper quoteMapper;
     private final CartRepository cartRepository;
     private final QuoteLineService quoteLineService;
-    private final QuoteLineRepository quoteLineRepository;
+
+    private final ApplicationEventPublisher publisher;
+
 
     @Override
     public List<QuoteDTO> findAll() {
@@ -104,9 +112,17 @@ public class QuoteService implements IQuoteService {
     }
 
     @Override
+    @Transactional
     public QuoteDTO updateStatus(Long qotId, QuoteStatus qotStatus) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
         quote.setQotStatus(qotStatus);
+        if(quote.getQotStatus() == QuoteStatus.REVISITED) {
+            publisher.publishEvent(new QuoteRevisitedEvent(quote));
+
+        } else if (quote.getQotStatus() == QuoteStatus.ACCEPTED) {
+            publisher.publishEvent(new QuoteAcceptedEvent(quote));
+
+        }
         return quoteMapper.toDTO(quoteRepository.save(quote));
     }
 }

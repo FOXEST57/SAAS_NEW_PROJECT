@@ -1,7 +1,14 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { CartService } from '../../core/api';
 import { ValuedDocument } from '../../core/models/document-math';
-import { DocumentStatus, statusMeta } from '../../core/models/document-status';
+import {
+  DOCUMENT_STATUSES,
+  DocumentStatus,
+  reprefixReference,
+  statusMeta,
+} from '../../core/models/document-status';
 import { CommerceStore } from '../../core/services/commerce-store.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -11,10 +18,6 @@ import { IconComponent } from '../../shared/ui/icon.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 type QueueKey = 'overdue' | 'toInvoice' | 'staleQuotes' | 'thinMargin' | 'supply';
-
-function normRef(ref: string | null | undefined): string {
-  return (ref ?? '').trim().toLowerCase();
-}
 
 /**
  * File de travail : ce qui demande une décision aujourd'hui.
@@ -104,7 +107,7 @@ function normRef(ref: string | null | undefined): string {
           />
         } @else {
           <ul class="divide-y divide-ink-100 dark:divide-ink-800">
-            @for (d of queue.documents; track d.kind + ':' + d.id) {
+            @for (d of queue.documents; track d.cart.crtId) {
               <li class="flex flex-wrap items-center gap-4 p-4 transition-colors hover:bg-ink-50/60 dark:hover:bg-ink-800/30">
                 <span
                   class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
@@ -116,17 +119,14 @@ function normRef(ref: string | null | undefined): string {
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                     <a
-                      [routerLink]="['/documents', d.kind, d.id]"
+                      [routerLink]="['/documents', d.cart.crtId]"
                       class="font-mono text-[13px] font-semibold text-brand-700 hover:underline dark:text-brand-400"
                     >
-                      {{ d.reference | ref }}
+                      {{ d.cart.crtRef | ref }}
                     </a>
                     <span class="truncate text-[13px] font-medium">
-                      @if (d.customer) {
-                        {{ d.customer.ctmFirstName | capitalize }} {{ d.customer.ctmLastName | capitalize }}
-                      } @else {
-                        <span class="italic muted">Client non identifié</span>
-                      }
+                      {{ d.cart.customer?.ctmFirstName | capitalize }}
+                      {{ d.cart.customer?.ctmLastName | capitalize }}
                     </span>
                   </div>
                   <p class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12.5px] muted">
@@ -134,9 +134,9 @@ function normRef(ref: string | null | undefined): string {
                       <app-icon name="clock" [size]="12" />
                       {{ urgencyLabel(d, queue.key) }}
                     </span>
-                    <span>{{ d.date | frDate }}</span>
-                    @if (d.customer?.ctmEmail) {
-                      <span class="truncate">{{ d.customer?.ctmEmail }}</span>
+                    <span>{{ d.cart.crtCreateDate | frDate }}</span>
+                    @if (d.cart.customer?.ctmEmail) {
+                      <span class="truncate">{{ d.cart.customer?.ctmEmail }}</span>
                     }
                   </p>
                 </div>
@@ -155,14 +155,13 @@ function normRef(ref: string | null | undefined): string {
                     <button
                       type="button"
                       class="btn-primary btn-sm"
-                      [disabled]="busy().has(d.kind + ':' + d.id)"
                       (click)="apply(d, action.target)"
                     >
                       <app-icon [name]="action.icon" [size]="14" />
                       {{ action.label }}
                     </button>
                   }
-                  <a [routerLink]="['/documents', d.kind, d.id]" class="btn-secondary btn-sm">
+                  <a [routerLink]="['/documents', d.cart.crtId]" class="btn-secondary btn-sm">
                     Ouvrir
                   </a>
                 </div>
@@ -176,6 +175,7 @@ function normRef(ref: string | null | undefined): string {
 })
 export class ActionQueueComponent implements OnInit {
   protected readonly store = inject(CommerceStore);
+  private readonly cartApi = inject(CartService);
   private readonly toast = inject(ToastService);
   private readonly confirm = inject(ConfirmService);
 
@@ -185,8 +185,6 @@ export class ActionQueueComponent implements OnInit {
     'border-ink-200 bg-white text-ink-700 hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-300 dark:hover:bg-ink-800';
 
   protected readonly active = signal<QueueKey>('overdue');
-  /** Clés `kind:id` des documents dont une action est en cours. */
-  protected readonly busy = signal<Set<string>>(new Set());
 
   protected readonly queues = computed(() => [
     {
@@ -259,11 +257,6 @@ export class ActionQueueComponent implements OnInit {
     this.queues().find((q) => q.key === this.active()) ?? null,
   );
 
-  /** Références manquantes en stock, issues des besoins d'approvisionnement fermes. */
-  private readonly shortRefs = computed(
-    () => new Set(this.store.firmSupplyNeeds().map((n) => normRef(n.reference))),
-  );
-
   /**
    * Commandes fermes dont au moins une ligne manque en stock.
    * On raisonne par document — c'est l'unité que l'utilisateur traite — plutôt
@@ -271,11 +264,11 @@ export class ActionQueueComponent implements OnInit {
    * Approvisionnement.
    */
   private readonly supplyDocuments = computed(() => {
-    const refs = this.shortRefs();
-    if (refs.size === 0) return [];
+    const shortArticles = new Set(this.store.firmSupplyNeeds().map((n) => n.articleId));
+    if (shortArticles.size === 0) return [];
     return this.store
       .of('COMMANDE')
-      .filter((d) => d.totals.lines.some((l) => refs.has(normRef(l.reference))))
+      .filter((d) => d.totals.lines.some((l) => shortArticles.has(l.articleId)))
       .sort((a, b) => (b.ageDays ?? 0) - (a.ageDays ?? 0));
   });
 
@@ -284,11 +277,11 @@ export class ActionQueueComponent implements OnInit {
   }
 
   protected async apply(doc: ValuedDocument, target: DocumentStatus): Promise<void> {
-    const current = statusMeta(doc.status);
+    const current = statusMeta(doc.cart.crtStatus);
     if (!current.next.includes(target)) {
       this.toast.warning(
         'Transition impossible',
-        `« ${current.label} » ne peut pas passer directement à « ${statusMeta(target).label} ».`,
+        `« ${current.label} » ne peut pas passer directement à « ${DOCUMENT_STATUSES[target].label} ».`,
       );
       return;
     }
@@ -296,34 +289,32 @@ export class ActionQueueComponent implements OnInit {
     if (target === 'FACTURE') {
       const ok = await this.confirm.ask({
         title: 'Émettre la facture',
-        message: `Le document ${doc.reference?.toUpperCase()} sera facturé et ses lignes figées. Confirmez-vous ?`,
+        message: `Le document ${doc.cart.crtRef?.toUpperCase()} sera verrouillé. Confirmez-vous ?`,
         confirmLabel: 'Émettre la facture',
       });
       if (!ok) return;
     }
 
-    const key = `${doc.kind}:${doc.id}`;
-    this.busy.update((s) => new Set(s).add(key));
+    const customerId = doc.cart.customer?.ctmId;
+    if (customerId === undefined || customerId === null) {
+      this.toast.error('Client manquant', 'Ce document doit être rattaché à un client.');
+      return;
+    }
 
+    const reference = reprefixReference(doc.cart.crtRef, target);
     try {
-      let ok = false;
-      if (doc.kind === 'quote' && target === 'COMMANDE') {
-        ok = (await this.store.transitionToCommand(doc.id)) !== null;
-      } else if (doc.kind === 'command' && target === 'FACTURE') {
-        ok = (await this.store.transitionToInvoice(doc.id)) !== null;
-      } else if (doc.kind === 'invoice' && target === 'PAYEE') {
-        ok = await this.store.markInvoicePaid(doc.id);
-      }
-
-      if (ok) {
-        this.toast.success(`Document passé au statut « ${statusMeta(target).label} »`);
-      }
-    } finally {
-      this.busy.update((s) => {
-        const next = new Set(s);
-        next.delete(key);
-        return next;
-      });
+      await firstValueFrom(
+        this.cartApi.update(doc.cart.crtId, {
+          crtRef: reference,
+          crtStatus: target,
+          ctmId: customerId,
+          orderLines: [],
+        }),
+      );
+      this.store.patchStatus(doc.cart.crtId, target, reference);
+      this.toast.success(`Document passé au statut « ${DOCUMENT_STATUSES[target].label} »`);
+    } catch {
+      /* déjà notifié par l'intercepteur */
     }
   }
 
@@ -364,8 +355,8 @@ export class ActionQueueComponent implements OnInit {
 
   /** Nombre de références manquantes sur un document donné. */
   protected shortageCount(d: ValuedDocument): number {
-    const refs = this.shortRefs();
-    return d.totals.lines.filter((l) => refs.has(normRef(l.reference))).length;
+    const shortArticles = new Set(this.store.firmSupplyNeeds().map((n) => n.articleId));
+    return d.totals.lines.filter((l) => shortArticles.has(l.articleId)).length;
   }
 
   protected pct(v: number): string {

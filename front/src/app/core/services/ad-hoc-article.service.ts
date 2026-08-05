@@ -61,9 +61,9 @@ export class AdHocArticleService {
       artName: draft.name.trim(),
       artDescription: draft.description?.trim() || draft.name.trim(),
       artPriceExcludeTaxes: draft.priceHt,
-      // Un article créé en cours de chiffrage n'est par définition pas en
-      // stock : c'est précisément ce qui déclenche le besoin d'achat.
-      artStock: 0,
+      // Le stock n'est plus transmis : le serveur le calcule à partir des
+      // références. Un article créé en cours de chiffrage n'en a aucune, il
+      // ressort donc naturellement à zéro — ce qui déclenche le besoin d'achat.
       tvaId: draft.tvaId,
       suppliers: [],
     };
@@ -71,31 +71,57 @@ export class AdHocArticleService {
     let article: Article;
     try {
       article = await firstValueFrom(
-        this.articles.create({
-          ...payload,
-          categoryIds: category ? [category.catId] : [],
-        }),
+        this.articles.create(
+          { ...payload, categoryIds: category ? [category.catId] : [] },
+          // On formule nous-mêmes le diagnostic plus bas : une notification
+          // générique par tentative ferait trois messages pour un seul échec.
+          true,
+        ),
       );
     } catch (err) {
-      // `ArticleService.create` assigne une liste immuable à la collection de
-      // catégories : Hibernate lève UnsupportedOperationException lors du
-      // merge, mais uniquement si des catégories sont transmises. On retente
-      // sans, plutôt que de bloquer la saisie sur un défaut backend.
+      // Deuxième tentative sans catégorie : elle contournait le défaut de
+      // `setCategories`, qui ne se déclenchait qu'en présence de catégories.
       //
-      // Le marquage « hors catalogue » n'est pas perdu pour autant : la
-      // référence HC- suffit à `isAdHoc()`. Voir backend-patch/.
-      if (!category) throw err;
+      // Elle ne suffit plus. `ArticleService.create` construit maintenant un
+      // inventaire initial et fait `setInventories(List.of(...))` — une liste
+      // immuable, sur un bloc sans condition. Toute création d'article échoue
+      // donc au merge, quel que soit le contenu envoyé. On retente quand même,
+      // pour rester utile si le correctif partiel est appliqué, mais on ne
+      // masque plus l'échec : le message dit ce qui se passe réellement.
+      if (category) {
+        try {
+          article = await firstValueFrom(
+            this.articles.create({ ...payload, categoryIds: [] }, true),
+          );
+          this.toast.warning(
+            'Catégorie non appliquée',
+            `L'article ${reference} a bien été créé, mais votre API a refusé de lui associer la catégorie « Hors catalogue ». Il reste identifiable par sa référence HC-.`,
+          );
+          return this.attachSupplier(article, draft, reference);
+        } catch {
+          /* le message ci-dessous couvre les deux tentatives */
+        }
+      }
 
-      article = await firstValueFrom(
-        this.articles.create({ ...payload, categoryIds: [] }),
+      this.toast.error(
+        "Création d'article impossible",
+        `Votre API refuse toute création d'article : \`ArticleService.create\` assigne une liste immuable à la collection d'inventaires (\`setInventories(List.of(...))\`, ligne 140), ce qui fait échouer le merge Hibernate. Le bloc n'a aucune condition, aucun contenu ne passe. Correctif : backend-patch/Inventory-blocages.patch, point 8.`,
       );
-
-      this.toast.warning(
-        'Catégorie non appliquée',
-        `L'article ${reference} a bien été créé, mais votre API a refusé de lui associer la catégorie « Hors catalogue » (défaut connu, voir backend-patch/). Il reste identifiable par sa référence HC-.`,
-      );
+      throw err;
     }
 
+    return this.attachSupplier(article, draft, reference);
+  }
+
+  /**
+   * Rattache la référence fournisseur, si l'utilisateur en a saisi une.
+   * Extrait pour être partagé entre la création directe et le repli.
+   */
+  private async attachSupplier(
+    article: Article,
+    draft: AdHocArticleDraft,
+    reference: string,
+  ): Promise<Article> {
     if (draft.supplierId && draft.purchasePrice !== null && draft.purchasePrice > 0) {
       // Échec non bloquant : l'article existe, seule la marge sera inconnue.
       await firstValueFrom(
@@ -105,6 +131,10 @@ export class AdHocArticleService {
           splRefReference: draft.supplierReference?.trim() || reference,
           splRefSellPrice: draft.purchasePrice,
           splRefStock: 0,
+          // Article créé en cours de chiffrage : rien n'est encore commandé.
+          // `PENDING` traduit fidèlement cet état — la marchandise reste à
+          // approvisionner.
+          status: 'PENDING',
         }),
       ).catch(() => null);
 

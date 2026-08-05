@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.cart.controller;
 
 
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,6 +61,17 @@ public class CartController {
             return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
     }
 
+    @PostMapping("/{id}/revisit")
+    @Operation(summary = "Crée un panier liée a un Devis pour révision.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Panier créé à partir du devis"),
+            @ApiResponse(responseCode = "404", description = "Devis introuvable")
+    })
+    public CartDTO revisitQuote(@PathVariable Long id) {
+        return cartService.quoteToRevisitedCart(id);
+    }
+
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Supprimer un panier")
     @ApiResponses(value = {
@@ -83,5 +95,16 @@ public class CartController {
                                               @RequestBody CartRequestDTO dto) {
             CartDTO updated = cartService.modify(id, dto);
             return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
+
+    @PatchMapping("/status")
+    @Operation(summary = "Modifie le status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status du panier modifié"),
+            @ApiResponse(responseCode = "404", description = "Panier introuvable")
+    })
+    public ResponseEntity<CartDTO> patchStatus(@Valid @RequestBody PatchCartStatus dto) {
+        CartDTO updated = cartService.patchStatus(dto);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 }

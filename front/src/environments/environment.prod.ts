@@ -1,12 +1,18 @@
 /**
  * Configuration de production.
  *
- * Renseignez ici l'URL publique de votre API Spring Boot.
- * Le backend expose déjà `@CrossOrigin` sur tous ses contrôleurs.
+ * `apiBaseUrl` est **vide** : les appels partent donc en relatif (`/article`,
+ * `/logIn`…). C'est ce qu'il faut lorsque l'application compilée est servie par
+ * Spring Boot lui-même, depuis `src/main/resources/static/` — front et API
+ * partagent alors la même origine, et la question du CORS ne se pose plus.
+ *
+ * Si vous préférez héberger le front ailleurs (nginx, IIS, un CDN), remettez
+ * ici l'URL publique de l'API — par exemple `https://api.klimafact.fr` — et
+ * assurez-vous que cette origine est autorisée dans `SecurityConfig`.
  */
 export const environment = {
   production: true,
-  apiBaseUrl: 'http://localhost:8080',
+  apiBaseUrl: '',
   banApiUrl: 'https://api-adresse.data.gouv.fr',
   company: {
     name: 'Klimafact SARL',

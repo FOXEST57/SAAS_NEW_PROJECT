@@ -54,6 +54,12 @@ export const routes: Routes = [
 
       /* ---- Documents commerciaux ---- */
       {
+        path: 'devis',
+        title: 'Devis émis — Klimafact',
+        loadComponent: () =>
+          import('./features/quotes/quote-list.component').then((m) => m.QuoteListComponent),
+      },
+      {
         path: 'documents',
         title: 'Devis & factures — Klimafact',
         loadComponent: () =>
@@ -65,31 +71,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/carts/cart-editor.component').then((m) => m.CartEditorComponent),
       },
-      /*
-       * L'identifiant seul ne suffit plus à retrouver un document : `Cart`,
-       * `Quote`, `Command` et `Invoice` ont chacun leur propre séquence
-       * d'id. La route porte donc l'espèce du document (`cart`, `quote`,
-       * `command`, `invoice`). Seul un panier reste éditable en ligne — les
-       * trois autres n'ont plus de contenu modifiable (lignes figées, ou pas
-       * de lignes propres du tout pour `Command`) : leur route de détail
-       * pointe directement vers l'aperçu imprimable.
-       */
       {
-        path: 'documents/cart/:id',
+        path: 'documents/:id',
         title: 'Document — Klimafact',
         loadComponent: () =>
           import('./features/carts/cart-editor.component').then((m) => m.CartEditorComponent),
       },
       {
-        path: 'documents/:kind/:id',
-        title: 'Document — Klimafact',
-        loadComponent: () =>
-          import('./features/carts/document-print.component').then(
-            (m) => m.DocumentPrintComponent,
-          ),
-      },
-      {
-        path: 'documents/:kind/:id/impression',
+        path: 'documents/:id/impression',
         title: 'Impression — Klimafact',
         loadComponent: () =>
           import('./features/carts/document-print.component').then(
@@ -98,6 +87,12 @@ export const routes: Routes = [
       },
 
       /* ---- Catalogue ---- */
+      {
+        path: 'inventaire',
+        title: 'Inventaire — Klimafact',
+        loadComponent: () =>
+          import('./features/inventory/inventory.component').then((m) => m.InventoryComponent),
+      },
       {
         path: 'articles',
         title: 'Articles — Klimafact',

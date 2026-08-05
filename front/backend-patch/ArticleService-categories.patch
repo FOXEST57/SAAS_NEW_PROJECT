@@ -3,7 +3,7 @@ modification d'un article
 =========================================================================
 
 Fichier concerné :
-  back/src/main/java/com/mns/cda/saas_facturation/service/ArticleService.java
+  back/src/main/java/com/mns/cda/saas_facturation/product/product/service/ArticleService.java
 
 Symptôme :
   java.lang.UnsupportedOperationException
@@ -146,7 +146,7 @@ LE MÊME DÉFAUT DANS CustomerService
 =========================================================================
 
 Fichier :
-  back/src/main/java/com/mns/cda/saas_facturation/service/CustomerService.java
+  back/src/main/java/com/mns/cda/saas_facturation/user/user/service/CustomerService.java
 
 `update()` applique exactement le même motif, vers la ligne 96 :
 

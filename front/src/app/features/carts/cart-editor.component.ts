@@ -7,10 +7,31 @@ import {
   CartService,
   CustomerService,
   OrderLineService,
+  QuoteService,
   SupplierService,
   TvaService,
 } from '../../core/api';
-import { Article, Cart, Customer, OrderLine, Supplier, Tva } from '../../core/models/api.models';
+import {
+  Article,
+  Cart,
+  Customer,
+  INVOICE_STATUS_LABELS,
+  Invoice,
+  OrderLine,
+  QUOTE_STATUS_LABELS,
+  Quote,
+  QuoteStatus,
+  Supplier,
+  Tva,
+} from '../../core/models/api.models';
+import {
+  defaultExpiration,
+  nextQuoteNumber,
+  nextRevisionNumber,
+  ownTotals,
+} from '../../core/models/quote-math';
+import { QuoteIssueService } from '../../core/services/quote-issue.service';
+import { CommercialChainService } from '../../core/services/commercial-chain.service';
 import {
   DocumentLine,
   buildLine,
@@ -22,6 +43,7 @@ import {
   DOCUMENT_STATUSES,
   DocumentStatus,
   normalizeStatus,
+  reprefixReference,
   statusMeta,
   transitionLabel,
 } from '../../core/models/document-status';
@@ -81,7 +103,7 @@ interface DraftLine {
     <app-page-header [title]="pageTitle()" [subtitle]="pageSubtitle()">
       <app-back-link fallbackUrl="/pipeline" fallbackLabel="au pipeline" />
       @if (cart()) {
-        <a [routerLink]="['/documents', 'cart', cart()!.crtId, 'impression']" class="btn-secondary">
+        <a [routerLink]="['/documents', cart()!.crtId, 'impression']" class="btn-secondary">
           <app-icon name="print" [size]="16" /> Aperçu
         </a>
       }
@@ -345,40 +367,6 @@ interface DraftLine {
             }
           </div>
 
-          <!--
-            Limite connue du backend : POST /order-line refuse une ligne dont la
-            quantité dépasse le stock. Elle ne se manifeste que sur un document
-            déjà enregistré — POST /cart, lui, ne contrôle rien. Plutôt que de
-            laisser l'utilisateur le découvrir à l'enregistrement, on l'annonce
-            dès l'ajout.
-          -->
-          @if (cart() && blockedLines().length > 0) {
-            <div
-              class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10"
-            >
-              <span class="mt-0.5 shrink-0 text-red-600 dark:text-red-400">
-                <app-icon name="alert" [size]="17" />
-              </span>
-              <div class="min-w-0">
-                <p class="text-[13px] font-medium text-red-900 dark:text-red-200">
-                  {{ blockedLines().length }} ligne(s) seront refusées à l'enregistrement
-                </p>
-                <p class="mt-1 text-[12.5px] text-red-800 dark:text-red-300/90">
-                  Votre API refuse d'ajouter à un document existant une ligne dont la quantité
-                  dépasse le stock :
-                  {{ blockedNames() }}.
-                  Deux issues immédiates — ajuster le stock depuis
-                  <a routerLink="/articles" class="font-medium underline">le catalogue</a>,
-                  ou créer un nouveau document, la création n'étant pas soumise à ce contrôle.
-                </p>
-                <p class="mt-1.5 text-[12px] text-red-700 dark:text-red-300/70">
-                  Le correctif backend fourni dans <code class="font-mono">backend-patch/</code>
-                  lève définitivement cette limite.
-                </p>
-              </div>
-            </div>
-          }
-
           <!-- Besoin d'approvisionnement de ce document -->
           @if (shortages().length > 0) {
             <div
@@ -557,6 +545,143 @@ interface DraftLine {
               </div>
             </dl>
           </div>
+
+
+          <!-- Devis émis pour ce document -->
+          @if (cart()) {
+            <div class="card card-pad">
+              <h2 class="mb-1 panel-title">Devis émis</h2>
+              <p class="mb-4 text-[13px] muted">
+                Émettre un devis fige les prix, les désignations et les taux de TVA. Le document
+                transmis au client ne bougera plus, même si le catalogue évolue.
+              </p>
+
+              @if (quotes().length > 0) {
+                <ul class="mb-4 space-y-2">
+                  @for (q of quotes(); track q.qotNumber) {
+                    <li
+                      class="flex flex-wrap items-center gap-2 rounded-lg border border-ink-200 px-3 py-2 dark:border-ink-800"
+                    >
+                      <span class="font-mono text-[12.5px] font-semibold">{{ q.qotNumber }}</span>
+                      <span [class]="quoteBadge(q.qotStatus)">{{ quoteLabels[q.qotStatus] }}</span>
+                      <span class="ml-auto num text-[13px] font-semibold">
+                        {{ quoteTotal(q) | eur }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              }
+
+              <!--
+                Trois situations, trois gestes différents. Le devis naît avec le
+                passage au statut Devis : il n'y a donc plus de bouton « émettre »
+                au sens de « créer », mais un bouton « transmettre » qui fige.
+              -->
+              @if (currentQuote(); as current) {
+                @if (draftQuote()) {
+                  <button
+                    type="button"
+                    class="btn-primary w-full justify-center"
+                    (click)="sendQuote(current)"
+                    [disabled]="issuing()"
+                  >
+                    @if (issuing()) {
+                      <app-icon name="refresh" [size]="16" class="animate-spin" />
+                    } @else {
+                      <app-icon name="send" [size]="16" />
+                    }
+                    Transmettre au client
+                  </button>
+                  <p class="mt-2 text-[12px] muted">
+                    {{ current.qotNumber }} est encore un brouillon : vous pouvez ajuster les
+                    lignes puis le régénérer. Une fois transmis, il sera figé.
+                  </p>
+                  <button
+                    type="button"
+                    class="btn-secondary mt-2 w-full justify-center"
+                    (click)="issueQuote(current)"
+                    [disabled]="issuing() || lines().length === 0"
+                  >
+                    <app-icon name="refresh" [size]="15" />
+                    Régénérer depuis les lignes actuelles
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn-primary w-full justify-center"
+                    (click)="issueQuote(current)"
+                    [disabled]="issuing() || lines().length === 0"
+                  >
+                    @if (issuing()) {
+                      <app-icon name="refresh" [size]="16" class="animate-spin" />
+                    } @else {
+                      <app-icon name="copy" [size]="16" />
+                    }
+                    Réviser en {{ nextRevision() }}
+                  </button>
+                  <p class="mt-2 text-[12px] muted">
+                    {{ current.qotNumber }} a été transmis : il passera en « remplacé ». Il reste
+                    consultable, c'est la trace de ce qui avait été proposé.
+                  </p>
+                }
+              } @else {
+                <p class="text-[13px] muted">
+                  Le devis sera créé automatiquement au passage du document au statut
+                  <span class="font-medium">Devis</span>.
+                </p>
+              }
+
+              @if (quotes().length > 0) {
+                <a routerLink="/devis" class="mt-3 block text-center text-[12.5px] font-medium text-brand-600 hover:underline dark:text-brand-400">
+                  Voir tous les devis émis
+                </a>
+              }
+            </div>
+          }
+
+          <!-- Facture émise pour ce document -->
+          @if (invoice(); as inv) {
+            <div class="card card-pad">
+              <h2 class="mb-1 panel-title">Facture</h2>
+              <p class="mb-4 text-[13px] muted">
+                Le contenu d'une facture est figé définitivement : toute correction passe par un
+                avoir.
+              </p>
+
+              <div
+                class="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-ink-200 px-3 py-2 dark:border-ink-800"
+              >
+                <span class="font-mono text-[12.5px] font-semibold">{{ inv.invoiceNumber }}</span>
+                <span class="badge-neutral">{{ invoiceLabels[inv.invoiceStatus] }}</span>
+              </div>
+
+              @if (invoiceSendable()) {
+                <button
+                  type="button"
+                  class="btn-primary w-full justify-center"
+                  (click)="sendInvoice(inv)"
+                  [disabled]="issuing()"
+                >
+                  @if (issuing()) {
+                    <app-icon name="refresh" [size]="16" class="animate-spin" />
+                  } @else {
+                    <app-icon name="send" [size]="16" />
+                  }
+                  Transmettre au client
+                </button>
+                <p class="mt-2 text-[12px] muted">
+                  {{ inv.invoiceNumber }} est émise mais pas encore transmise. La transmission
+                  la fera passer au statut « Transmise ».
+                </p>
+              } @else {
+                <p class="text-[12px] muted">
+                  {{ inv.invoiceNumber }} est au statut
+                  « {{ invoiceLabels[inv.invoiceStatus] }} ». Le règlement se marque en faisant
+                  passer le document à l'étape « Payée ».
+                </p>
+              }
+            </div>
+          }
 
           <!-- Cycle de vie -->
           @if (cart()) {
@@ -765,6 +890,53 @@ export class CartEditorComponent implements OnInit {
   protected readonly store = inject(CommerceStore);
 
   protected readonly cart = signal<Cart | null>(null);
+
+  /* ---- Devis émis ------------------------------------------------- */
+  private readonly quoteApi = inject(QuoteService);
+  private readonly quoteIssue = inject(QuoteIssueService);
+  private readonly chain = inject(CommercialChainService);
+  private readonly allQuotes = signal<Quote[]>([]);
+  protected readonly issuing = signal(false);
+  protected readonly quoteLabels = QUOTE_STATUS_LABELS;
+
+  /** Devis rattachés à ce document, du plus récent au plus ancien. */
+  protected readonly quotes = computed(() => {
+    const id = this.cart()?.crtId;
+    if (!id) return [];
+    return this.allQuotes()
+      .filter((q) => q.cartId === id)
+      .sort((a, b) => (b.qotCreatedDate ?? '').localeCompare(a.qotCreatedDate ?? ''));
+  });
+
+  /**
+   * Devis en vigueur : le plus récent qui n'a pas déjà été remplacé.
+   *
+   * C'est lui que la prochaine révision devra désigner comme parent, sans quoi
+   * la chaîne se casse et l'on ne sait plus quelle version fait foi.
+   */
+  protected readonly currentQuote = computed(
+    () => this.quotes().find((q) => q.qotStatus !== 'REVISITED') ?? null,
+  );
+
+  /** Le devis en vigueur est-il encore un brouillon ? */
+  protected readonly draftQuote = computed(() => this.currentQuote()?.qotStatus === 'CREATED');
+
+  protected readonly nextRevision = computed(() => {
+    const current = this.currentQuote();
+    return current ? nextRevisionNumber(current, this.allQuotes()) : '';
+  });
+
+  /* ---- Facture émise ---------------------------------------------- */
+  protected readonly invoice = signal<Invoice | null>(null);
+  protected readonly invoiceLabels = INVOICE_STATUS_LABELS;
+
+  /**
+   * Une facture fraîchement créée n'a pas encore quitté la maison : c'est le
+   * seul état depuis lequel la transmission au client a un sens.
+   */
+  protected readonly invoiceSendable = computed(
+    () => this.invoice()?.invoiceStatus === 'CREATED',
+  );
   protected readonly articles = signal<Article[]>([]);
   protected readonly customers = signal<Customer[]>([]);
   protected readonly draft = signal<DraftLine[]>([]);
@@ -812,6 +984,27 @@ export class CartEditorComponent implements OnInit {
 
   protected readonly totals = computed(() => totalsOf(this.lines()));
 
+  /**
+   * Les lignes à l'écran diffèrent-elles de celles enregistrées ?
+   *
+   * Sert à prévenir avant d'émettre un devis : le serveur fige les lignes
+   * telles qu'elles sont **en base**, pas telles qu'elles s'affichent.
+   */
+  protected readonly dirty = computed(() => {
+    const persisted = new Map(
+      this.persistedLines().map(
+        (l) => [l.article?.artId ?? l.id?.articleId ?? 0, l.quantity ?? 0] as const,
+      ),
+    );
+    const current = new Map(this.lines().map((l) => [l.articleId, l.quantity] as const));
+
+    if (persisted.size !== current.size) return true;
+    for (const [articleId, quantity] of current) {
+      if (persisted.get(articleId) !== quantity) return true;
+    }
+    return false;
+  });
+
   /** Lignes dont la marge passe sous le seuil : signalées, jamais bloquantes. */
   protected readonly weakLines = computed(() =>
     this.lines().filter(
@@ -833,35 +1026,6 @@ export class CartEditorComponent implements OnInit {
         supplierName: l.costSupplier,
       })),
   );
-
-  /**
-   * Lignes que le backend refusera lors de l'enregistrement.
-   *
-   * Uniquement pertinent sur un document déjà créé : `POST /cart` ne contrôle
-   * pas le stock, `POST /order-line` si. Une ligne déjà persistée à la même
-   * quantité ne pose pas de problème — seuls les ajouts et les hausses de
-   * quantité sont soumis au contrôle.
-   */
-  protected readonly blockedLines = computed(() => {
-    if (!this.cart()) return [];
-    const persisted = new Map(
-      this.persistedLines().map(
-        (l) => [l.article?.artId ?? l.id?.articleId ?? 0, l.quantity ?? 0] as const,
-      ),
-    );
-    return this.lines().filter((l) => {
-      if (l.quantity <= l.stock) return false;
-      const before = persisted.get(l.articleId);
-      // Ligne inchangée : elle est déjà en base, le contrôle ne s'appliquera pas.
-      return before === undefined || l.quantity > before;
-    });
-  });
-
-  protected blockedNames(): string {
-    return this.blockedLines()
-      .map((l) => `${l.name} (${l.quantity} demandé${l.quantity > 1 ? 's' : ''}, ${Math.max(0, l.stock)} en stock)`)
-      .join(' · ');
-  }
 
   /** Marge prévisionnelle de l'article en cours de création. */
   protected readonly adHocMarginPreview = computed(() => {
@@ -928,12 +1092,14 @@ export class CartEditorComponent implements OnInit {
 
     this.loading.set(true);
     try {
-      const [articles, customers, suppliers, tvas] = await Promise.all([
+      const [articles, customers, suppliers, tvas, quotes] = await Promise.all([
         firstValueFrom(this.articleApi.list()).catch(() => [] as Article[]),
         firstValueFrom(this.customerApi.list()).catch(() => [] as Customer[]),
         firstValueFrom(this.supplierApi.list()).catch(() => [] as Supplier[]),
         firstValueFrom(this.tvaApi.list()).catch(() => [] as Tva[]),
+        firstValueFrom(this.quoteApi.list()).catch(() => [] as Quote[]),
       ]);
+      this.allQuotes.set(quotes);
       this.articles.set(articles);
       this.customers.set(customers);
       this.suppliers.set(suppliers);
@@ -941,6 +1107,7 @@ export class CartEditorComponent implements OnInit {
 
       if (id) {
         await this.loadCart(id);
+        await this.loadInvoice();
       } else {
         const carts = await firstValueFrom(this.cartApi.list()).catch(() => [] as Cart[]);
         this.form.reset({
@@ -1125,6 +1292,128 @@ export class CartEditorComponent implements OnInit {
 
   /* ---------------- Persistance ---------------- */
 
+  protected quoteTotal(quote: Quote): number {
+    return ownTotals(quote.qotLines).totalTTC;
+  }
+
+  protected quoteBadge(status: QuoteStatus): string {
+    const base = 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ';
+    switch (status) {
+      case 'ACCEPTED':
+        return base + 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400';
+      case 'PENDING':
+        return base + 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400';
+      case 'REJECTED':
+        return base + 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400';
+      case 'REVISITED':
+        return base + 'bg-ink-100 text-ink-500 line-through dark:bg-ink-800 dark:text-ink-400';
+      default:
+        return base + 'bg-ink-100 text-ink-500 dark:bg-ink-800 dark:text-ink-400';
+    }
+  }
+
+  /**
+   * Émet un devis, ou une révision du devis en vigueur.
+   *
+   * Le backend construit les lignes figées à partir des lignes du panier : il
+   * faut donc que les modifications en cours soient enregistrées avant, sinon
+   * le devis fige un état que l'utilisateur ne voit plus à l'écran.
+   *
+   * Le passage du parent en « remplacé » est fait ici, le serveur ne s'en
+   * chargeant pas. Si cette seconde requête échoue, le nouveau devis existe
+   * quand même : on le signale plutôt que de laisser deux devis actifs sans
+   * l'annoncer.
+   */
+  protected async issueQuote(parent: Quote | null): Promise<void> {
+    const existing = this.cart();
+    if (!existing) return;
+
+    if (this.dirty()) {
+      const confirmed = await this.confirm.ask({
+        title: 'Enregistrer avant d’émettre ?',
+        message:
+          'Le devis fige les lignes telles qu’elles sont en base. Vos modifications en cours doivent être enregistrées, sinon elles n’y figureront pas.',
+        confirmLabel: 'Enregistrer puis émettre',
+      });
+      if (!confirmed) return;
+      await this.save();
+    }
+
+    this.issuing.set(true);
+    try {
+      const number = parent
+        ? nextRevisionNumber(parent, this.allQuotes())
+        : nextQuoteNumber(this.allQuotes(), new Date().getFullYear());
+
+      const created = await firstValueFrom(
+        this.quoteApi.create({
+          qotNumber: number,
+          qotExpirationDate: defaultExpiration(),
+          qotStatus: 'PENDING',
+          qotParentId: parent?.quoteId ?? null,
+          cartId: existing.crtId,
+        }),
+      );
+
+      if (parent?.quoteId) {
+        await firstValueFrom(this.quoteApi.patchStatus(parent.quoteId, 'REVISITED')).catch(() => {
+          this.toast.warning(
+            'Ancien devis non marqué',
+            `${created.qotNumber} a bien été créé, mais ${parent.qotNumber} n’a pas pu passer en « remplacé ». Deux devis apparaissent donc actifs.`,
+          );
+          return null;
+        });
+      } else if (parent && !parent.quoteId) {
+        this.toast.warning(
+          'Ancien devis non marqué',
+          `${created.qotNumber} a bien été créé, mais l’API ne renvoie pas l’identifiant de ${parent.qotNumber} : impossible de le passer en « remplacé ».`,
+        );
+      }
+
+      this.toast.success(
+        parent ? `Révision ${created.qotNumber} émise` : `Devis ${created.qotNumber} émis`,
+        'Prix, désignations et taux de TVA sont désormais figés.',
+      );
+      await this.loadQuotes();
+    } catch {
+      /* l'intercepteur a signalé l'erreur */
+    } finally {
+      this.issuing.set(false);
+    }
+  }
+
+  /** Marque le brouillon comme transmis : le devis est alors figé. */
+  protected async sendQuote(quote: Quote): Promise<void> {
+    this.issuing.set(true);
+    try {
+      await this.quoteIssue.markAsSent(quote);
+      await this.loadQuotes();
+    } finally {
+      this.issuing.set(false);
+    }
+  }
+
+  private async loadQuotes(): Promise<void> {
+    this.allQuotes.set(await firstValueFrom(this.quoteApi.list()).catch(() => [] as Quote[]));
+  }
+
+  /** Recharge la facture rattachée à ce document, s'il en existe une. */
+  private async loadInvoice(): Promise<void> {
+    const cart = this.cart();
+    this.invoice.set(cart ? await this.chain.invoiceForCart(cart) : null);
+  }
+
+  /** Marque la facture comme transmise au client : elle passe en `SENT`. */
+  protected async sendInvoice(invoice: Invoice): Promise<void> {
+    this.issuing.set(true);
+    try {
+      await this.chain.markInvoiceAsSent(invoice);
+      await this.loadInvoice();
+    } finally {
+      this.issuing.set(false);
+    }
+  }
+
   protected async save(): Promise<void> {
     this.submitted.set(true);
 
@@ -1158,7 +1447,7 @@ export class CartEditorComponent implements OnInit {
         );
         this.toast.success('Document créé', created.crtRef?.toUpperCase());
         this.store.reload();
-        await this.router.navigate(['/documents', 'cart', created.crtId]);
+        await this.router.navigate(['/documents', created.crtId]);
         return;
       }
 
@@ -1171,9 +1460,8 @@ export class CartEditorComponent implements OnInit {
         }),
       );
 
-      const blocked = this.blockedLines().length;
       await this.syncLines(existing.crtId);
-      if (blocked === 0) this.toast.success('Document enregistré');
+      this.toast.success('Document enregistré');
       await this.loadCart(existing.crtId);
       this.store.reload();
     } catch {
@@ -1229,54 +1517,105 @@ export class CartEditorComponent implements OnInit {
     if (rejected.length > 0) {
       this.toast.error(
         `${rejected.length} ligne(s) refusée(s) par le serveur`,
-        `${rejected.join(', ')} — quantité supérieure au stock. Ajustez le stock au catalogue, ou appliquez le correctif backend fourni. Les autres lignes ont bien été enregistrées.`,
+        `${rejected.join(', ')}. Les autres lignes ont bien été enregistrées.`,
       );
     }
   }
 
-  /**
-   * Fait avancer (ou supprime) le panier.
-   *
-   * Depuis l'introduction de `Quote` / `Command` / `Invoice`, ce composant ne
-   * représente plus qu'un panier (`PANIER.next` ne contient donc que `DEVIS`
-   * et `ANNULE` — les branches COMMANDE/FACTURE d'origine sont mortes et ont
-   * été retirées). Les étapes suivantes (valider la commande, facturer,
-   * marquer payée) vivent désormais dans `document-print.component.ts`, seul
-   * écran commun aux quatre natures de document.
-   */
+  /** Change le statut et renumérote la référence selon la nouvelle étape. */
   protected async transition(next: DocumentStatus): Promise<void> {
     const existing = this.cart();
     if (!existing) return;
 
-    if (next === 'DEVIS') {
-      this.saving.set(true);
-      try {
-        const quoteId = await this.store.transitionToQuote(existing.crtId);
-        if (quoteId !== null) {
-          this.toast.success('Devis créé', 'Le panier a été transformé en devis.');
-          await this.router.navigate(['/documents', 'quote', quoteId]);
-        }
-      } finally {
-        this.saving.set(false);
-      }
-      return;
+    const meta = DOCUMENT_STATUSES[next];
+
+    // Le passage en commande est le moment où l'engagement devient ferme :
+    // c'est là qu'il faut savoir ce qu'il reste à acheter.
+    if (next === 'COMMANDE' && this.shortages().length > 0) {
+      const detail = this.shortages()
+        .map(
+          (s) =>
+            `${s.missing} × ${s.name}${s.supplierName ? ` (${s.supplierName})` : ' — aucun fournisseur référencé'}`,
+        )
+        .join(' · ');
+
+      const ok = await this.confirm.ask({
+        title: 'Approvisionnement nécessaire',
+        message: `Cette commande engage du matériel que vous n'avez pas en stock : ${detail}. Le besoin sera ajouté à l'écran Approvisionnement. Confirmez-vous la validation ?`,
+        confirmLabel: 'Valider la commande',
+      });
+      if (!ok) return;
+    }
+
+    if (next === 'FACTURE') {
+      const ok = await this.confirm.ask({
+        title: 'Émettre la facture',
+        message:
+          "Une fois facturé, le contenu du document ne sera plus modifiable. Confirmez-vous l'émission ?",
+        confirmLabel: 'Émettre la facture',
+      });
+      if (!ok) return;
     }
 
     if (next === 'ANNULE') {
-      const ok = await this.confirm.askDelete(`le panier « ${existing.crtRef?.toUpperCase()} »`);
+      const ok = await this.confirm.ask({
+        title: 'Annuler le document',
+        message: 'Le document sera marqué comme annulé. Vous pourrez le repasser en panier ensuite.',
+        confirmLabel: 'Annuler le document',
+        danger: true,
+      });
       if (!ok) return;
+    }
 
-      this.saving.set(true);
-      try {
-        await firstValueFrom(this.cartApi.delete(existing.crtId));
-        this.toast.success('Panier supprimé');
-        this.store.reload();
-        await this.router.navigate(['/documents']);
-      } catch {
-        /* déjà notifié */
-      } finally {
-        this.saving.set(false);
+    const reference = reprefixReference(
+      this.form.controls.crtRef.value?.trim() || existing.crtRef,
+      next,
+    );
+
+    this.saving.set(true);
+    try {
+      await firstValueFrom(
+        this.cartApi.update(existing.crtId, {
+          crtRef: reference,
+          crtStatus: next,
+          ctmId: Number(this.form.controls.ctmId.value ?? existing.customer?.ctmId),
+          orderLines: [],
+        }),
+      );
+      this.status.set(next);
+      const shortageCount = this.shortages().length;
+      this.toast.success(
+        `${meta.docLabel} ${reference.toUpperCase()}`,
+        next === 'COMMANDE' && shortageCount > 0
+          ? `${shortageCount} article(s) à commander — voir l'écran Approvisionnement.`
+          : `Document passé au statut « ${meta.label} ».`,
+      );
+      await this.loadCart(existing.crtId);
+
+      // Chaque étape matérialise son document en base dans la foulée, sans
+      // attendre un geste supplémentaire : devis figé, puis bon de commande,
+      // puis facture. Voir `CommercialChainService` pour l'enchaînement.
+      const refreshed = this.cart();
+      if (refreshed) {
+        if (next === 'DEVIS') {
+          await this.quoteIssue.ensureForCart(refreshed);
+          await this.loadQuotes();
+        } else if (next === 'COMMANDE') {
+          await this.chain.ensureCommandForCart(refreshed);
+        } else if (next === 'FACTURE') {
+          await this.chain.ensureInvoiceForCart(refreshed);
+          await this.loadInvoice();
+        } else if (next === 'PAYEE') {
+          await this.chain.markInvoicePaidForCart(refreshed);
+          await this.loadInvoice();
+        }
       }
+
+      this.store.reload();
+    } catch {
+      /* déjà notifié */
+    } finally {
+      this.saving.set(false);
     }
   }
 }
