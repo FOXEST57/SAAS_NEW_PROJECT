@@ -85,7 +85,7 @@ public class SupplierReference {
     @LastModifiedDate
     protected LocalDateTime splRefUpdateDate;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     protected DeliveryStatus status;
 

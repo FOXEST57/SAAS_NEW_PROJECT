@@ -67,7 +67,7 @@ public class MakerReference {
     @DecimalMin(value = "0.00", inclusive = true)
     protected BigDecimal artMkrSellPrice;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     protected DeliveryStatus status;
 

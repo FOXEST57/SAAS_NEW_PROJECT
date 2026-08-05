@@ -24,6 +24,11 @@ public class StockController {
     private final StockService stockService;
     private final ArticleRepository articleRepository;
 
+    @GetMapping("/pending/{artId}")
+    public ResponseEntity<Integer> getPendingStockByArticle(@PathVariable Long artId) {
+        return new ResponseEntity<>(stockService.getPendingStock(artId), HttpStatus.OK);
+    }
+
     @GetMapping("/list")
     public List<ActualStockDTO> getAllActualStock() {
         List<Article> articles = articleRepository.findAll();
