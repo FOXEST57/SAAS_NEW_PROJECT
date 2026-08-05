@@ -1,10 +1,8 @@
 package com.mns.cda.saas_facturation.cart.Iservice;
 
 import com.mns.cda.saas_facturation.cart.DTO.InvoiceDTO;
-import com.mns.cda.saas_facturation.cart.DTO.InvoiceLineDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.InvoiceRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.PatchInvoiceStatus;
-import com.mns.cda.saas_facturation.enumeration.InvoiceStatus;
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchInvoiceStatus;
 
 import java.util.List;
 

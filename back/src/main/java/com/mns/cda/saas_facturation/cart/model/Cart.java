@@ -1,9 +1,11 @@
 package com.mns.cda.saas_facturation.cart.model;
 
 import com.mns.cda.saas_facturation.config.LowercaseConverter;
+import com.mns.cda.saas_facturation.enumeration.CartStatus;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,9 +41,9 @@ public class Cart {
     @LastModifiedDate
     protected LocalDateTime crtLastModifieDate;
 
-    @NotBlank
-    @Column(nullable = false)
-    protected String crtStatus;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    protected CartStatus crtStatus;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -49,4 +51,6 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart")
     protected List<OrderLine> orderLines;
+
+    private Long parentQuoteId;
 }

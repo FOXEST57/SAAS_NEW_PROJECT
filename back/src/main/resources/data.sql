@@ -134,7 +134,7 @@ VALUES
     ('CART-0001', 'OPEN', current_date, current_date, 1),
     ('CART-0002', 'VALIDATED', current_date, current_date, 1),
     ('CART-0003', 'OPEN', current_date, current_date, 2),
-    ('CART-0004', 'ABANDONED', current_date, current_date, 3);
+    ('CART-0004', 'OPEN', current_date, current_date, 3);
 
 -- 17. Table ORDER_LINE (clé composite article_id + cart_id)
 INSERT INTO order_line (article_id, cart_id, ord_ln_quantity)
