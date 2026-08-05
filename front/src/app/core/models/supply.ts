@@ -1,11 +1,6 @@
 import { Article } from './api.models';
 import { ValuedDocument, bestCost, familyOf, round2, ProductFamily } from './document-math';
-import { DocumentKind, statusMeta } from './document-status';
-
-/** Normalise une référence pour la comparaison (le backend les stocke en minuscules). */
-function normRef(ref: string | null | undefined): string {
-  return (ref ?? '').trim().toLowerCase();
-}
+import { statusMeta } from './document-status';
 
 /**
  * Besoin d'approvisionnement.
@@ -47,9 +42,8 @@ export interface SupplyLine {
 }
 
 export interface SupplySource {
-  readonly kind: DocumentKind;
-  readonly id: number;
-  readonly reference: string;
+  readonly crtId: number;
+  readonly crtRef: string;
   readonly customer: string;
   readonly quantity: number;
   readonly firm: boolean;
@@ -84,34 +78,31 @@ export function computeSupplyNeeds(
   // en priorité ce qui est déjà engagé.
   const relevant = documents
     .filter((d) => {
-      if (d.status === 'COMMANDE') return true;
-      return includeQuotes && d.status === 'DEVIS';
+      const meta = statusMeta(d.cart.crtStatus);
+      if (meta.value === 'COMMANDE') return true;
+      return includeQuotes && meta.value === 'DEVIS';
     })
     .sort((a, b) => {
-      const aFirm = a.status === 'COMMANDE' ? 0 : 1;
-      const bFirm = b.status === 'COMMANDE' ? 0 : 1;
+      const aFirm = statusMeta(a.cart.crtStatus).value === 'COMMANDE' ? 0 : 1;
+      const bFirm = statusMeta(b.cart.crtStatus).value === 'COMMANDE' ? 0 : 1;
       if (aFirm !== bFirm) return aFirm - bFirm;
       // À engagement égal, la commande la plus ancienne est servie d'abord.
       return (b.ageDays ?? 0) - (a.ageDays ?? 0);
     });
 
-  // Regroupé par référence article plutôt que par `articleId` : les lignes
-  // figées (Quote/Command) ne portent pas d'identifiant d'article, seulement
-  // sa référence (voir `buildFrozenLine` dans `document-math.ts`).
   const byArticle = new Map<
-    string,
+    number,
     { required: number; sources: SupplySource[]; firm: boolean }
   >();
 
   for (const doc of relevant) {
-    const firm = doc.status === 'COMMANDE';
-    const customer = [doc.customer?.ctmFirstName, doc.customer?.ctmLastName]
+    const firm = statusMeta(doc.cart.crtStatus).value === 'COMMANDE';
+    const customer = [doc.cart.customer?.ctmFirstName, doc.cart.customer?.ctmLastName]
       .filter(Boolean)
       .join(' ');
 
     for (const line of doc.totals.lines) {
-      const key = normRef(line.reference);
-      const entry = byArticle.get(key) ?? {
+      const entry = byArticle.get(line.articleId) ?? {
         required: 0,
         sources: [],
         firm: false,
@@ -119,27 +110,20 @@ export function computeSupplyNeeds(
       entry.required += line.quantity;
       entry.firm = entry.firm || firm;
       entry.sources.push({
-        kind: doc.kind,
-        id: doc.id,
-        reference: doc.reference,
+        crtId: doc.cart.crtId,
+        crtRef: doc.cart.crtRef,
         customer: customer || 'Client inconnu',
         quantity: line.quantity,
         firm,
       });
-      byArticle.set(key, entry);
+      byArticle.set(line.articleId, entry);
     }
   }
 
-  // Index du catalogue par référence, pour résoudre les lignes figées qui
-  // n'ont pas d'`artId`.
-  const catalogByRef = new Map<string, Article>(
-    [...catalog.values()].map((a) => [normRef(a.artReference), a]),
-  );
-
   const needs: SupplyLine[] = [];
 
-  for (const [ref, entry] of byArticle) {
-    const article = catalogByRef.get(ref);
+  for (const [articleId, entry] of byArticle) {
+    const article = catalog.get(articleId);
     if (!article) continue;
 
     const available = Math.max(0, Number(article.artStock ?? 0));
@@ -149,7 +133,7 @@ export function computeSupplyNeeds(
     const cost = bestCost(article);
 
     needs.push({
-      articleId: article.artId,
+      articleId,
       reference: article.artReference,
       name: article.artName,
       family: familyOf(article),

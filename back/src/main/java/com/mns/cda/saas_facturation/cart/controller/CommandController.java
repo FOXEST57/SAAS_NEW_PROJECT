@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.cart.controller;
 
 import com.mns.cda.saas_facturation.cart.DTO.CommandDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.PatchCommandStatus;
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCommandStatus;
 import com.mns.cda.saas_facturation.cart.Iservice.ICommandService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

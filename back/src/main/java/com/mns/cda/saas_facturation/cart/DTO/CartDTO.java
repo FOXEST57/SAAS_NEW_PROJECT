@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.cart.DTO;
 
 import com.mns.cda.saas_facturation.cart.DTO.responseDTO.OrderLineResponseDTO;
+import com.mns.cda.saas_facturation.enumeration.CartStatus;
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ public record CartDTO (
         String crtRef,
         LocalDateTime crtCreateDate,
         LocalDateTime crtLastModifieDate,
-        String crtStatus,
+        CartStatus crtStatus,
         CustomerDTO customer,
         List<OrderLineResponseDTO> orderLines
 ){

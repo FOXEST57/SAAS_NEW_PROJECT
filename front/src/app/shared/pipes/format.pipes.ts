@@ -34,16 +34,12 @@ export class TauxPctPipe implements PipeTransform {
   }
 }
 
-/**
- * Date longue française, à partir d'un `LocalDateTime` sérialisé (`string`)
- * ou d'un `Date` déjà parsé — `ValuedDocument.date` (`document-math.ts`) est
- * de ce second type.
- */
+/** Date longue française, à partir d'un `LocalDateTime` sérialisé. */
 @Pipe({ name: 'frDate', standalone: true })
 export class FrDatePipe implements PipeTransform {
-  transform(value: string | Date | null | undefined, withTime = false): string {
+  transform(value: string | null | undefined, withTime = false): string {
     if (!value) return '—';
-    const d = value instanceof Date ? value : new Date(value);
+    const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '—';
     return d.toLocaleDateString('fr-FR', {
       day: '2-digit',

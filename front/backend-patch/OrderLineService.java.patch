@@ -2,7 +2,7 @@ Correctif backend — le stock ne bloque plus la saisie
 =====================================================
 
 Fichier concerné :
-  back/src/main/java/com/mns/cda/saas_facturation/service/OrderLineService.java
+  back/src/main/java/com/mns/cda/saas_facturation/cart/service/OrderLineService.java
 
 POURQUOI
 --------

@@ -14,6 +14,9 @@ import {
   MakerReference,
   Supplier,
   SupplierReference,
+  DeliveryStatus,
+  DELIVERY_STATUSES,
+  DELIVERY_STATUS_LABELS,
 } from '../../core/models/api.models';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -302,6 +305,20 @@ type Tab = 'supplier' | 'maker';
               />
               <app-field-error [control]="form.controls.stock" label="Le stock" [submitted]="submitted()" />
             </div>
+
+            <!--
+              Le statut de livraison est devenu obligatoire en écriture avec
+              l'arrivée de l'inventaire : c'est lui qui distingue une
+              marchandise reçue d'une commande encore attendue.
+            -->
+            <div>
+              <label class="label" for="ref-status">Statut de livraison</label>
+              <select id="ref-status" class="input" formControlName="status">
+                @for (st of statuses; track st) {
+                  <option [value]="st">{{ statusLabels[st] }}</option>
+                }
+              </select>
+            </div>
           </div>
 
           @if (editingKey()) {
@@ -309,6 +326,18 @@ type Tab = 'supplier' | 'maker';
               L'article et le partenaire forment la clé composite : ils ne sont pas modifiables.
               Supprimez puis recréez la référence pour les changer.
             </p>
+            <div
+              class="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/30 dark:bg-amber-500/10"
+            >
+              <span class="mt-px shrink-0 text-amber-600 dark:text-amber-400">
+                <app-icon name="alert" [size]="15" />
+              </span>
+              <p class="text-[12.5px] text-amber-900 dark:text-amber-200">
+                L'API ne renvoie pas le statut actuel de cette référence : celui affiché
+                ci-dessus est une valeur par défaut, et il écrasera l'existant à
+                l'enregistrement. Vérifiez-le avant de valider.
+              </p>
+            </div>
           }
         </form>
 
@@ -348,6 +377,8 @@ export class ReferenceListComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly modalOpen = signal(false);
   protected readonly submitted = signal(false);
+  protected readonly statuses = DELIVERY_STATUSES;
+  protected readonly statusLabels = DELIVERY_STATUS_LABELS;
   /** `null` en création ; `[articleId, partnerId]` en modification. */
   protected readonly editingKey = signal<[number, number] | null>(null);
 
@@ -357,6 +388,7 @@ export class ReferenceListComponent implements OnInit {
     reference: ['', [Validators.required, Validators.maxLength(60)]],
     price: [0 as number | null, [Validators.required, Validators.min(0)]],
     stock: [0, [Validators.required, Validators.min(0)]],
+    status: ['RECEIVED' as DeliveryStatus, [Validators.required]],
   });
 
   protected readonly filteredSupplierRefs = computed(() => {
@@ -491,6 +523,7 @@ export class ReferenceListComponent implements OnInit {
     const reference = (raw.reference ?? '').trim();
     const price = Number(raw.price ?? 0);
     const stock = Number(raw.stock ?? 0);
+    const status = (raw.status ?? 'RECEIVED') as DeliveryStatus;
     const key = this.editingKey();
 
     try {
@@ -501,6 +534,7 @@ export class ReferenceListComponent implements OnInit {
               splRefReference: reference,
               splRefSellPrice: price,
               splRefStock: stock,
+              status,
             }),
           );
           this.toast.success('Référence fournisseur modifiée');
@@ -512,6 +546,7 @@ export class ReferenceListComponent implements OnInit {
               splRefReference: reference,
               splRefSellPrice: price,
               splRefStock: stock,
+              status,
             }),
           );
           this.toast.success('Référence fournisseur créée');
@@ -523,6 +558,7 @@ export class ReferenceListComponent implements OnInit {
               reference,
               artMkrStock: stock,
               artMkrSellPrice: price,
+              status,
             }),
           );
           this.toast.success('Référence fabricant modifiée');
@@ -534,6 +570,7 @@ export class ReferenceListComponent implements OnInit {
               artMkrReference: reference,
               artMkrStock: stock,
               artMkrSellPrice: price,
+              status,
             }),
           );
           this.toast.success('Référence fabricant créée');

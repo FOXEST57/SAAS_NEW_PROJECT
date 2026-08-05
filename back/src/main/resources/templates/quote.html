@@ -148,7 +148,7 @@
             <div class="doc-number" th:text="${quote.quoteNumber}">DEV-2026-0007</div>
             <div class="doc-dates">
                 <div th:text="'Émis le ' + ${quote.issuedDate}">Émis le 05/08/2026</div>
-                <div th:text="'Valable jusqu''au ' + ${quote.expirationDate}">Valable jusqu'au 05/11/2026</div>
+                <div>Valable jusqu'au <span th:text="${quote.expirationDate}">05/11/2026</span></div>
             </div>
         </td>
     </tr>

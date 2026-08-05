@@ -1,0 +1,400 @@
+┌───────────────────────────────────────────────────────────────────────┐
+│ CHEMINS MIS À JOUR — restructuration en packages métier du 03/08      │
+│                                                                       │
+│ Le backend est passé d'un découpage par couche technique à un         │
+│ découpage par domaine. Les chemins ci-dessous suivent la nouvelle      │
+│ arborescence :                                                        │
+│                                                                       │
+│   cart/       Cart, OrderLine, Quote, QuoteLine                       │
+│   product/    Article, Category, Tva, Supplier, Maker, Inventory      │
+│   user/       Customer, AccountType                                   │
+│   location/   Address, City, Country, PostalCode                      │
+│   security/   authentification et autorisation                        │
+│   config/     GlobalExceptionInterceptor, converters, Swagger         │
+│   enumeration/  DeliveryStatus, QuoteStatus                           │
+│                                                                       │
+│ Chaque domaine conserve ses sous-dossiers controller / service /      │
+│ repository / model / mapper / DTO.                                    │
+└───────────────────────────────────────────────────────────────────────┘
+
+RELECTURE DU 03/08 — ce qui est corrigé, ce qui reste
+=========================================================================
+
+Cinq des points signalés sont réglés, un l'est en apparence seulement, et
+quatre restent ouverts.
+
+CORRIGÉ
+-------
+✅ `QuoteDTO` expose l'identifiant — sous le nom `quoteId`, et non `qotId`.
+   Le front a été aligné.
+✅ `cartId` remplace `cartRef` : la navigation vers le panier ne passe plus par
+   une comparaison de chaînes.
+✅ `updateQuantity` est irréprochable : `@Transactional`, recherche bornée aux
+   lignes du devis, `equalsIgnoreCase` (indispensable, `LowercaseConverter`
+   étant en `autoApply`), garde sur le statut, et rechargement du devis avant
+   de construire la réponse.
+✅ `QuoteLineRepository.findByQuote_QotIdAndArticleRef` ajoutée.
+✅ `delete` et `updateQuantity` sont transactionnels.
+
+CORRIGÉ EN APPARENCE — la relation est doublée, pas réparée
+-----------------------------------------------------------
+`QuoteLine` porte désormais `@ManyToOne protected Quote quote;`, mais
+`Quote.qotLines` est resté un `@OneToMany` **sans `mappedBy`** :
+
+    @OneToMany                                   // ← toujours sans mappedBy
+    @NotNull
+    protected List<QuoteLine> qotLines = new ArrayList<>();
+
+JPA voit donc **deux relations indépendantes** là où il n'y en a qu'une :
+
+- `Quote.qotLines` → une table de jointure `quote_qot_lines` ;
+- `QuoteLine.quote` → une colonne de clé étrangère dans `quote_line`.
+
+Elles ne sont pas synchronisées. Et `QuoteLineService.create` passe `null` en
+dernier argument du constructeur :
+
+    QuoteLine quoteLine = new QuoteLine(
+            null, orderLine.getOrdLnQuantity(), ..., orderLine.getArticle().getTva().getTvaTaux(),
+            null                                 // ← le champ `quote`
+    );
+
+La colonne reste donc **toujours vide**. Conséquence directe :
+`findByQuote_QotIdAndArticleRef` filtre sur une colonne nulle et ne renverra
+jamais rien. La méthode n'est pas encore appelée — `updateQuantity` parcourt la
+collection en mémoire —, donc rien ne casse aujourd'hui ; mais le jour où
+quelqu'un l'utilisera, elle échouera silencieusement en `null`.
+
+CORRECTIF — dans `Quote` :
+
+    @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL, orphanRemoval = true)
+    protected List<QuoteLine> qotLines = new ArrayList<>();
+
+et dans `QuoteService.create`, rattacher chaque ligne à son devis :
+
+    Quote quote = new Quote();
+    ...
+    cart.getOrderLines().forEach(ol -> {
+        QuoteLine line = quoteLineService.build(ol);   // sans save()
+        line.setQuote(quote);
+        quote.getQotLines().add(line);
+    });
+    return quoteMapper.toDTO(quoteRepository.save(quote));   // le cascade persiste les lignes
+
+Le `cascade` supprime au passage la boucle de suppression manuelle dans
+`delete`, et la table de jointure disparaît.
+
+RESTE OUVERT
+------------
+
+**1. `QuoteMapper` appelle toujours `toDTO` deux fois par niveau.**
+
+    QuoteDTO quoteParent = quote.getQotParent() != null ? this.toDTO(...) : null;   // ligne 19
+    ...
+    quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null,          // ligne 55
+
+La variable `quoteParent` est calculée, utilisée pour les totaux, puis ignorée
+lors de la construction du DTO où l'appel est refait. Coût en 2^n sur la
+profondeur de chaîne. Une seule ligne à changer : mettre `quoteParent` ligne 55.
+
+**2. `create` n'est pas transactionnel.**
+
+Chaque `quoteLineRepository.save()` valide sa propre transaction. Si le
+`save(quote)` final échoue — et il le peut, `qotNumber` étant unique et fourni
+par le client —, les `QuoteLine` sont **déjà écrites** et deviennent orphelines :
+des lignes sans devis, invisibles, qui s'accumulent à chaque collision de
+numéro. `@Transactional` sur `create` règle le problème ; le `cascade` du point
+précédent le fait disparaître complètement.
+
+**3. `IllegalStateException` n'est pas interceptée → 500.**
+
+`GlobalExceptionInterceptor` gère `MethodArgumentNotValidException`,
+`DataIntegrityViolationException`, `ResourceNotFoundException` et
+`InsufficientStockException`. Votre garde de statut lève donc une erreur serveur
+brute, indiscernable d'un plantage. Le client ne peut pas distinguer « ce devis
+n'est plus modifiable » d'une panne. Ajoutez :
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<GlobalExceptionInterceptorDTO> handleIllegalState(IllegalStateException e) {
+        return new ResponseEntity<>(new GlobalExceptionInterceptorDTO(
+                HttpStatus.CONFLICT.value(), "Conflict", e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+409 convient bien ici : la requête est valide, c'est l'état de la ressource qui
+s'y oppose.
+
+**4. `delete` casse toujours sur un devis parent.**
+
+Supprimer un devis qui sert de `qotParent` à un autre viole la contrainte de
+clé étrangère. Refusez explicitement :
+
+    if (quoteRepository.existsByQotParent_QotId(qotId)) {
+        throw new IllegalStateException(
+                "Ce devis a été révisé : supprimez d'abord les versions qui en descendent");
+    }
+
+POINTS MINEURS
+--------------
+- `updateStatus` n'est pas transactionnel et n'applique aucune règle de
+  transition : on peut ramener un devis `ACCEPTED` à `PENDING`.
+- `CartMapper` reste injecté dans `QuoteMapper` alors que `cartRef` a disparu :
+  dépendance morte.
+- `create` accepte un panier sans ligne et produit un devis à zéro euro.
+- `@NotNull` sur `int qotLnQuantity` est inopérant ; `@Min(1)` aurait du sens.
+- `findByArticleRef` (la recherche globale) est toujours déclarée dans le
+  repository. Elle n'est plus appelée : autant la supprimer avant qu'elle ne
+  resserve.
+
+
+Analyse de la partie Quote / QuoteLine
+=========================================================================
+
+Ce que vous avez construit est juste sur le fond. `QuoteLine` fige la quantité,
+le prix HT, la désignation, la référence et **le taux de TVA** — c'est exactement
+ce qu'il faut pour qu'un devis émis ne se déforme plus quand le catalogue bouge.
+`qotParent` chaîne les versions, et `REVISITED` nomme l'état « remplacé ». Le
+modèle tient.
+
+Deux défauts empêchent cependant le front de s'en servir, et trois autres
+méritent une décision.
+
+
+═════════════════════════════════════════════════════════════════════════
+1. BLOQUANT — `QuoteDTO` ne renvoie pas l'identifiant
+═════════════════════════════════════════════════════════════════════════
+
+    public record QuoteDTO(
+            String qotNumber,          // ← pas de qotId
+            LocalDateTime qotCreatedDate,
+            ...
+
+Or **toutes** vos routes de mutation sont adressées par identifiant :
+
+    GET    /quote/{id}
+    PATCH  /quote/quantity/{id}
+    PATCH  /quote/status/{id}
+    DELETE /quote/{id}
+
+Un client qui appelle `GET /quote/list` reçoit donc des devis qu'il lui est
+impossible de rouvrir, de modifier ou de supprimer : l'identifiant nécessaire à
+chacune de ces routes n'apparaît nulle part dans la réponse.
+
+CORRECTIF :
+
+    public record QuoteDTO(
+            Long qotId,                // ← ajouter en tête
+            String qotNumber,
+            LocalDateTime qotCreatedDate,
+            LocalDate expirationDate,
+            QuoteStatus qotStatus,
+            QuoteDTO qotParent,
+            String cartRef,
+            List<QuoteLineDTO> qotLines,
+            BigDecimal totalHT,
+            BigDecimal totalTva,
+            BigDecimal totalTTC
+    ) {}
+
+et dans `QuoteMapper.toDTO`, passer `quote.getQotId()` en première position.
+
+Ajoutez aussi `cartId` à côté de `cartRef` : depuis un devis, le front ne peut
+aujourd'hui rejoindre son panier qu'en comparant des chaînes de caractères.
+
+
+═════════════════════════════════════════════════════════════════════════
+2. BLOQUANT — `updateQuantity` modifie la ligne d'un autre devis
+═════════════════════════════════════════════════════════════════════════
+
+Fichier : cart/service/QuoteService.java
+
+    QuoteLine quoteLine = quoteLineRepository.findByArticleRef(quantity.artRef());
+    if (quoteLine != null) {
+        quoteLineService.patchQuantity(quoteLine.getQotLnId(), quantity);
+        return quoteMapper.toDTO(quote);
+    }
+
+La recherche porte sur **toute la table**, sans aucun rattachement au devis
+`qotId` que l'on vient pourtant de charger. Deux conséquences :
+
+**a) La mauvaise ligne est modifiée.** Dès que deux devis contiennent le même
+article — la situation normale —, `PATCH /quote/quantity/{id}` touche la
+première ligne trouvée en base, qui appartient probablement à un autre devis.
+Le devis visé, lui, reste inchangé, mais la réponse renvoie son DTO : l'appelant
+croit l'opération réussie.
+
+**b) L'appel finit par échouer brutalement.** `findByArticleRef` déclare un
+retour unique :
+
+    QuoteLine findByArticleRef(String artRef);
+
+Spring Data lève `IncorrectResultSizeDataAccessException` dès que la requête
+ramène plusieurs lignes. Autrement dit, la route fonctionne tant qu'un seul
+devis existe pour un article donné, puis casse définitivement.
+
+CAUSE RACINE — `QuoteLine` n'a pas de lien vers son devis :
+
+    @OneToMany
+    @NotNull
+    protected List<QuoteLine> qotLines = new ArrayList<>();
+
+Sans `mappedBy` ni `@JoinColumn`, Hibernate crée une table de jointure et la
+ligne ignore à quel devis elle appartient. D'où la recherche globale, faute de
+mieux.
+
+CORRECTIF — donner un propriétaire à la relation. Dans `QuoteLine` :
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "quote_id")
+    protected Quote quote;
+
+Dans `Quote` :
+
+    @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL, orphanRemoval = true)
+    protected List<QuoteLine> qotLines = new ArrayList<>();
+
+Le `cascade` et l'`orphanRemoval` simplifient au passage `QuoteService.delete`,
+qui n'aura plus à supprimer les lignes une par une.
+
+Dans `QuoteLineRepository` :
+
+    Optional<QuoteLine> findByQuote_QotIdAndArticleRef(Long qotId, String artRef);
+
+Dans `QuoteService.updateQuantity` :
+
+    QuoteLine quoteLine = quoteLineRepository
+            .findByQuote_QotIdAndArticleRef(qotId, quantity.artRef())
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Ligne de devis non existante pour la référence " + quantity.artRef()));
+
+    quoteLineService.patchQuantity(quoteLine.getQotLnId(), quantity);
+    return quoteMapper.toDTO(quoteRepository.findById(qotId).orElseThrow());
+
+Notez le rechargement en fin : le code actuel renvoie l'objet `quote` capturé
+**avant** la modification, dont les lignes ne reflètent pas le changement qu'on
+vient d'écrire.
+
+
+═════════════════════════════════════════════════════════════════════════
+3. `QuoteMapper.toDTO` cumule les totaux du parent, et coûte cher
+═════════════════════════════════════════════════════════════════════════
+
+    if (quote.getQotParent() != null) {
+        totalHT = totalHT.add(quoteParent.totalHT());
+        totalTVA = totalTVA.add(quoteParent.totalTva());
+    }
+
+**Sur le fond, c'est une décision à assumer.** Si un devis enfant ne contient
+que les lignes *ajoutées*, alors afficher le cumul a du sens — c'est la logique
+d'un avenant. Mais s'il s'agit d'une **révision**, l'enfant remplace le parent :
+cumuler double le montant, et le client reçoit un total qui ne correspond à rien.
+
+Votre énumération contient `REVISITED`, ce qui suggère la seconde lecture. Il
+faut trancher, car le front ne peut pas deviner : ou bien l'enfant reprend
+toutes les lignes et le total ne doit **pas** être cumulé, ou bien il ne porte
+que le delta et le cumul est correct. Un même champ ne peut pas signifier les
+deux.
+
+Le front livré affiche les deux montants — le total renvoyé par l'API, et celui
+de ses propres lignes — et signale l'écart quand il existe, plutôt que de
+choisir à votre place.
+
+**Sur la forme, il y a un vrai coût.** `toDTO` est appelé deux fois par niveau :
+
+    QuoteDTO quoteParent = quote.getQotParent() != null ? this.toDTO(...) : null;
+    ...
+    quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null,
+
+La complexité est donc en 2^n sur la profondeur de la chaîne : dix révisions
+successives déclenchent plus de mille appels, chacun rechargeant les lignes.
+Réutilisez simplement la variable déjà calculée :
+
+    quoteParent,      // au lieu de this.toDTO(quote.getQotParent())
+
+**Et rien n'empêche un cycle.** `qotParent` n'est pas contrôlé : un devis qui
+serait son propre ancêtre ferait boucler `toDTO` jusqu'au `StackOverflowError`.
+Une garde à la création suffit :
+
+    Quote ancestor = qotParent;
+    while (ancestor != null) {
+        if (ancestor.getQotId().equals(quote.getQotId())) {
+            throw new IllegalArgumentException("Un devis ne peut pas descendre de lui-même");
+        }
+        ancestor = ancestor.getQotParent();
+    }
+
+Enfin, `QuoteDTO.qotParent` étant un `QuoteDTO` complet — lignes comprises, et
+son propre parent avec lui —, `GET /quote/list` renvoie sur une chaîne de
+révisions un document où chaque version est répétée à tous les niveaux. Un
+`QuoteSummaryDTO` réduit à `(qotId, qotNumber, qotStatus, totalTTC)` allégerait
+considérablement la réponse.
+
+
+═════════════════════════════════════════════════════════════════════════
+4. Aucune route n'ajoute une ligne à un devis
+═════════════════════════════════════════════════════════════════════════
+
+C'est exactement le cas dont nous parlions : le client accepte le principe puis
+demande un article de plus.
+
+`PATCH /quote/quantity/{id}` modifie la quantité d'une ligne existante, mais
+rien ne permet d'en ajouter ni d'en retirer une. Le seul chemin possible
+aujourd'hui consiste à modifier le panier, puis à créer un **nouveau devis** avec
+`qotParentId` renseigné — ce qui correspond d'ailleurs à la bonne pratique pour
+un devis déjà transmis.
+
+C'est cohérent, mais il faut en tirer deux conséquences :
+
+- **le devis est figé dès sa création**, et c'est très bien ainsi. Autant
+  l'assumer explicitement : refuser `PATCH /quote/quantity` sur un devis dont le
+  statut n'est plus `PENDING` (`ACCEPTED`, `REJECTED`, `EXPIRED` et `CLOSED`
+  devraient être immuables) ;
+- **le passage à la révision doit être outillé**, sinon l'utilisateur recrée un
+  devis sans lien avec le précédent et la chaîne se perd. Le front livré fournit
+  ce geste.
+
+Si vous préférez autoriser l'ajout de lignes tant que le devis est `PENDING`,
+il faut une route dédiée :
+
+    POST /quote/{id}/line     (articleId + quantité, snapshot pris à cet instant)
+    DELETE /quote/{id}/line/{lineId}
+
+
+═════════════════════════════════════════════════════════════════════════
+5. Points mineurs
+═════════════════════════════════════════════════════════════════════════
+
+**`qotNumber` est à la charge du client.** Le champ est `@NotBlank` et
+`@Column(unique = true)` : c'est donc à l'appelant de produire un numéro, et
+deux appels simultanés peuvent entrer en collision. Le front livré applique la
+numérotation professionnelle usuelle — `DEV-2026-0001`, puis `DEV-2026-0001-B`,
+`-C` pour les révisions successives — mais un compteur côté serveur serait plus
+sûr.
+
+**`PATCH /quote/status/{id}` attend l'énumération nue en corps de requête.**
+Il faut donc envoyer `"ACCEPTED"` — une chaîne JSON brute, sans objet
+enveloppant. C'est inhabituel et fragile à documenter ; un
+`record StatusRequest(QuoteStatus status)` serait plus conventionnel. Le front
+envoie la chaîne brute, conformément à l'implémentation actuelle.
+
+**Aucune règle de transition n'est appliquée.** On peut repasser un devis
+`ACCEPTED` à `PENDING`, ou ressusciter un `EXPIRED`. Sur un document qui engage
+l'entreprise, cela mérite une garde.
+
+**`@NotNull` sur `int qotLnQuantity`** est inopérant : un primitif n'est jamais
+nul. `@Min(1)` serait utile, une ligne de devis à quantité nulle n'ayant pas de
+sens.
+
+**`delete` ne protège pas les descendants.** Supprimer un devis qui sert de
+parent à un autre laisse une clé étrangère pendante. Refusez la suppression, ou
+détachez les enfants au préalable.
+
+**`create` n'exige pas que le panier ait des lignes.** Un panier vide produit un
+devis sans ligne, à zéro euro, qu'on peut transmettre au client.
+
+**`setQotLines(...toList())`** reprend le motif de liste immuable déjà corrigé
+trois fois ailleurs. Ici l'entité est neuve, donc `save()` fait un `persist()`
+et non un `merge()` : rien ne casse aujourd'hui. Mais la collection de l'entité
+reste immuable en mémoire, et le premier `add()` ultérieur lèvera
+`UnsupportedOperationException`. Avec le `cascade` recommandé au point 2, écrivez
+plutôt :
+
+    qotLines.forEach(line -> { line.setQuote(quote); quote.getQotLines().add(line); });

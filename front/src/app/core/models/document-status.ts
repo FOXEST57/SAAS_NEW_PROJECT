@@ -1,31 +1,18 @@
 /**
  * Cycle de vie d'un document commercial.
  *
- * Depuis le 4 août 2026, le backend possède de vraies entités `Quote`,
- * `Command`, `Invoice` (+ `InvoiceLine`, prix figé) en plus du `Cart`
- * d'origine. `DocumentStatus` reste le vocabulaire métier à 6 valeurs utilisé
- * par tout le front (badges, colonnes du pipeline, entonnoir) : c'est une
- * **étape de présentation**, pas un champ persisté. Chaque entité y est
- * projetée par les fonctions `quoteBucket` / `commandBucket` /
- * `invoiceBucket` ci-dessous, à partir de son statut réel.
+ * Le backend ne possède pas d'entités `Devis` / `Commande` / `Facture` : un
+ * `Cart` porte un champ texte libre `crtStatus`. Ce module définit le
+ * vocabulaire métier utilisé par le front et normalise les statuts historiques
+ * présents dans `data.sql` (`OPEN`, `VALIDATED`, `ABANDONED`).
  *
  *   PANIER ──▶ DEVIS ──▶ COMMANDE ──▶ FACTURE ──▶ PAYEE
  *      └─────────┴──────────┴───────────┴──────▶ ANNULE
- *
- * Le passage d'une étape à l'autre n'est plus un changement de champ : c'est
- * la création d'une entité (`POST /quote`, `POST /command`, `POST /invoice`).
- * Un `Cart` qui a déjà engendré un `Quote` n'est donc plus affiché comme
- * PANIER — voir `CommerceStore` pour la composition du portefeuille de
- * documents à partir des quatre sources.
  *
  * La COMMANDE matérialise le devis accepté : l'engagement du client est pris,
  * la pose peut être planifiée, mais la facture n'est pas encore émise. C'est
  * l'étape où le stock est réputé engagé.
  */
-
-import type { CommandStatus, InvoiceStatus, QuoteStatus } from './api.models';
-
-export type DocumentKind = 'cart' | 'quote' | 'command' | 'invoice';
 
 export type DocumentStatus =
   | 'PANIER'
@@ -98,11 +85,8 @@ export const DOCUMENT_STATUSES: Record<DocumentStatus, DocumentStatusMeta> = {
     label: 'Commande',
     docLabel: 'Bon de commande',
     badgeClass: 'badge-violet',
-    next: ['FACTURE'],
-    // La Command n'a pas de lignes propres (elle reprend celles du Quote) et
-    // n'expose qu'un statut de suivi logistique : plus rien n'est éditable à
-    // ce stade côté front.
-    editable: false,
+    next: ['FACTURE', 'DEVIS', 'ANNULE'],
+    editable: true,
     prefix: 'CDE',
     icon: 'clipboard',
     description: 'Devis accepté par le client. Pose à planifier, stock engagé.',
@@ -236,34 +220,4 @@ export function transitionLabel(next: DocumentStatus): string {
     PAYEE: 'Marquer comme payée',
     ANNULE: 'Annuler le document',
   }[next];
-}
-
-/* ==================================================================
-   Projection des statuts réels (Quote / Command / Invoice) sur l'étape
-   métier affichée par le front.
-   ================================================================== */
-
-/**
- * Un devis clos négativement (refusé, expiré, révisé) n'a plus sa place dans
- * le pipeline actif : il est présenté comme annulé plutôt que comme un
- * « devis » qui n'avancera plus.
- */
-export function quoteBucket(status: QuoteStatus): DocumentStatus {
-  if (status === 'REJECTED' || status === 'EXPIRED' || status === 'CLOSED') return 'ANNULE';
-  return 'DEVIS';
-}
-
-/**
- * `CommandStatus` ne porte que du suivi logistique (créée, en attente,
- * acceptée, livrée) : aucune valeur ne sort une commande du pipeline avant
- * qu'elle soit facturée.
- */
-export function commandBucket(_status: CommandStatus): DocumentStatus {
-  return 'COMMANDE';
-}
-
-export function invoiceBucket(status: InvoiceStatus): DocumentStatus {
-  if (status === 'PAID') return 'PAYEE';
-  if (status === 'CANCELLED') return 'ANNULE';
-  return 'FACTURE';
 }

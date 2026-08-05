@@ -31,12 +31,14 @@ const NAV: readonly NavGroup[] = [
       { path: '/a-traiter', label: 'À traiter', icon: 'bell', badge: 'actions' },
       { path: '/approvisionnement', label: 'Approvisionnement', icon: 'truck', badge: 'supply' },
       { path: '/documents', label: 'Devis & factures', icon: 'invoice' },
+      { path: '/devis', label: 'Devis émis', icon: 'clipboard' },
     ],
   },
   {
     label: 'Catalogue',
     items: [
       { path: '/articles', label: 'Articles', icon: 'package' },
+      { path: '/inventaire', label: 'Inventaire', icon: 'boxes' },
       { path: '/categories', label: 'Catégories', icon: 'tag' },
       { path: '/tva', label: 'Taux de TVA', icon: 'percent' },
       { path: '/references', label: 'Références', icon: 'link' },

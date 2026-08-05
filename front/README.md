@@ -67,54 +67,24 @@ En production, renseignez l'URL publique de l'API dans
 
 ### Documents commerciaux
 
-Depuis le 4 août 2026, le backend possède de vraies entités `Quote`,
-`Command`, `Invoice` (+ `InvoiceLine`, prix figé) en plus du `Cart` d'origine.
-Un document commercial n'est donc plus une seule ligne de `Cart` dont on
-relit le statut : c'est l'une de quatre entités, chacune avec son propre id
-et son propre statut. Le front les compose en un seul portefeuille via
-`CommerceStore` (`core/services/commerce-store.service.ts`) et les projette
-sur un vocabulaire à 6 étapes, purement présentationnel :
+Le backend ne possède pas d'entités `Devis` / `Facture` : un `Cart` porte un
+champ texte `crtStatus`. Le front s'appuie dessus pour matérialiser le cycle de
+vie commercial :
 
 ```
 PANIER ──▶ DEVIS ──▶ COMMANDE ──▶ FACTURE ──▶ PAYEE
    └─────────┴──────────┴───────────┴──────▶ ANNULE
 ```
 
-- **PANIER** (`Cart` + `OrderLine`) : seule étape encore éditable en ligne,
-  dans `cart-editor.component.ts`. Passer à l'étape suivante crée un `Quote`
-  (`POST /quote`) — ce n'est plus un changement de champ.
-- **DEVIS** (`Quote` + `QuoteLine`, prix figé) : la quantité reste modifiable
-  tant que le devis est dans un statut ouvert (`CREATED`, `PENDING`,
-  `REJECTED`), via `PATCH /quote/quantity/{id}`.
-- **COMMANDE** (`Command`) : n'a pas de lignes propres, seulement un statut de
-  suivi logistique et une référence vers le `Quote` d'origine. Plus rien n'y
-  est modifiable côté front.
-- **FACTURE / PAYEE** (`Invoice` + `InvoiceLine`, prix figé) : verrouillée par
-  construction — `InvoiceLine` fige prix, TVA et totaux au moment de la
-  création (`POST /invoice`), qui recopie les lignes du `Quote` d'origine via
-  la `Command`.
-- Chaque route de transition (`/quote`, `/command`, `/invoice`) est appelée
-  depuis `CommerceStore` (`transitionToQuote`, `transitionToCommand`,
-  `transitionToInvoice`, `markInvoicePaid`) — c'est le seul point d'entrée,
-  utilisé aussi bien par le pipeline que par l'écran de détail.
-- Les routes de détail portent désormais la nature du document :
-  `/documents/:kind/:id` (`kind` = `cart | quote | command | invoice`), et
-  `/documents/:kind/:id/impression` pour l'aperçu imprimable. Seul `cart`
-  pointe vers un éditeur ; les trois autres pointent vers
-  `document-print.component.ts`, qui sert aussi d'écran de détail (actions de
-  transition comprises) faute d'éditeur dédié à chacun.
-- Les statuts historiques du `data.sql` (`OPEN`, `VALIDATED`, `ABANDONED`) sur
-  `Cart.crtStatus` restent reconnus par `normalizeStatus()` mais ne pilotent
-  plus le cycle de vie : celui-ci se déduit désormais de la présence ou non
-  d'un `Quote` / `Command` / `Invoice`, pas d'un texte libre.
-
-**Une limite vient encore d'un DTO backend, pas d'un choix du front** — voir
-les notes dans `core/models/api.models.ts` et
-`core/services/commerce-store.service.ts` : `InvoiceDTO` n'expose aucun lien
-vers sa `Command` d'origine (une commande facturée peut donc continuer
-d'apparaître dans la colonne « Commande » du pipeline). `CommandDTO` portait
-la même limite côté client, corrigée le 4 août 2026 par l'ajout de
-`quoteId`.
+- **PANIER / DEVIS / COMMANDE** : lignes et client librement modifiables
+- **FACTURE / PAYEE** : contenu verrouillé (règle métier appliquée côté front)
+- La **commande** matérialise le devis accepté : engagement du client pris, pose à
+  planifier, stock réputé engagé
+- À chaque transition, la référence est renumérotée en conservant le millésime et
+  le numéro d'ordre : `DEV-2026-0007` → `CDE-2026-0007` → `FAC-2026-0007`
+- Les statuts historiques du `data.sql` (`OPEN`, `VALIDATED`, `ABANDONED`) sont
+  reconnus et normalisés automatiquement — voir
+  `core/models/document-status.ts`
 
 Chaque document dispose d'un **aperçu A4 imprimable** (`/documents/:id/impression`)
 avec ventilation de la TVA par taux, et mentions légales de devis (validité
@@ -336,14 +306,8 @@ referait ce N+1 à chaque navigation.
 `CommerceStore` charge une fois, expose des `signal`, et les vues ne contiennent
 que des `computed`. Le rafraîchissement reste explicite (`load()` au montage,
 `reload()` après écriture) : pas de rechargement implicite, le comportement reste
-prévisible.
-
-Le pipeline n'a plus de mise à jour optimiste locale : avancer un document
-crée une entité distincte (un `Quote` n'est pas un `Cart` renommé), donc
-chaque transition (`transitionToQuote`, `transitionToCommand`,
-`transitionToInvoice`, `markInvoicePaid`) attend la confirmation du serveur
-avant de recharger le magasin — la carte ne bouge qu'une fois l'appel réseau
-abouti.
+prévisible. Le pipeline y ajoute une mise à jour optimiste (`patchStatus`) pour
+que le glisser-déposer soit instantané, avec retour arrière si l'appel échoue.
 
 ### Correspondance avec les DTO
 
@@ -353,9 +317,6 @@ front :
 
 - `SupplierRequestDTO` utilise `name` / `email` / `phoneNumber`, alors que
   `SupplierDTO` renvoie `splName` / `splEmail` / `splPhone`
-- `CommandDTO` portait son identifiant dans un champ nommé `cmfId` (coquille
-  pour `cmdId`) — corrigé côté backend le 4 août 2026, reproduit sous
-  `Command.cmdId` côté front
 - La route des types de compte est en PascalCase : `/AccountType`
 - `PUT /article/{id}` attend un `ArticleUpdateDTO` **sans** le champ `suppliers`
   (les références se gèrent depuis l'écran dédié)
@@ -476,3 +437,254 @@ Les quatre rôles — `user`, `superuser`, `admin`, `superadmin` — sont lus de
 le claim `role` et exposés par `AuthService.hasAtLeast()`. **Aucun écran n'est
 masqué à ce stade** : la hiérarchie est en place, la matrice des droits reste à
 définir. Un libellé inconnu retombe sur `user`, le rôle le moins privilégié.
+
+## Lancer l'application sans npm
+
+Il faut distinguer **compiler** et **exécuter**.
+
+Angular se compile avec Node : le compilateur *est* un programme Node, il n'y a
+pas de contournement. Cette étape reste donc nécessaire une fois, à chaque
+modification du code.
+
+En revanche, ce que la compilation produit est du HTML, du CSS et du JavaScript
+statiques. **Exécuter** l'application ne demande alors plus ni Node, ni npm, ni
+serveur de développement.
+
+### Servir le front depuis Spring Boot (recommandé)
+
+Une seule commande à lancer, un seul port, et la question du CORS disparaît :
+front et API partagent la même origine.
+
+```bash
+# 1. Compiler, une fois (nécessite Node)
+cd front
+npm ci                       # uniquement au premier lancement
+npx ng build --configuration production
+
+# 2. Déposer le résultat dans les ressources statiques du backend
+rm -rf ../back/src/main/resources/static
+mkdir -p ../back/src/main/resources/static
+cp -r dist/front/browser/* ../back/src/main/resources/static/
+```
+
+Sous Windows (PowerShell), remplacez la seconde étape par :
+
+```powershell
+Remove-Item -Recurse -Force ..\back\src\main\resources\static -ErrorAction Ignore
+New-Item -ItemType Directory ..\back\src\main\resources\static | Out-Null
+Copy-Item -Recurse dist\front\browser\* ..\back\src\main\resources\static\
+```
+
+Ajoutez ensuite **`backend-patch/SpaConfig.java`** dans le paquet `config` du
+backend, puis démarrez normalement :
+
+```bash
+cd ../back
+./mvnw spring-boot:run          # ou : java -jar target/saas_facturation-0.0.1-SNAPSHOT.jar
+```
+
+L'application est alors sur <http://localhost:8080>. Plus aucun processus Node
+ne tourne.
+
+**Pourquoi `SpaConfig` est indispensable.** Angular gère la navigation dans le
+navigateur : `/documents/3` ne correspond à aucun fichier. Tant que vous cliquez
+dans l'application, tout va bien. Mais un signet, un rafraîchissement (F5) ou un
+lien collé envoie vraiment cette adresse à Spring, qui répond 404. `SpaConfig`
+renvoie `index.html` pour toute adresse qui n'est ni un fichier ni une route
+d'API — Angular lit alors l'URL et affiche le bon écran. Les contrôleurs restent
+prioritaires : Spring les consulte avant les ressources statiques, `/article`
+atteint donc bien `ArticleController`.
+
+`environment.prod.ts` est déjà réglé pour ce mode : `apiBaseUrl` y est **vide**,
+donc les appels partent en relatif. Si vous hébergez le front ailleurs, remettez
+l'URL publique de l'API et autorisez cette origine côté `SecurityConfig`.
+
+### Servir le build avec n'importe quel serveur statique
+
+Le dossier `dist/front/browser/` se pose tel quel derrière nginx, IIS, Apache ou
+un CDN. Une seule règle est à configurer : renvoyer `index.html` pour les
+adresses inconnues, pour la raison expliquée plus haut. Sous nginx :
+
+```nginx
+location / {
+    root /chemin/vers/dist/front/browser;
+    try_files $uri $uri/ /index.html;
+}
+```
+
+Pensez alors à renseigner l'URL de l'API dans `environment.prod.ts`, puisque les
+deux ne partagent plus la même origine.
+
+### Si vous vouliez seulement éviter `npm run start`
+
+Le développement quotidien passe par le serveur Angular, qui recharge à chaud.
+`npm start` n'est qu'un raccourci vers `ng serve` — vous pouvez appeler la CLI
+directement :
+
+```bash
+npx ng serve                 # sans installation supplémentaire
+ng serve                     # si la CLI est installée globalement
+```
+
+Cela reste du Node : c'est inhérent au rechargement à chaud. Seule la mise en
+production s'en affranchit.
+
+## Inventaire
+
+Un relevé d'inventaire est un **fait daté** : quelqu'un est allé compter. C'est
+la seule valeur de stock dont on soit certain, et elle sert d'ancrage — le stock
+d'aujourd'hui, c'est le dernier comptage augmenté des entrées postérieures.
+
+L'écran `/inventaire` s'organise autour de l'**article** plutôt que du relevé :
+ce qui intéresse l'utilisateur, c'est « où en est cet article », pas « quels
+relevés existent ». Pour chacun, la quantité comptée, celle qu'annonce l'API,
+l'écart entre les deux, et un historique dépliable avec les variations.
+
+| Fichier | Rôle |
+| --- | --- |
+| `core/api/inventory.service.ts` | Miroir de `InventoryController` |
+| `core/models/stock.ts` | Lecture du stock à partir des relevés |
+| `features/inventory/inventory.component.ts` | L'écran |
+
+### Ce que le front peut calculer, et ce qu'il ne peut pas
+
+`StockService` définit côté serveur cinq notions de stock — actuel, en attente,
+commandé, disponible, théorique. **Aucune n'est calculable depuis le front**, et
+ce n'est pas un choix : `SupplierReferenceResponseDTO` et
+`MakerReferenceResponseDTO` renvoient les quantités mais **ni le statut de
+livraison, ni la date de mise à jour**. Impossible donc de distinguer une
+commande reçue d'une commande attendue, ni de la situer par rapport à un relevé.
+
+Le front s'en tient donc à ce qui est établi : le dernier comptage, son
+ancienneté, et l'écart avec le stock annoncé. Le reste est nommé pour ce qu'il
+est — indisponible — plutôt que deviné. Pour aller plus loin, exposez
+`StockService` derrière un contrôleur : la définition du stock reste alors au
+serveur, seul endroit où elle peut être juste.
+
+### Changements de contrat à connaître
+
+L'arrivée de l'inventaire a modifié trois choses côté API :
+
+- **`artStock` a disparu des requêtes.** Le stock n'est plus saisi mais calculé
+  par `ArticleMapper.calculStock()`. Le formulaire article l'affiche donc en
+  lecture seule, avec un lien vers les relevés.
+- **`invIds` est apparu dans `ArticleUpdateDTO`**, et il est déréférencé sans
+  contrôle : l'omettre provoque une `NullPointerException`. Le front transmet
+  toujours un tableau, fût-il vide.
+- **Le statut de livraison est obligatoire** sur les références fournisseur et
+  fabricant, en création comme en modification. Comme les réponses ne le
+  renvoient pas, l'écran de modification prévient que la valeur affichée
+  écrasera l'existante.
+
+Le contrôle de stock d'`OrderLineService` étant désormais commenté,
+l'avertissement de rupture qui figurait dans l'éditeur de document a été retiré.
+
+### Défauts bloquants
+
+`backend-patch/Inventory-blocages.patch` détaille huit points. Les trois
+suivants empêchent le fonctionnement :
+
+1. **`invDate` sera toujours `null`** — `Inventory` ne déclare pas
+   `@EntityListeners(AuditingEntityListener.class)`, ce qui rend `@CreatedDate`
+   inerte. Toutes vos autres entités auditées l'ont. Sans date, un relevé perd
+   son objet.
+2. **`POST` et `PUT /inventory` répondent 500** — `@NotBlank` sur un `int` lève
+   une `UnexpectedTypeException` à chaque appel. Aucun relevé ne peut donc être
+   créé aujourd'hui.
+3. **`POST /article` échoue systématiquement** — `ArticleService.create`
+   construit un inventaire initial puis fait `setInventories(List.of(...))`.
+   `List.of()` est immuable, le `merge` d'Hibernate échoue au `clear()`. Le bloc
+   n'ayant aucune condition, **aucune création d'article ne passe**, quel que
+   soit le contenu envoyé.
+
+C'est la troisième fois que ce motif apparaît dans le projet — `setCategories`
+en juillet, `setCustomers` en juillet, `setInventories` aujourd'hui aux deux
+endroits. La règle, énoncée dans le patch : **ne jamais remplacer la référence
+d'une collection gérée par Hibernate, la muter** (`getX().clear()` puis
+`addAll()`). Sont concernées toutes les sources immuables — `Stream.toList()`,
+`List.of()`, `Collectors.toUnmodifiableList()`, et `Arrays.asList()` qui est de
+taille fixe.
+
+L'écran signale le premier point en haut de page tant qu'il subsiste des relevés
+sans date.
+
+## Devis émis (Quote / QuoteLine)
+
+Deux notions coexistent, et les distinguer évite bien des confusions :
+
+- **Devis & factures** (`/documents`) suit les **affaires** — un panier qui
+  devient devis, puis commande, puis facture. Les lignes y référencent le
+  catalogue : elles suivent donc les prix courants.
+- **Devis émis** (`/devis`) montre les **documents transmis au client**. Leurs
+  lignes sont *figées* : désignation, référence, prix HT et taux de TVA sont
+  recopiés à l'émission. Un article renommé, un prix revu ou un taux qui passe
+  de 5,5 % à 10 % ne réécrivent plus le passé.
+
+### Trois états, trois gestes
+
+Le devis **naît avec le passage du document au statut Devis** — depuis l'éditeur
+comme depuis le pipeline, les deux chemins appellent le même service. Il porte
+alors le statut `CREATED` : il existe en base, avec son numéro et ses lignes
+figées, mais rien n'a été transmis au client.
+
+| État | Ce qu'on peut faire | Ce que ça veut dire |
+| --- | --- | --- |
+| `CREATED` | modifier les quantités, régénérer, **transmettre** | brouillon, encore chez vous |
+| `PENDING` | **accepter**, **refuser**, réviser | le client détient un exemplaire |
+| autres | consulter, réviser | tranché ou périmé |
+
+La frontière qui compte est la transmission, pas la création. Tant que le devis
+n'a pas quitté la maison, le corriger ne trompe personne. Dès qu'un exemplaire
+est chez le client, le modifier ferait diverger deux copies d'un même numéro :
+toute évolution passe alors par une **révision**, `DEV-2026-0001` → `-B` → `-C`,
+qui bascule la précédente en `REVISITED`.
+
+C'est la convention professionnelle de l'indice : le dossier garde son numéro,
+la lettre dit quelle version fait foi. La révision crée un nouveau document
+rattaché au précédent par `qotParentId`, et bascule l'ancien en `REVISITED` —
+« remplacé ». L'ancien reste consultable : c'est la trace de ce qui avait été
+proposé, et à quel prix.
+
+Avant d'émettre, l'application vérifie que les modifications en cours sont
+enregistrées. Le serveur fige les lignes telles qu'elles sont **en base**, pas
+telles qu'elles s'affichent : émettre un devis sur un écran non enregistré
+figerait autre chose que ce que l'utilisateur voit.
+
+### Deux défauts bloquants
+
+`backend-patch/Quote-analyse.patch` détaille l'analyse. Deux points empêchent
+l'API d'être utilisable :
+
+1. **`QuoteDTO` ne renvoie pas `qotId`**, alors que `GET /quote/{id}`,
+   `PATCH /quote/status/{id}`, `PATCH /quote/quantity/{id}` et `DELETE` sont
+   tous adressés par identifiant. Aucun client ne peut donc changer un statut
+   ni supprimer un devis. L'écran affiche un bandeau et désactive les actions
+   concernées tant que le champ manque.
+2. **`updateQuantity` cherche la ligne dans toute la table**
+   (`findByArticleRef`), sans la rattacher au devis visé. La mauvaise ligne est
+   modifiée dès que deux devis partagent un article, et l'appel finit par lever
+   `IncorrectResultSizeDataAccessException`. La cause tient au `@OneToMany` sans
+   `mappedBy` : `QuoteLine` ignore à quel devis elle appartient.
+
+### Modifier une quantité
+
+Sur un devis **en attente**, la quantité de chaque ligne est directement
+modifiable dans le détail. Le serveur applique la même règle — `updateQuantity`
+refuse tout devis qui n'est plus `PENDING` — et l'interface l'anticipe : sur un
+devis accepté, refusé ou remplacé, les quantités passent en lecture seule et un
+message rappelle que l'évolution passe par une révision.
+
+La ligne est désignée par sa **référence d'article**, `PatchQuoteLineQuantity`
+ne portant que `artRef`. La casse est sans importance côté serveur
+(`equalsIgnoreCase`), ce qui compte puisque `LowercaseConverter` est en
+`autoApply` et stocke toutes les chaînes en minuscules.
+
+Si le devis change de statut entre l'affichage et la saisie, le serveur répond
+409 : le champ reprend sa valeur d'origine et l'utilisateur est prévenu, plutôt
+que de garder à l'écran un nombre qui n'existe pas en base.
+
+Un troisième point demande une décision : `QuoteMapper` **ajoute les totaux du
+devis parent** à ceux de l'enfant. Si la révision reprend toutes les lignes, ce
+cumul double le montant ; si elle ne porte que les ajouts, il est juste.
+L'interface affiche les deux — le total des lignes du devis, et celui renvoyé
+par l'API quand ils diffèrent — plutôt que de trancher à votre place.

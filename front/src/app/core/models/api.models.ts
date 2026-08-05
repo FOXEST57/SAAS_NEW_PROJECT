@@ -235,6 +235,11 @@ export interface Article {
   artName: string;
   artDescription: string;
   artPriceExcludeTaxes: number;
+  /**
+   * Stock **calculé** par le serveur, non stocké : somme des quantités de
+   * toutes les références fournisseur et fabricant, statut de livraison
+   * ignoré. Une commande encore en attente y est donc déjà comptée.
+   */
   artStock: number;
   tva: TvaResponse | null;
   artPriceTTC: number;
@@ -276,27 +281,97 @@ export interface ArticleResponseMakerReference {
   suppliers: SupplierReferenceResponse[] | null;
 }
 
-/** `DTO/requestDTO/ArticleRequestDTO.java` (création). */
+/* ==================================================================
+   Inventaire
+   ================================================================== */
+
+/** `enumeration/DeliveryStatus.java` */
+export type DeliveryStatus = 'CANCELLED' | 'RECEIVED' | 'PENDING' | 'ACCEPTED';
+
+export const DELIVERY_STATUSES: readonly DeliveryStatus[] = [
+  'PENDING',
+  'ACCEPTED',
+  'RECEIVED',
+  'CANCELLED',
+];
+
+export const DELIVERY_STATUS_LABELS: Record<DeliveryStatus, string> = {
+  PENDING: 'Commandé, en attente',
+  ACCEPTED: 'Accepté par le fournisseur',
+  RECEIVED: 'Reçu en dépôt',
+  CANCELLED: 'Annulé',
+};
+
+/** `DTO/responseDTO/ArticleResponseInventoryDTO.java` */
+export interface ArticleResponseInventory {
+  artId: number;
+  /**
+   * Attention : `InventoryMapper` construit ce DTO avec
+   * `(artId, artName, artReference)` alors que le record déclare
+   * `(artId, artReference, artName)`. Les deux valeurs arrivent donc
+   * **inversées**. Voir `backend-patch/Inventory-blocages.patch`, section 7.
+   */
+  artReference: string;
+  artName: string;
+}
+
+/**
+ * `DTO/InventoryDTO.java` — un relevé de stock physique, daté.
+ *
+ * C'est le point d'ancrage du calcul : on constate une quantité réelle à un
+ * instant donné, puis on ajoute les entrées postérieures pour obtenir le stock
+ * théorique d'aujourd'hui.
+ */
+export interface Inventory {
+  invId: number;
+  /**
+   * Date du relevé. **Null tant que le correctif backend n'est pas appliqué** :
+   * `@CreatedDate` reste inerte sur `Inventory`, faute d'`@EntityListeners`.
+   */
+  invDate: string | null;
+  invStock: number;
+  article: ArticleResponseInventory | null;
+}
+
+/** `DTO/requestDTO/InventoryRequestDTO.java` */
+export interface InventoryRequest {
+  invStock: number;
+  articleId: number;
+}
+
+/**
+ * `DTO/requestDTO/ArticleRequestDTO.java` (création).
+ *
+ * `artStock` a disparu : le stock n'est plus une valeur saisie. Il est
+ * désormais **calculé** par le serveur à partir des références fournisseur et
+ * fabricant, et il ne se renseigne donc plus à la main.
+ */
 export interface ArticleRequest {
   artReference: string;
   artName: string;
   artDescription: string;
   artPriceExcludeTaxes: number;
-  artStock: number;
   tvaId: number;
   categoryIds: number[];
   suppliers: SupplierReferenceRequest[];
 }
 
-/** `DTO/updateDTO/ArticleUpdateDTO.java` (modification — sans `suppliers`). */
+/**
+ * `DTO/updateDTO/ArticleUpdateDTO.java` (modification — sans `suppliers`).
+ *
+ * `invIds` rattache des relevés d'inventaire à l'article. Le champ est
+ * **déréférencé sans contrôle** côté serveur : l'omettre, ou l'envoyer à
+ * `null`, provoque une `NullPointerException`. On transmet donc toujours un
+ * tableau, fût-il vide.
+ */
 export interface ArticleUpdate {
   artReference: string;
   artName: string;
   artDescription: string;
   artPriceExcludeTaxes: number;
-  artStock: number;
   tvaId: number;
   categoryIds: number[];
+  invIds: number[];
 }
 
 /* ==================================================================
@@ -313,12 +388,19 @@ export interface SupplierReference {
 }
 
 /** `DTO/requestDTO/SupplierReferenceRequestDTO.java` */
+/**
+ * Le statut de livraison est **obligatoire en écriture** (`@NotNull`), mais
+ * absent des DTO de réponse. Le front doit donc le fournir sans jamais pouvoir
+ * relire celui qui est en base : à la modification, la valeur transmise écrase
+ * l'existante. Voir `backend-patch/Inventory-blocages.patch`, section 4.
+ */
 export interface SupplierReferenceRequest {
   articleId: number;
   supplierId: number;
   splRefReference: string;
   splRefSellPrice: number;
   splRefStock: number;
+  status: DeliveryStatus;
 }
 
 /** `DTO/updateDTO/UpdateSupplierReferenceDTO.java` */
@@ -326,6 +408,7 @@ export interface SupplierReferenceUpdate {
   splRefReference: string;
   splRefSellPrice: number;
   splRefStock: number;
+  status: DeliveryStatus;
 }
 
 /** `DTO/MakerReferenceDTO.java` */
@@ -337,13 +420,14 @@ export interface MakerReference {
   artMkrSellPrice: number;
 }
 
-/** `DTO/requestDTO/MakerReferenceRequestDTO.java` */
+/** `DTO/requestDTO/MakerReferenceRequestDTO.java` — voir la note sur `status` ci-dessus. */
 export interface MakerReferenceRequest {
   artId: number;
   mkrId: number;
   artMkrReference: string;
   artMkrStock: number;
   artMkrSellPrice: number;
+  status: DeliveryStatus;
 }
 
 /** `DTO/updateDTO/UpdateMakerReferenceDTO.java` */
@@ -351,6 +435,256 @@ export interface MakerReferenceUpdate {
   reference: string;
   artMkrStock: number;
   artMkrSellPrice: number;
+  status: DeliveryStatus;
+}
+
+/* ==================================================================
+   Devis émis (Quote / QuoteLine)
+   ================================================================== */
+
+/** `enumeration/QuoteStatus.java` */
+export type QuoteStatus =
+  | 'CREATED'
+  | 'PENDING'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'EXPIRED'
+  | 'CLOSED'
+  | 'REVISITED';
+
+export const QUOTE_STATUSES: readonly QuoteStatus[] = [
+  'CREATED',
+  'PENDING',
+  'ACCEPTED',
+  'REJECTED',
+  'EXPIRED',
+  'CLOSED',
+  'REVISITED',
+];
+
+export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
+  CREATED: 'Brouillon, non transmis',
+  PENDING: 'En attente de réponse',
+  ACCEPTED: 'Accepté',
+  REJECTED: 'Refusé',
+  EXPIRED: 'Expiré',
+  CLOSED: 'Clos',
+  REVISITED: 'Remplacé par une révision',
+};
+
+/**
+ * Un devis n'est librement modifiable que tant qu'il n'a pas quitté la maison.
+ *
+ * `CREATED` est le brouillon : il existe en base dès que le document passe au
+ * statut Devis, mais rien n'a encore été transmis. Dès `PENDING`, le client
+ * détient un exemplaire portant un numéro et un montant — le modifier ferait
+ * diverger les deux copies. Toute évolution passe alors par une révision.
+ */
+export function isQuoteEditable(status: QuoteStatus): boolean {
+  return status === 'CREATED';
+}
+
+/** Un brouillon peut être transmis ; rien d'autre ne le peut. */
+export function isQuoteSendable(status: QuoteStatus): boolean {
+  return status === 'CREATED';
+}
+
+/**
+ * `DTO/QuoteLineDTO.java` — une ligne **figée** au moment de l'émission.
+ *
+ * Tout y est recopié plutôt que référencé : désignation, référence, prix HT et
+ * surtout taux de TVA. C'est ce qui garantit qu'un devis transmis ne se
+ * déforme pas quand le catalogue évolue — un article renommé, un prix revu ou
+ * un taux qui passe de 5,5 % à 10 % ne réécrivent pas le passé.
+ */
+export interface QuoteLine {
+  qotLnId: number;
+  qotLnQuantity: number;
+  qotLnPriceHT: number;
+  articleName: string;
+  articleRef: string;
+  /** Taux figé, exprimé en décimal (0.055 pour 5,5 %). */
+  tvaRate: number;
+  totalHT: number;
+  totalTVA: number;
+  totalTTC: number;
+}
+
+/**
+ * `DTO/QuoteDTO.java` — un devis émis.
+ *
+ * L'identifiant est exposé sous le nom `quoteId`. L'interface reste tolérante à
+ * son absence — les actions de mutation se désactivent alors d'elles-mêmes
+ * plutôt que d'échouer à l'appel.
+ */
+export interface Quote {
+  /**
+   * Nommé `quoteId` côté serveur, et non `qotId` comme les autres champs du
+   * record. Reste optionnel : le champ a été ajouté récemment, une réponse qui
+   * ne le porterait pas ne doit pas casser l'affichage.
+   */
+  quoteId?: number | null;
+  qotNumber: string;
+  qotCreatedDate: string | null;
+  expirationDate: string | null;
+  qotStatus: QuoteStatus;
+  /** Devis remplacé par celui-ci. Récursif : porte lui-même son parent. */
+  qotParent: Quote | null;
+  /** Identifiant du panier d'origine — remplace l'ancienne `cartRef`. */
+  cartId: number | null;
+  qotLines: QuoteLine[] | null;
+  /**
+   * Totaux renvoyés par l'API. Attention : `QuoteMapper` y **ajoute ceux du
+   * parent** quand le devis en a un. Selon que la révision reprend toutes les
+   * lignes ou seulement les ajouts, ce cumul est juste ou double le montant.
+   * `ownTotals()` recalcule le total des seules lignes du devis, pour permettre
+   * la comparaison.
+   */
+  totalHT: number;
+  totalTva: number;
+  totalTTC: number;
+}
+
+/** `DTO/requestDTO/QuoteRequestDTO.java` */
+export interface QuoteRequest {
+  qotNumber: string;
+  /** Format `YYYY-MM-DD` : le backend attend une `LocalDate`. */
+  qotExpirationDate: string;
+  qotStatus: QuoteStatus;
+  qotParentId: number | null;
+  cartId: number;
+}
+
+/** `DTO/updateDTO/PatchQuoteLineQuantity.java` */
+export interface QuoteLineQuantityPatch {
+  artRef: string;
+  qotLineQuantity: number;
+}
+
+/* ==================================================================
+   Commandes (Command)
+   ================================================================== */
+
+/**
+ * `enumeration/CommandStatus.java`
+ *
+ * Attention : `CANCELED` s'écrit ici avec un seul « l », là où
+ * `InvoiceStatus.CANCELLED` en prend deux. C'est le backend qui en décide, on
+ * s'y conforme — une faute de frappe côté front produirait un 400.
+ */
+export type CommandStatus = 'CREATED' | 'PENDING' | 'CANCELED' | 'ACCEPTED' | 'DELIVERED';
+
+export const COMMAND_STATUS_LABELS: Record<CommandStatus, string> = {
+  CREATED: 'Créée',
+  PENDING: 'En attente',
+  CANCELED: 'Annulée',
+  ACCEPTED: 'Acceptée',
+  DELIVERED: 'Livrée',
+};
+
+/**
+ * `DTO/CommandDTO.java` — le bon de commande issu d'un devis accepté.
+ *
+ * La commande n'a pas de lignes propres : elle reprend telles quelles celles
+ * du devis (`quoteLines`), déjà figées. Elle porte en revanche le lien vers
+ * son devis d'origine (`quoteId`), ce qui permet de remonter jusqu'au panier
+ * puis au client.
+ */
+export interface Command {
+  cmdId: number;
+  /** Nommé `cmdCreatedDate` dans le DTO, `cmdCreateDate` dans l'entité. Le JSON porte le premier. */
+  cmdCreatedDate: string | null;
+  cmdModifiedDate: string | null;
+  cmdStatus: CommandStatus;
+  quoteId: number | null;
+  quoteNumber: string | null;
+  quoteLines: QuoteLine[] | null;
+}
+
+/** `DTO/requestDTO/CommandRequestDTO.java` — le champ s'appelle `qotId`, pas `quoteId`. */
+export interface CommandRequest {
+  qotId: number;
+}
+
+/** `DTO/requestDTO/PatchCommandStatus.java` — l'id voyage dans le corps, pas dans l'URL. */
+export interface CommandStatusPatch {
+  cmdId: number;
+  cmdStatus: CommandStatus;
+}
+
+/* ==================================================================
+   Factures (Invoice / InvoiceLine)
+   ================================================================== */
+
+/** `enumeration/InvoiceStatus.java` — `CANCELLED` prend deux « l » (cf. `CommandStatus`). */
+export type InvoiceStatus =
+  | 'CREATED'
+  | 'ISSUED'
+  | 'SENT'
+  | 'OVERDUE'
+  | 'PARTIALLY_PAID'
+  | 'PAID'
+  | 'CANCELLED';
+
+export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
+  CREATED: 'Créée',
+  ISSUED: 'Émise',
+  SENT: 'Transmise',
+  OVERDUE: 'En retard',
+  PARTIALLY_PAID: 'Partiellement réglée',
+  PAID: 'Réglée',
+  CANCELLED: 'Annulée',
+};
+
+/**
+ * `DTO/InvoiceLineDTO.java` — ligne de facture, figée à l'émission.
+ *
+ * Même principe que `QuoteLine` : tout est recopié (désignation, référence,
+ * prix, taux de TVA) plutôt que référencé, pour qu'une facture reste lisible
+ * à l'identique quelles que soient les évolutions ultérieures du catalogue.
+ */
+export interface InvoiceLine {
+  invLnId: number;
+  invLnQuantity: number;
+  invLnPriceHT: number;
+  articleName: string;
+  articleRef: string;
+  /** Taux figé, exprimé en décimal (0.055 pour 5,5 %). */
+  tvaRate: number;
+  totalHT: number;
+  totalTVA: number;
+  totalTTC: number;
+}
+
+/**
+ * `DTO/InvoiceDTO.java` — la facture émise.
+ *
+ * Limite connue : ce DTO **n'expose aucun lien vers la commande d'origine**
+ * (pas de `commandId`). Impossible donc, à partir d'une facture seule, de
+ * remonter à sa commande, à son devis ou à son client. Tant que le backend
+ * ne le porte pas, le rapprochement se fait par `invoiceNumber`, dérivé de la
+ * référence du document — voir `CommercialChainService`.
+ */
+export interface Invoice {
+  invoiceId: number;
+  invoiceNumber: string;
+  invoiceCreatedDate: string | null;
+  /** Chemin du PDF côté serveur. Actuellement une valeur de remplissage. */
+  invoicePathPDF: string | null;
+  invoiceStatus: InvoiceStatus;
+  invoiceLines: InvoiceLine[] | null;
+}
+
+/** `DTO/requestDTO/InvoiceRequestDTO.java` — le numéro est à la charge du client, et unique en base. */
+export interface InvoiceRequest {
+  invoiceNumber: string;
+  commandId: number;
+}
+
+/** `DTO/requestDTO/PatchInvoiceStatus.java` — l'id voyage dans le corps, pas dans l'URL. */
+export interface InvoiceStatusPatch {
+  invoiceId: number;
+  invoiceStatus: InvoiceStatus;
 }
 
 /* ==================================================================
@@ -463,143 +797,6 @@ export interface CartRequest {
   crtStatus: string;
   ctmId: number;
   orderLines: OrderLineRequest[];
-}
-
-/* ==================================================================
-   Devis / commandes / factures
-   ================================================================== */
-
-/** `enumeration/QuoteStatus.java` */
-export type QuoteStatus =
-  | 'CREATED'
-  | 'ACCEPTED'
-  | 'PENDING'
-  | 'REJECTED'
-  | 'EXPIRED'
-  | 'CLOSED'
-  | 'REVISITED';
-
-/** `enumeration/CommandStatus.java` */
-export type CommandStatus = 'CREATED' | 'PENDING' | 'ACCEPTED' | 'DELIVERED';
-
-/** `enumeration/InvoiceStatus.java` */
-export type InvoiceStatus =
-  | 'CREATED'
-  | 'ISSUED'
-  | 'SENT'
-  | 'OVERDUE'
-  | 'PARTIALLY_PAID'
-  | 'PAID'
-  | 'CANCELLED';
-
-/** `DTO/QuoteLineDTO.java` */
-export interface QuoteLine {
-  qotLnId: number;
-  qotLnQuantity: number;
-  qotLnPriceHT: number;
-  articleName: string;
-  articleRef: string;
-  tvaRate: number;
-  totalHT: number;
-  totalTVA: number;
-  totalTTC: number;
-}
-
-/** `DTO/QuoteDTO.java` */
-export interface Quote {
-  quoteId: number;
-  qotNumber: string;
-  qotCreatedDate: string;
-  expirationDate: string;
-  qotStatus: QuoteStatus;
-  qotParent: Quote | null;
-  cartId: number;
-  qotLines: QuoteLine[];
-}
-
-/** `DTO/requestDTO/QuoteRequestDTO.java` */
-export interface QuoteRequest {
-  qotNumber: string;
-  qotExpirationDate: string;
-  qotParentId: number | null;
-  cartId: number;
-}
-
-/** `DTO/updateDTO/PatchQuoteLineQuantity.java` */
-export interface PatchQuoteLineQuantity {
-  artRef: string;
-  qotLineQuantity: number;
-}
-
-/**
- * `DTO/CommandDTO.java`.
- *
- * Depuis la correction backend du 4 août 2026, porte `cmdId` (la coquille
- * `cmfId` a été corrigée) et `quoteId` : la mise en correspondance avec le
- * `Cart`/`Customer` d'origine se fait donc par id plutôt que par le fragile
- * `quoteNumber` (voir `commerce-store.service.ts`). `CommandDTO` n'expose
- * toujours pas le client directement.
- */
-export interface Command {
-  cmdId: number;
-  cmdCreatedDate: string;
-  cmdModifiedDate: string;
-  cmdStatus: CommandStatus;
-  quoteId: number;
-  quoteNumber: string;
-  quoteLines: QuoteLine[];
-}
-
-/** `DTO/requestDTO/CommandRequestDTO.java` */
-export interface CommandRequest {
-  qotId: number;
-}
-
-/** `DTO/requestDTO/PatchCommandStatus.java` */
-export interface PatchCommandStatus {
-  cmdId: number;
-  cmdStatus: CommandStatus;
-}
-
-/** `DTO/InvoiceLineDTO.java` */
-export interface InvoiceLine {
-  invLnId: number;
-  invLnQuantity: number;
-  invLnPriceHT: number;
-  articleName: string;
-  articleRef: string;
-  tvaRate: number;
-  totalHT: number;
-  totalTVA: number;
-  totalTTC: number;
-}
-
-/**
- * `DTO/InvoiceDTO.java`.
- *
- * Ne porte aucune référence vers la `Command` ni le `Quote` d'origine : il est
- * impossible, depuis ce DTO seul, de savoir quelle commande a été facturée.
- * Voir la note dans le README sur ce manque côté backend.
- */
-export interface Invoice {
-  invoiceId: number;
-  invoiceNumber: string;
-  invoiceCreatedDate: string;
-  invoicePathPDF: string;
-  invoiceStatus: InvoiceStatus;
-  invoiceLines: InvoiceLine[];
-}
-
-/** `DTO/requestDTO/InvoiceRequestDTO.java` */
-export interface InvoiceRequest {
-  invoiceNumber: string;
-  commandId: number;
-}
-
-/** `DTO/requestDTO/PatchInvoiceStatus.java` */
-export interface PatchInvoiceStatus {
-  invoiceId: number;
-  invoiceStatus: InvoiceStatus;
 }
 
 /* ==================================================================

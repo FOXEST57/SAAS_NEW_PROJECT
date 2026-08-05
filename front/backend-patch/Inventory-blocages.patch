@@ -1,0 +1,414 @@
+┌───────────────────────────────────────────────────────────────────────┐
+│ CHEMINS MIS À JOUR — restructuration en packages métier du 03/08      │
+│                                                                       │
+│ Le backend est passé d'un découpage par couche technique à un         │
+│ découpage par domaine. Les chemins ci-dessous suivent la nouvelle      │
+│ arborescence :                                                        │
+│                                                                       │
+│   cart/       Cart, OrderLine, Quote, QuoteLine                       │
+│   product/    Article, Category, Tva, Supplier, Maker, Inventory      │
+│   user/       Customer, AccountType                                   │
+│   location/   Address, City, Country, PostalCode                      │
+│   security/   authentification et autorisation                        │
+│   config/     GlobalExceptionInterceptor, converters, Swagger         │
+│   enumeration/  DeliveryStatus, QuoteStatus                           │
+│                                                                       │
+│ Chaque domaine conserve ses sous-dossiers controller / service /      │
+│ repository / model / mapper / DTO.                                    │
+└───────────────────────────────────────────────────────────────────────┘
+
+Correctif backend — la partie inventaire ne peut pas fonctionner en l'état
+=========================================================================
+
+Quatre défauts, dont deux empêchent purement et simplement la fonctionnalité
+d'atteindre son but : « connaître le niveau de stock d'un article à partir d'un
+relevé à une date donnée ».
+
+Les deux premiers sont bloquants. Les deux suivants limitent ce que le front
+peut afficher.
+
+
+─────────────────────────────────────────────────────────────────────────
+1. BLOQUANT — `invDate` sera toujours `null`
+─────────────────────────────────────────────────────────────────────────
+
+Fichier : product/model/Inventory.java
+
+`@CreatedDate` est une annotation de Spring Data. Elle n'a d'effet que si
+l'entité déclare l'écouteur d'audit. Vos autres entités le font toutes —
+`Article`, `Customer`, `SupplierReference`, `MakerReference` portent
+`@EntityListeners(AuditingEntityListener.class)`. `Inventory` ne l'a pas.
+
+Conséquence : la colonne reste vide à chaque insertion. Or **c'est la date du
+relevé**, la seule chose qui donne son sens à un inventaire. Sans elle, on sait
+qu'il y avait 12 unités, sans savoir quand — et toute la fonctionnalité tombe.
+
+Effet de bord immédiat : `StockService.getTheoreticalStock()` fait
+`max(Comparator.comparing(Inventory::getInvDate))`, qui lève une
+`NullPointerException` dès que deux relevés sont comparés.
+
+AVANT :
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Entity
+    public class Inventory {
+
+APRÈS :
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Entity
+    @EntityListeners(AuditingEntityListener.class)   // ← sans lui, @CreatedDate est inerte
+    public class Inventory {
+
+Import à ajouter :
+
+    import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+Pensez aussi à rendre la colonne non modifiable après coup, un relevé étant un
+fait daté :
+
+    @CreatedDate
+    @Column(updatable = false)
+    protected LocalDateTime invDate;
+
+
+─────────────────────────────────────────────────────────────────────────
+2. BLOQUANT — `POST /inventory` et `PUT /inventory` répondent 500
+─────────────────────────────────────────────────────────────────────────
+
+Fichier : product/DTO/requestDTO/InventoryRequestDTO.java
+
+    public record InventoryRequestDTO(
+            @NotBlank int invStock,      // ← @NotBlank sur un int
+            @NotNull Long articleId
+    ) {}
+
+`@NotBlank` ne s'applique qu'aux `CharSequence`. Sur un `int`, Hibernate
+Validator ne trouve aucun validateur et lève, **à chaque appel** :
+
+    jakarta.validation.UnexpectedTypeException: HV000030: No validator could be
+    found for constraint 'jakarta.validation.constraints.NotBlank'
+    validating type 'int'
+
+Le contrôleur annotant le corps avec `@Valid`, aucun relevé ne peut donc être
+créé ni modifié aujourd'hui.
+
+CORRECTIF :
+
+    public record InventoryRequestDTO(
+            @Min(0) int invStock,        // un stock relevé ne peut pas être négatif
+            @NotNull Long articleId
+    ) {}
+
+Import :
+
+    import jakarta.validation.constraints.Min;
+
+`@NotNull` serait également inopérant ici : un `int` primitif ne peut pas être
+nul. Si vous voulez distinguer « zéro » de « non renseigné », passez le champ en
+`Integer` et gardez `@NotNull`.
+
+
+─────────────────────────────────────────────────────────────────────────
+3. `getTheoreticalStock()` lève une NPE sur un article sans relevé
+─────────────────────────────────────────────────────────────────────────
+
+Fichier : product/service/StockService.java
+
+    Inventory lastInventory = article.getInventories()
+            .stream()
+            .max(Comparator.comparing(Inventory::getInvDate))
+            .orElse(null);
+
+    int lastInventoryStock = lastInventory.getInvStock();   // ← NPE si null
+
+Le `orElse(null)` est suivi d'un déréférencement immédiat : la précaution ne
+sert à rien. Un article jamais inventorié — le cas de tous vos articles
+aujourd'hui — fait tomber la méthode.
+
+Par ailleurs `Article.inventories` n'est pas initialisé, contrairement à
+`suppliers` et `makerReferences` :
+
+    protected List<Inventory> inventories;              // ← peut être null
+
+CORRECTIF, dans `Article` :
+
+    protected List<Inventory> inventories = new ArrayList<>();
+
+CORRECTIF, dans `getTheoreticalStock` :
+
+    return article.getInventories().stream()
+            .max(Comparator.comparing(Inventory::getInvDate))
+            .map(last -> last.getInvStock()
+                    + calculStockByStatus(article, DeliveryStatus.RECEIVED, last.getInvDate()))
+            // Sans relevé, on ne peut rien affirmer : mieux vaut le dire que
+            // renvoyer un zéro qui passerait pour une mesure.
+            .orElse(0);
+
+
+─────────────────────────────────────────────────────────────────────────
+4. Le front ne peut pas calculer le stock théorique
+─────────────────────────────────────────────────────────────────────────
+
+Deux raisons, cumulatives.
+
+**`StockService` n'est exposé nulle part.** Aucun contrôleur ne l'appelle, et
+ses méthodes sont `protected` : `getPendingStock` et `getTheoreticalStock` sont
+aujourd'hui du code mort. C'est pourtant là que vit toute l'intelligence de la
+fonctionnalité.
+
+**Les DTO de réponse omettent le statut et les dates.** `SupplierReferenceResponseDTO`
+et `MakerReferenceResponseDTO` renvoient bien `splRefStock` / `artMkrStock`,
+mais ni `status` ni `splRefUpdateDate` / `artMrkUpdateDate`. Le front reçoit
+donc des quantités sans savoir si elles sont reçues, en attente ou annulées —
+et sans date, il ne peut rien rapporter à un relevé.
+
+Autrement dit : même en listant les relevés, le front ne peut pas reconstituer
+le calcul. Il faut choisir l'une des deux voies.
+
+**Voie A — exposer le calcul (recommandé).** Le serveur reste seul maître de la
+définition du stock, et le front se contente de l'afficher.
+
+    @RestController
+    @RequestMapping("/stock")
+    @RequiredArgsConstructor
+    public class StockController {
+
+        private final StockService stockService;
+
+        @GetMapping("/{articleId}")
+        public StockDTO getStock(@PathVariable Long articleId) {
+            return stockService.getStock(articleId);
+        }
+    }
+
+avec un DTO qui porte les cinq notions de votre propre commentaire :
+
+    public record StockDTO(
+            Long articleId,
+            LocalDateTime lastInventoryDate,   // null si jamais inventorié
+            int lastInventoryStock,
+            int receivedSinceInventory,        // entrées depuis le relevé
+            int pendingStock,                  // commandé, pas encore reçu
+            int theoreticalStock               // relevé + reçu
+    ) {}
+
+Passez alors `getPendingStock` et `getTheoreticalStock` en `public`.
+
+**Voie B — enrichir les DTO existants.** Ajouter `status` et la date de mise à
+jour dans `SupplierReferenceResponseDTO` et `MakerReferenceResponseDTO`, et
+laisser le front faire la somme. Plus simple à écrire, mais la définition du
+stock se retrouve dupliquée entre le serveur et le client — deux endroits à
+maintenir, et deux occasions de diverger.
+
+
+─────────────────────────────────────────────────────────────────────────
+5. Deux incohérences à trancher
+─────────────────────────────────────────────────────────────────────────
+
+**Deux définitions du stock coexistent.** `ArticleMapper.calculStock()` — celle
+qui alimente `artStock` dans vos réponses — additionne *toutes* les références,
+sans regarder ni le statut ni les relevés :
+
+    return totalStockMarker + totalStockSupplier;
+
+alors que `StockService` filtre par statut et par date. C'est la définition
+naïve qui est exposée aujourd'hui. Un article dont la commande fournisseur est
+au statut `PENDING` — donc pas encore livrée — apparaît déjà en stock.
+
+**La documentation de `InventoryController` décrit des villes.** Copiée depuis
+`CityController` : « Récupère la liste des villes », « Ville créée avec
+succès », `@Tag(description = "Routes de gestion des villes.")`. Dans Swagger
+UI, la section Inventory parle donc de villes de bout en bout.
+
+**`IInventoryService.findByArticleId()` n'a pas de route.** La méthode existe et
+est implémentée, mais aucun endpoint ne l'expose. Le front doit charger tous les
+relevés puis filtrer côté client, ce qui ne tiendra pas à l'échelle :
+
+    @GetMapping("/article/{articleId}")
+    public List<InventoryDTO> getByArticle(@PathVariable Long articleId) {
+        return inventoryService.findByArticleId(articleId);
+    }
+
+
+─────────────────────────────────────────────────────────────────────────
+6. `PUT /article/{id}` — deux défauts sur le nouveau champ `invIds`
+─────────────────────────────────────────────────────────────────────────
+
+Fichier : product/service/ArticleService.java, vers la ligne 262
+
+    article.setInventories(dto.invIds()
+            .stream()
+            .map(invId -> inventoryRepository.findById(invId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Inventaire avec id " + invId + " non existant")))
+            .toList());
+
+**a) NullPointerException si `invIds` est absent.** Le champ ne porte pas
+`@NotNull` et n'est pas testé : envoyer `{"invIds": null}`, ou simplement
+omettre la clé, fait tomber la requête. Tous les autres champs de liste du
+projet — `categoryIds` — sont testés avant usage.
+
+**b) Le défaut de collection immuable, à nouveau.** C'est exactement le motif
+corrigé en juillet sur `setCategories` : `Stream.toList()` renvoie une liste
+immuable, assignée à une collection gérée par Hibernate. Au `save()`, le
+`merge` appelle `clear()` dessus et lève `UnsupportedOperationException`.
+`Article.inventories` n'étant en plus pas initialisé, la garde contre `null`
+est nécessaire.
+
+CORRECTIF :
+
+    // Liste absente : on ne touche pas aux relevés existants. Les effacer
+    // parce qu'un client ne les a pas transmis détruirait un historique.
+    if (dto.invIds() != null) {
+        List<Inventory> inventories = dto.invIds()
+                .stream()
+                .map(invId -> inventoryRepository.findById(invId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Inventaire avec id " + invId + " non existant")))
+                .toList();
+
+        // On mute la collection gérée plutôt que de remplacer sa référence.
+        if (article.getInventories() == null) {
+            article.setInventories(new ArrayList<>());
+        }
+        article.getInventories().clear();
+        article.getInventories().addAll(inventories);
+    }
+
+Sur le fond, rattacher un relevé à un article par `PUT /article` est
+discutable : un inventaire porte déjà `articleId` à sa création. Ce champ crée
+un second chemin pour la même relation, avec le risque qu'ils divergent. Le
+front livré envoie systématiquement un tableau — vide par défaut — pour éviter
+la NPE, mais ne s'en sert pas pour gérer les relevés.
+
+
+─────────────────────────────────────────────────────────────────────────
+7. `InventoryMapper` inverse la référence et le nom de l'article
+─────────────────────────────────────────────────────────────────────────
+
+Le record déclare ses composants dans cet ordre :
+
+    public record ArticleResponseInventoryDTO(
+            Long artId,
+            String artReference,     // 2e
+            String artName           // 3e
+    ) {}
+
+mais le mapper les passe dans l'autre :
+
+    return new ArticleResponseInventoryDTO(
+            article.getArtId(),
+            article.getArtName(),        // ← atterrit dans artReference
+            article.getArtReference()    // ← atterrit dans artName
+    );
+
+Les deux champs étant des `String`, le compilateur ne peut rien signaler. La
+réponse contient donc `"artReference": "Climatiseur mural 3,5 kW"` et
+`"artName": "CLIM-MUR-3500"` — c'est-à-dire l'inverse.
+
+CORRECTIF :
+
+    return new ArticleResponseInventoryDTO(
+            article.getArtId(),
+            article.getArtReference(),
+            article.getArtName()
+    );
+
+Ce genre d'inversion silencieuse est le risque propre aux records à composants
+homogènes. Les constructeurs nommés y sont plus sûrs, ou à défaut un test qui
+compare un champ au moins.
+
+
+═════════════════════════════════════════════════════════════════════════
+8. BLOQUANT — `POST /article` échoue systématiquement
+═════════════════════════════════════════════════════════════════════════
+
+Fichier : product/service/ArticleService.java, lignes 136-141
+
+    // Construction d'un inventaire initial
+    InventoryRequestDTO inventoryRequestDTO = new InventoryRequestDTO(0, article.getArtId());
+    InventoryDTO inventoryDTO = inventoryService.create(inventoryRequestDTO);
+    Inventory inventory = inventoryRepository.findById(inventoryDTO.invId())
+            .orElseThrow(() -> new ResourceNotFoundException("Inventaire non existant"));
+    article.setInventories(List.of(inventory));      // ← immuable
+    article = articleRepository.save(article);       // ← lève ici
+
+`List.of()` renvoie une liste **immuable**. Assignée à la collection gérée par
+Hibernate, elle fait échouer le `clear()` interne au `merge` du `save()` :
+
+    java.lang.UnsupportedOperationException
+        at java.util.ImmutableCollections.uoe(ImmutableCollections.java:159)
+        at org.hibernate.type.CollectionType.replaceElements(CollectionType.java:506)
+        …
+        at ArticleService.create(ArticleService.java:141)
+
+Ce bloc n'étant soumis à **aucune condition**, la création d'article échoue
+désormais quel que soit le contenu envoyé — avec ou sans catégorie, avec ou sans
+fournisseur. L'écran d'articles et la création à la volée depuis un devis sont
+tous deux hors service.
+
+CORRECTIF :
+
+    Inventory inventory = inventoryRepository.findById(inventoryDTO.invId())
+            .orElseThrow(() -> new ResourceNotFoundException("Inventaire non existant"));
+
+    // Mutation de la collection gérée, jamais remplacement de sa référence.
+    if (article.getInventories() == null) {
+        article.setInventories(new ArrayList<>());
+    }
+    article.getInventories().clear();
+    article.getInventories().add(inventory);
+    article = articleRepository.save(article);
+
+En initialisant `Article.inventories` dans l'entité (point 3), la garde contre
+`null` devient superflue et deux lignes suffisent.
+
+
+─── La règle, une fois pour toutes ───────────────────────────────────────
+
+C'est la **troisième fois** que ce défaut apparaît dans ce projet :
+
+| Date | Endroit | Source immuable |
+| --- | --- | --- |
+| juillet | `ArticleService.create/update` → `setCategories` | `Stream.toList()` |
+| juillet | `CustomerService.update` → `setCustomers` | `Stream.toList()` |
+| aujourd'hui | `ArticleService.create` → `setInventories` | `List.of()` |
+| aujourd'hui | `ArticleService.update` → `setInventories` | `Stream.toList()` |
+
+La règle tient en une phrase : **ne jamais remplacer la référence d'une
+collection gérée par Hibernate — la muter.**
+
+    // ✗ casse au merge dès que la source est immuable
+    entity.setChildren(source.stream().map(...).toList());
+    entity.setChildren(List.of(child));
+
+    // ✓ toujours correct
+    entity.getChildren().clear();
+    entity.getChildren().addAll(nouvellesValeurs);
+
+Sont immuables, et donc piégeuses : `Stream.toList()` (Java 16+), `List.of()`,
+`Set.of()`, `Collectors.toUnmodifiableList()`, `Collections.unmodifiableList()`.
+`Arrays.asList()` l'est à moitié — taille fixe, donc `clear()` échoue aussi.
+
+Balayage effectué sur l'ensemble du code, les quatre emplacements ci-dessus sont
+les seuls concernés à ce jour.
+
+
+─── Une remarque de conception, au passage ───────────────────────────────
+
+Créer d'office un relevé à zéro à la naissance de l'article fabrique une mesure
+que personne n'a faite. « Jamais inventorié » et « compté, il y en avait zéro »
+sont deux états différents : le premier dit qu'on ne sait pas, le second qu'on
+sait. Le front livré les distingue — il affiche « Jamais inventorié » plutôt
+qu'un zéro trompeur — et cet inventaire automatique efface la distinction dès la
+création.
+
+Si le but est de garantir qu'un article a toujours au moins un relevé, mieux
+vaut laisser la liste vide et traiter l'absence comme telle. Si le but est de
+noter que le dépôt est vide au démarrage, c'est un vrai constat et le relevé se
+justifie — mais alors il devrait être daté, ce qui ramène au point 1.

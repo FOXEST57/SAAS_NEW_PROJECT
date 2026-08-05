@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ArticleService, CategoryService, TvaService } from '../../core/api';
 import { Article, Category, Tva } from '../../core/models/api.models';
@@ -20,6 +21,7 @@ type StockFilter = 'all' | 'in' | 'low' | 'out';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     PageHeaderComponent,
     SearchInputComponent,
     EmptyStateComponent,
@@ -255,19 +257,29 @@ type StockFilter = 'all' | 'in' | 'low' | 'out';
               <app-field-error [control]="form.controls.tvaId" label="Le taux de TVA" [submitted]="submitted()" />
             </div>
 
+            <!--
+              Le stock n'est plus un champ saisissable : le serveur le calcule
+              à partir des références fournisseur et fabricant. Laisser une
+              case ici laisserait croire qu'on peut le corriger à la main.
+            -->
             <div class="sm:col-span-2">
-              <label class="label" for="art-stock">Stock</label>
-              <input
-                id="art-stock"
-                type="number"
-                min="0"
-                step="1"
-                class="input"
-                [class.input-error]="invalid('artStock')"
-                formControlName="artStock"
-                placeholder="0"
-              />
-              <app-field-error [control]="form.controls.artStock" label="Le stock" [submitted]="submitted()" />
+              <label class="label">Stock</label>
+              <div
+                class="flex h-[38px] items-center gap-2 rounded-lg border border-dashed border-ink-200 px-3 dark:border-ink-700"
+              >
+                @if (editing(); as current) {
+                  <span class="num text-[14px] font-semibold">{{ current.artStock }}</span>
+                  <a
+                    [routerLink]="['/inventaire']"
+                    [queryParams]="{ article: current.artId }"
+                    class="ml-auto text-[12px] font-medium text-brand-600 hover:underline dark:text-brand-400"
+                    (click)="closeModal()"
+                    >Relevés</a
+                  >
+                } @else {
+                  <span class="text-[12.5px] muted">Calculé par les références</span>
+                }
+              </div>
             </div>
 
             <div class="sm:col-span-6">
@@ -347,7 +359,6 @@ export class ArticleListComponent implements OnInit {
     artName: ['', [Validators.required, Validators.maxLength(120)]],
     artDescription: ['', [Validators.required, Validators.maxLength(1000)]],
     artPriceExcludeTaxes: [null as number | null, [Validators.required, Validators.min(0.01)]],
-    artStock: [0, [Validators.required, Validators.min(0)]],
     tvaId: [null as number | null, [Validators.required]],
   });
 
@@ -465,7 +476,6 @@ export class ArticleListComponent implements OnInit {
       artName: '',
       artDescription: '',
       artPriceExcludeTaxes: null,
-      artStock: 0,
       tvaId: this.tvas()[0]?.tvaId ?? null,
     });
     this.modalOpen.set(true);
@@ -480,7 +490,6 @@ export class ArticleListComponent implements OnInit {
       artName: article.artName,
       artDescription: article.artDescription,
       artPriceExcludeTaxes: Number(article.artPriceExcludeTaxes),
-      artStock: article.artStock,
       tvaId: article.tva?.tvaId ?? null,
     });
     this.modalOpen.set(true);
@@ -505,7 +514,6 @@ export class ArticleListComponent implements OnInit {
       artName: (raw.artName ?? '').trim(),
       artDescription: (raw.artDescription ?? '').trim(),
       artPriceExcludeTaxes: Number(raw.artPriceExcludeTaxes),
-      artStock: Number(raw.artStock ?? 0),
       tvaId: Number(raw.tvaId),
       categoryIds: this.selectedCategories(),
     };
@@ -514,7 +522,16 @@ export class ArticleListComponent implements OnInit {
     try {
       if (current) {
         // `PUT /article/{id}` attend un ArticleUpdateDTO (sans `suppliers`).
-        await firstValueFrom(this.api.update(current.artId, base));
+        await firstValueFrom(
+          this.api.update(current.artId, {
+            ...base,
+            // `ArticleService.update` déréférence `invIds` sans contrôle :
+            // omettre le champ provoque une NullPointerException côté serveur.
+            // On transmet donc toujours un tableau. Les relevés se gèrent
+            // depuis l'écran d'inventaire, pas d'ici.
+            invIds: [],
+          }),
+        );
         this.toast.success('Article modifié', base.artName);
       } else {
         await firstValueFrom(this.api.create({ ...base, suppliers: [] }));
