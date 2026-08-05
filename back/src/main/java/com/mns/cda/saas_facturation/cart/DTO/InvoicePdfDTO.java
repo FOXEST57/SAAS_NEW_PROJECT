@@ -1,6 +1,9 @@
 package com.mns.cda.saas_facturation.cart.DTO;
 
+import com.mns.cda.saas_facturation.document.DTO.DocumentPdfLineDTO;
+import com.mns.cda.saas_facturation.document.DTO.DocumentPdfTvaDTO;
 import java.math.BigDecimal;
+
 import java.util.List;
 
 /**
@@ -42,8 +45,8 @@ public record InvoicePdfDTO(
         String customerEmail,
         String customerPhone,
 
-        List<InvoicePdfLineDTO> lines,
-        List<InvoicePdfTvaDTO> tvaBreakdown,
+        List<DocumentPdfLineDTO> lines,
+        List<DocumentPdfTvaDTO> tvaBreakdown,
 
         BigDecimal totalHT,
         BigDecimal totalTVA,

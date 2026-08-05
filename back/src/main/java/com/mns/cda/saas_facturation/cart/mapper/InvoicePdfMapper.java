@@ -1,10 +1,10 @@
 package com.mns.cda.saas_facturation.cart.mapper;
 
 import com.mns.cda.saas_facturation.cart.DTO.InvoicePdfDTO;
-import com.mns.cda.saas_facturation.cart.DTO.InvoicePdfLineDTO;
-import com.mns.cda.saas_facturation.cart.DTO.InvoicePdfTvaDTO;
 import com.mns.cda.saas_facturation.cart.model.Invoice;
 import com.mns.cda.saas_facturation.cart.model.InvoiceLine;
+import com.mns.cda.saas_facturation.document.DTO.DocumentPdfLineDTO;
+import com.mns.cda.saas_facturation.document.DTO.DocumentPdfTvaDTO;
 import com.mns.cda.saas_facturation.document.DocumentFormat;
 import com.mns.cda.saas_facturation.exception.PdfGenerationException;
 import com.mns.cda.saas_facturation.user.model.Customer;
@@ -46,7 +46,7 @@ public class InvoicePdfMapper {
                 ? invoice.getInvoiceLines()
                 : List.of();
 
-        List<InvoicePdfLineDTO> lines = new ArrayList<>();
+        List<DocumentPdfLineDTO> lines = new ArrayList<>();
 
         // Base hors taxes cumulée pour chaque taux de TVA rencontré.
         // TreeMap : il compare les taux par leur valeur (0.20 et 0.2 sont donc
@@ -61,7 +61,7 @@ public class InvoicePdfMapper {
             );
             BigDecimal rate = line.getTvaRate();
 
-            lines.add(new InvoicePdfLineDTO(
+            lines.add(new DocumentPdfLineDTO(
                     DocumentFormat.upperCase(line.getArticleRef()),
                     DocumentFormat.capitalize(line.getArticleName()),
                     line.getInvLnQuantity(),
@@ -76,14 +76,14 @@ public class InvoicePdfMapper {
             baseByRate.merge(rate, lineHT, BigDecimal::add);
         }
 
-        List<InvoicePdfTvaDTO> tvaBreakdown = new ArrayList<>();
+        List<DocumentPdfTvaDTO> tvaBreakdown = new ArrayList<>();
         BigDecimal totalTVA = BigDecimal.ZERO;
 
         for (Map.Entry<BigDecimal, BigDecimal> entry : baseByRate.entrySet()) {
             BigDecimal base = entry.getValue();
             BigDecimal amount = DocumentFormat.money(base.multiply(entry.getKey()));
 
-            tvaBreakdown.add(new InvoicePdfTvaDTO(
+            tvaBreakdown.add(new DocumentPdfTvaDTO(
                     DocumentFormat.tvaLabel(entry.getKey()), base, amount));
             totalTVA = totalTVA.add(amount);
         }
