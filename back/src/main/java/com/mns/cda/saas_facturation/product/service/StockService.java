@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.product.service;
 
+import com.mns.cda.saas_facturation.cart.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.enumeration.DeliveryStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.product.model.Article;
@@ -12,12 +13,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.List;
+
+import static java.lang.Integer.sum;
 
 @Service
 @RequiredArgsConstructor
 public class StockService {
 
     private final ArticleRepository articleRepository;
+    private final QuoteLineRepository quoteLineRepository;
 
     /*
     Stock actuel: Stock actuel présent dans l'entrepôt // retirer ce qui est commandé à partir de la facture
@@ -32,13 +37,17 @@ public class StockService {
 
         switch (status) {
             case DeliveryStatus.RECEIVED -> {
-                int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
+                int totalStockMarker = article.getMakerReferences() != null
+                        ? article.getMakerReferences()
+                        .stream()
                         .filter(makerReference -> makerReference.getStatus() == status
                                 && makerReference.getArtMrkUpdateDate().isAfter(inventoryDate))
                         .mapToInt(MakerReference::getArtMkrStock)
                         .sum()
                         : 0;
-                int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
+                int totalStockSupplier = article.getSuppliers() != null
+                        ? article.getSuppliers()
+                        .stream()
                         .filter(supplierReference -> supplierReference.getStatus() == status
                                 && supplierReference.getSplRefUpdateDate().isAfter(inventoryDate))
                         .mapToInt(SupplierReference::getSplRefStock)
@@ -65,13 +74,13 @@ public class StockService {
         }
     }
 
-    protected int getPendingStock(Long articleId) {
+    public int getPendingStock(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         return calculStockByStatus(article, DeliveryStatus.PENDING, null);
     }
     
-    protected int getTheoreticalStock(Long articleId) {
+    public int getActualStock(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         Inventory lastInventory = article.getInventories()
@@ -79,12 +88,18 @@ public class StockService {
                 .max(Comparator.comparing(Inventory::getInvDate))
                 .orElse(null);
 
-        int lastInventoryStock = lastInventory.getInvStock();
-        LocalDateTime lastInventoryDate = lastInventory.getInvDate();
+        // Récupération du dernier inventaire (quantité + date)
+        int lastInventoryStock = lastInventory != null ? lastInventory.getInvStock() : 0;
+        LocalDateTime lastInventoryDate = lastInventory != null ? lastInventory.getInvDate() : LocalDateTime.of(1900,1,1, 0,0,0);
 
-        int orderedStock = calculStockByStatus(article, DeliveryStatus.RECEIVED, lastInventoryDate);
-        //TODO retirer ce qui est parti
-        return lastInventoryStock + orderedStock;
+        // Calcul du stock arrivé entre temps (commandes reçues des fournisseurs et fabricants)
+        //int orderedStock = calculStockByStatus(article, DeliveryStatus.RECEIVED, lastInventoryDate);
+
+        // Récupération des commandes clients qui ont été validées (donc article parti)
+        List<Integer> quoteLines = quoteLineRepository.getSentQuantityByArticle(lastInventoryDate, article.getArtReference());
+        int deliveredStock = quoteLines.stream().reduce(0 , Integer::sum);
+
+        return lastInventoryStock - deliveredStock;
 
     }
 
