@@ -82,6 +82,7 @@ public class InvoiceService implements IInvoiceService {
         // fige le document tel qu'il est à l'instant de l'émission. Si le
         // logo, les mentions légales ou tes coordonnées changent demain, cette
         // facture-là restera identique à celle envoyée au client.
+        // VOIR POUR GÉNÉRER LE DOCUMENT LORSQUE LA FACTURE PASSE EN STATUT ISSUED
         saved.setInvoicePathPDF(invoicePdfService.generate(saved));
 
         return invoiceMapper.toDTO(invoiceRepository.save(saved));
