@@ -18,6 +18,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -56,7 +57,6 @@ public class Customer {
 
     @ManyToOne
     @JoinColumn(name = "add_id")
-    @NotNull
     protected Address address;
 
     @CreatedDate
@@ -73,5 +73,16 @@ public class Customer {
 
     @ManyToMany
     protected List<Customer> customers;
+
+    @OneToMany(mappedBy = "customer")
+    private List<Invitation> invitations = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "corp_employer_id")
+    protected Corporation employer;
+
+    @ManyToOne
+    @JoinColumn(name = "corp_client_id")
+    protected Corporation client;
 
 }
