@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.user.model;
 
 
 import com.mns.cda.saas_facturation.config.LowercaseConverter;
+import com.mns.cda.saas_facturation.enumeration.AccountTypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,8 +24,7 @@ public class AccountType {
     protected Long accTypeId;
 
     @NotBlank
-    @Column(unique = true)
-    @Convert(converter = LowercaseConverter.class)
-    protected String accTypeLibelle;
+    @Enumerated(EnumType.STRING)
+    protected AccountTypeEnum accTypeLibelle;
 
 }
