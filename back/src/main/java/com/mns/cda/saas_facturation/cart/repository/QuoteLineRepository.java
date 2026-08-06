@@ -18,7 +18,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
 
     @Query(value = "SELECT qotln.qotLnQuantity FROM QuoteLine AS qotln " +
             "INNER JOIN Quote AS qot ON qotln.quote.qotId = qot.qotId " +
-            "INNER JOIN Command as cmd ON qot.qotId = cmd.quote.qotId " +
+            "INNER JOIN Command AS cmd ON qot.qotId = cmd.quote.qotId " +
             "WHERE cmd.cmdStatus = 'DELIVERED' " +
             "AND cmd.cmdModifiedDate >= :inventoryDate " +
             "AND qotln.articleRef = :articleRef")
@@ -89,6 +89,18 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    FROM article a;
 """, nativeQuery = true)
     List<ActualStockDTO> getActualStock();
+
+
+    @Query(value = """
+    SELECT qotln.qotLnQuantity FROM QuoteLine AS qotln
+    INNER JOIN Quote AS qot ON qotln.quote.qotId = qot.qotId
+    INNER JOIN Command AS cmd ON qot.qotId = cmd.quote.qotId
+    WHERE cmd.cmdStatus IN ('CREATED', 'PENDING', 'ACCEPTED')
+    AND cmd.cmdModifiedDate >= :inventoryDate
+    AND qotln.articleRef = :articleRef
+    """)
+    List<Integer> getReservedQuantityByArticle(@Param("inventoryDate") LocalDateTime inventoryDate, @Param("articleRef") String articleRef);
+
 
 
 }
