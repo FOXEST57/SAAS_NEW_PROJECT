@@ -35,10 +35,10 @@ public class StockService {
     /*
     👍Stock actuel: Stock actuel présent dans l'entrepôt // retirer ce qui est commandé à partir de la facture
     👍Stock en attente de réception: Stock commandé par nous
-    Stock commandé: Stock commandé par les clients // à partir de la commande
-    Stock disponible: Stock actuel - stock commandé // retirer à partir de la commande
-    Stock théorique: Stock actuel + stock en attente
-    Stock total: Stock actuel - stock commandé + stock en attente // retirer ce qui est en devis + ce qui est en cours livraison status Accepted ou Pending
+    👍Stock commandé: Stock commandé par les clients // à partir de la commande
+    👍Stock disponible: Stock actuel - stock commandé // retirer à partir de la commande
+    👍Stock théorique: Stock actuel + stock en attente
+    👍Stock total: Stock actuel - stock commandé + stock en attente // retirer ce qui est en devis + ce qui est en cours livraison status Accepted ou Pending
     */
 
     public int calculStockByStatus(Article article, DeliveryStatus status, LocalDateTime inventoryDate) {
@@ -82,13 +82,13 @@ public class StockService {
         }
     }
 
-    public int getPendingStock(Long articleId) {
+    public int getPendingStockByArticle(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         return calculStockByStatus(article, DeliveryStatus.PENDING, null);
     }
     
-    public int getActualStock(Long articleId) {
+    public int getActualStockByArticle(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
         Inventory lastInventory = article.getInventories()
@@ -111,5 +111,25 @@ public class StockService {
 
     }
 
+    public int getOrderedStockByArticle(Long articleId) {
+        Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
+
+        return quoteLineRepository
+                .getOrderedQuantityByArticle(article.getArtReference())
+                .stream()
+                .reduce(0 , Integer::sum);
+    }
+
+    public int getAvailableStockByArticle(Long articleId) {
+        return getActualStockByArticle(articleId) - getOrderedStockByArticle(articleId);
+    }
+
+    public int getTheoreticalStockByArticle(Long articleId) {
+        return getActualStockByArticle(articleId) + getPendingStockByArticle(articleId);
+    }
+
+    public int getTotalStockByArticle(Long articleId) {
+        return getActualStockByArticle(articleId) + getPendingStockByArticle(articleId) - getOrderedStockByArticle(articleId);
+    }
 
 }
