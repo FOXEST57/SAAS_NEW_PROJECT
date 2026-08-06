@@ -35,7 +35,6 @@ public class QuoteService implements IQuoteService {
     private final QuoteMapper quoteMapper;
     private final CartRepository cartRepository;
     private final QuoteLineService quoteLineService;
-    private final QuoteLineRepository quoteLineRepository;
     private final IQuotePdfService quotePdfService;
 
     private final ApplicationEventPublisher publisher;

@@ -4,6 +4,6 @@ public record ActualStockDTO(
         Long artId,
         String artName,
         String artRef,
-        int actualStock
+        Long actualStock
 ){
 }

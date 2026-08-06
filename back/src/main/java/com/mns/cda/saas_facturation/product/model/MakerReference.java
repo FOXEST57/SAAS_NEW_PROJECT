@@ -58,10 +58,10 @@ public class MakerReference {
 
     @CreatedDate
     @Column(updatable = false)
-    protected LocalDateTime artMrkCreateDate;
+    protected LocalDateTime artMkrCreateDate;
 
     @LastModifiedDate
-    protected LocalDateTime artMrkUpdateDate;
+    protected LocalDateTime artMkrUpdateDate;
 
     @NotNull
     @DecimalMin(value = "0.00", inclusive = true)

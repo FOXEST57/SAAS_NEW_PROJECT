@@ -7,3 +7,4 @@
 - relance et acompte à payer en fonction du type de paiement choisi 
 - Générateur de Référence global en fonction du type de référencement choisi pour article, devis ect.
 - Ajouter le créateur de Cart, Quote, Command, Invoice et pour qui est la commande
+- Stock ajout booléan actif.

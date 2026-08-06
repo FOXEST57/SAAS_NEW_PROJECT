@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-import static java.lang.Integer.sum;
-
 @Service
 @RequiredArgsConstructor
 public class StockService {
@@ -51,7 +49,7 @@ public class StockService {
                         ? article.getMakerReferences()
                         .stream()
                         .filter(makerReference -> makerReference.getStatus() == status
-                                && makerReference.getArtMrkUpdateDate().isAfter(inventoryDate))
+                                && makerReference.getArtMkrUpdateDate().isAfter(inventoryDate))
                         .mapToInt(MakerReference::getArtMkrStock)
                         .sum()
                         : 0;
