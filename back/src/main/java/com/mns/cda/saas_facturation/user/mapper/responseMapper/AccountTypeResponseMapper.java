@@ -11,7 +11,7 @@ public class AccountTypeResponseMapper {
 
     public AccountTypeResponseDTO toResponseDTO (AccountType AccountType) {
         return new AccountTypeResponseDTO(
-                AccountType.getAccTypeLibelle()
+                AccountType.getAccTypeLibelle().toString()
         );
     }
 }

@@ -115,10 +115,10 @@ VALUES
 -- 14. Table ACCOUNT_TYPE (référencée par ACCOUNT.account_type_id)
 INSERT INTO account_type (acc_type_libelle)
 VALUES
-    ('superadmin'),
-    ('admin'),
-    ('user'),
-    ('superuser');
+    ('ADMIN'),
+    ('USER'),
+    ('OWNER'),
+    ('EMPLOYEE');
 
 -- Mot de passe Dev : Azerty123!
 -- 15. Table CUSTOMER (référence ADDRESS)

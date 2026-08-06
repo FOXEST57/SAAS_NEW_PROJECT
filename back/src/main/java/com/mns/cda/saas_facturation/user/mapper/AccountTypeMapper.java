@@ -12,7 +12,7 @@ public class AccountTypeMapper {
     public AccountTypeDTO toDto(AccountType AccountType) {
         return new AccountTypeDTO(
                 AccountType.getAccTypeId(),
-                AccountType.getAccTypeLibelle()
+                AccountType.getAccTypeLibelle().toString()
         );
     }
 }
