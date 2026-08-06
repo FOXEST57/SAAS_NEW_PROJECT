@@ -114,16 +114,8 @@ public class StockService {
     public int getOrderedStockByArticle(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
 
-        LocalDateTime lastInventoryDate = !article.getInventories().isEmpty()
-                ? article.getInventories()
-                .stream()
-                .max(Comparator.comparing(Inventory::getInvDate))
-                .get()
-                .getInvDate()
-                : LocalDateTime.of(1900,1,1,0,0,0);
-
         return quoteLineRepository
-                .getReservedQuantityByArticle(lastInventoryDate, article.getArtReference())
+                .getOrderedQuantityByArticle(article.getArtReference())
                 .stream()
                 .reduce(0 , Integer::sum);
     }
