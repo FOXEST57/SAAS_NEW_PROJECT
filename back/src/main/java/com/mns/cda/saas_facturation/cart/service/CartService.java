@@ -3,20 +3,18 @@ package com.mns.cda.saas_facturation.cart.service;
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.OrderLineRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
 import com.mns.cda.saas_facturation.cart.mapper.CartPipelineMapper;
 import com.mns.cda.saas_facturation.cart.model.Quote;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
 import com.mns.cda.saas_facturation.cart.service.pipeline.CartValidatedEvent;
 import com.mns.cda.saas_facturation.enumeration.CartStatus;
-import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.CartMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.cart.model.Cart;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import com.mns.cda.saas_facturation.cart.model.OrderLine;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
@@ -60,10 +58,7 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CartDTO create(CartRequestDTO dto) {
-
-        Customer customer = customerRepository.findById(dto.ctmId())
-                .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
+    public CartDTO create(AppUserDetails userDetails, CartRequestDTO dto) {
 
         Quote qotParent = dto.parentQuoteId() != null
                 ? quoteRepository.findById(dto.parentQuoteId())
@@ -73,7 +68,8 @@ public class CartService implements ICartService {
         Cart cart = new Cart();
         cart.setCrtRef(dto.crtRef());
         cart.setCrtStatus(CartStatus.OPEN);
-        cart.setCustomer(customer);
+        cart.setCreator(userDetails.getUser());
+        cart.setReceiverEmail(dto.receiverEmail());
         cart.setParentQuoteId(qotParent != null ? qotParent.getQotId() : null);
 
         cartRepository.save(cart);
@@ -113,7 +109,7 @@ public class CartService implements ICartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
         cart.setCrtRef(dto.crtRef());
-        cart.setCustomer(customer);
+        cart.setCreator(customer);
 
         return cartMapper.toDTO(cartRepository.save(cart));
     }

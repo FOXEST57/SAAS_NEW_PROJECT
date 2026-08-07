@@ -13,7 +13,7 @@ public record CartDTO (
         LocalDateTime crtCreateDate,
         LocalDateTime crtLastModifieDate,
         CartStatus crtStatus,
-        CustomerDTO customer,
+        CustomerDTO creator,
         List<OrderLineResponseDTO> orderLines
 ){
 }

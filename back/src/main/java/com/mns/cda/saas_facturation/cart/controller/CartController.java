@@ -5,6 +5,7 @@ import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -13,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,9 +57,9 @@ public class CartController {
             @ApiResponse(responseCode = "201", description = "Panier créé"),
             @ApiResponse(responseCode = "409", description = "Pannier déjà existant en BDD portant la même référence")
     })
-    public ResponseEntity<CartDTO> create(@Valid @RequestBody CartRequestDTO dto) {
+    public ResponseEntity<CartDTO> create(@AuthenticationPrincipal AppUserDetails userDetails, @Valid @RequestBody CartRequestDTO dto) {
 
-            CartDTO response = cartService.create(dto);
+            CartDTO response = cartService.create(userDetails, dto);
             return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
     }
 
@@ -67,8 +69,9 @@ public class CartController {
             @ApiResponse(responseCode = "201", description = "Panier créé à partir du devis"),
             @ApiResponse(responseCode = "404", description = "Devis introuvable")
     })
-    public CartDTO revisitQuote(@PathVariable Long id) {
-        return cartService.quoteToRevisitedCart(id);
+    public CartDTO revisitQuote(@AuthenticationPrincipal AppUserDetails user,
+                                @PathVariable Long id) {
+        return cartService.quoteToRevisitedCart(user, id);
     }
 
 

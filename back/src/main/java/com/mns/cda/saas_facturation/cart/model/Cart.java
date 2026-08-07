@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.config.LowercaseConverter;
 import com.mns.cda.saas_facturation.enumeration.CartStatus;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -46,11 +47,15 @@ public class Cart {
     protected CartStatus crtStatus;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    protected Customer customer;
+    @JoinColumn(name = "creator_id")
+    protected Customer creator;
 
     @OneToMany(mappedBy = "cart")
     protected List<OrderLine> orderLines;
 
     private Long parentQuoteId;
+
+    @NotNull
+    @Email
+    private String receiverEmail;
 }

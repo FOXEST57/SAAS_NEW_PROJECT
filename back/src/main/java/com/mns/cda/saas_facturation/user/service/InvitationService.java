@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.user.service;
 
 import com.mns.cda.saas_facturation.enumeration.AccountTypeEnum;
 import com.mns.cda.saas_facturation.enumeration.InvitationTypeEnum;
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.security.AppUserDetails;
 import com.mns.cda.saas_facturation.user.DTO.InvitationDTO;
 import com.mns.cda.saas_facturation.user.DTO.requestDTO.InvitationRequestDTO;
@@ -33,7 +34,8 @@ public class InvitationService implements IInvitationService {
 
     public InvitationDTO validate(String token) {
 
-        Invitation invitation = invitationRepository.findByInvToken(token);
+        Invitation invitation = invitationRepository.findByInvToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invitation non existante"));
 
         if (invitation.getInvExpirationDate().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Invitation expirée");
@@ -57,10 +59,10 @@ public class InvitationService implements IInvitationService {
 
         Invitation invitation = new Invitation();
 
-        if (customer.getAccountType().getAccTypeLibelle() == AccountTypeEnum.OWNER) {
+        if (customer.getAccountType() == AccountTypeEnum.OWNER) {
             invitation.setInvitationType(InvitationTypeEnum.EMPLOYEE);
 
-        } else if (customer.getAccountType().getAccTypeLibelle() == AccountTypeEnum.EMPLOYEE) {
+        } else if (customer.getAccountType() == AccountTypeEnum.EMPLOYEE) {
             invitation.setInvitationType(InvitationTypeEnum.CUSTOMER);
         }
 

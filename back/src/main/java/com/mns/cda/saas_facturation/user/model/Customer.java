@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.user.model;
 
 
 import com.mns.cda.saas_facturation.config.LowercaseConverter;
+import com.mns.cda.saas_facturation.enumeration.AccountTypeEnum;
 import com.mns.cda.saas_facturation.location.model.Address;
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.persistence.*;
@@ -66,10 +67,10 @@ public class Customer {
     @LastModifiedDate
     protected LocalDateTime ctmModificationDate;
 
-    @ManyToOne
-    @JoinColumn(name = "acc_type_id")
+
     @NotNull
-    protected AccountType accountType;
+    @Enumerated(EnumType.STRING)
+    protected AccountTypeEnum accountType;
 
     //Liste de client à qui l'employer à envoyer une invitation null si pas employee
     @OneToMany(mappedBy = "customer")

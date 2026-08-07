@@ -121,7 +121,7 @@ public class InvoicePdfMapper {
         if (invoice.getCommand() != null
                 && invoice.getCommand().getQuote() != null
                 && invoice.getCommand().getQuote().getCart() != null) {
-            customer = invoice.getCommand().getQuote().getCart().getCustomer();
+            customer = invoice.getCommand().getQuote().getCart().getCreator();
         }
 
         if (customer == null) {

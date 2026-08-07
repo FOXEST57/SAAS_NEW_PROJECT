@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.cart.model;
 
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -56,6 +57,14 @@ public class Quote {
     @ManyToOne
     @NotNull
     protected Cart cart;
+
+    @NotNull
+    protected Long creatorId;
+
+    @NotNull
+    @Email
+    protected String receiverEmail;
+
 
     @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL, orphanRemoval = true)
     @NotNull

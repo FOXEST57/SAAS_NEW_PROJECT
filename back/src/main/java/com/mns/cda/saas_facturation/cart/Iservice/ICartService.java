@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.cart.Iservice;
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface ICartService {
 
     CartDTO findById(Long id);
 
-    CartDTO create(CartRequestDTO dto);
+    CartDTO create(AppUserDetails appUserDetails, CartRequestDTO dto);
 
     CartDTO quoteToRevisitedCart(Long quoteId);
 

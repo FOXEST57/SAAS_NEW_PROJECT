@@ -21,7 +21,7 @@ public class InvitationController {
 
     private final InvitationService invitationService;
 
-    @GetMapping("/invitation/validate")
+    @GetMapping("/validate")
     public InvitationDTO validate(@RequestParam String token) {
         return invitationService.validate(token);
     }

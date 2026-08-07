@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.cart.DTO.requestDTO;
 
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,6 +11,7 @@ public record CartRequestDTO (
         @NotBlank @Column(unique = true,nullable = false) String crtRef,
         @NotNull Long ctmId,
         List<OrderLineRequestDTO> orderLines,
+        @NotBlank @Email String receiverEmail,
         Long parentQuoteId
 
 ){

@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.cart.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.cart.Iservice.IQuoteService;
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
 import com.mns.cda.saas_facturation.cart.Iservice.IQuotePdfService;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,8 +56,8 @@ public class QuoteController {
     }
 
     @PostMapping
-    public ResponseEntity<QuoteDTO> createQuote(@RequestBody QuoteRequestDTO quoteRequestDTO) {
-        return new ResponseEntity<>(quoteService.create(quoteRequestDTO), HttpStatus.CREATED);
+    public ResponseEntity<QuoteDTO> createQuote(@AuthenticationPrincipal AppUserDetails user, @RequestBody QuoteRequestDTO quoteRequestDTO) {
+        return new ResponseEntity<>(quoteService.create(user, quoteRequestDTO), HttpStatus.CREATED);
     }
 
     @PatchMapping("/quantity/{id}")

@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.cart.DTO.QuoteDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.updateDTO.PatchQuoteLineQuantity;
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface IQuoteService {
 
     QuoteDTO findById(Long qotId);
 
-    QuoteDTO create(QuoteRequestDTO quoteRequestDTO);
+    QuoteDTO create(AppUserDetails user, QuoteRequestDTO quoteRequestDTO);
 
     QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity);
 

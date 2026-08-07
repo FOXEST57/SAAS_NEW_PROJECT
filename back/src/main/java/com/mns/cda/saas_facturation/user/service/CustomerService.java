@@ -32,7 +32,6 @@ public class CustomerService implements ICustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final AddressRepository addressRepository;
-    private final AccountTypeRepository accountTypeRepository;
     private final PasswordEncoder passwordEncoder;
     private final CorporationService corporationService;
     private final InvitationRepository invitationRepository;
@@ -103,14 +102,16 @@ public class CustomerService implements ICustomerService {
 
         if (invitation.getInvitationType() == InvitationTypeEnum.EMPLOYEE) {
             customer.setCorporation(invitation.getCorporation());
+            customer.setAccountType(AccountTypeEnum.EMPLOYEE);
         }
         if (invitation.getInvitationType() == InvitationTypeEnum.CUSTOMER) {
             customer.getCorporations().add(invitation.getCorporation());
+            customer.setAccountType(AccountTypeEnum.USER);
         }
         invitation.setUsed(true);
         invitationRepository.save(invitation);
 
-        return customerMapper.toDTO(customer);
+        return customerMapper.toDTO(customerRepository.save(customer));
     }
 
     @Override

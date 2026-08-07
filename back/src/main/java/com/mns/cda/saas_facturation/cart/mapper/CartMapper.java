@@ -32,7 +32,7 @@ public class CartMapper {
                cart.getCrtCreateDate(),
                cart.getCrtLastModifieDate(),
                cart.getCrtStatus(),
-               customerMapper.toDTO(cart.getCustomer()),
+               customerMapper.toDTO(cart.getCreator()),
                orderLines
        );
 

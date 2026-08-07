@@ -19,6 +19,7 @@ import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import com.mns.cda.saas_facturation.cart.repository.CartRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -57,7 +58,7 @@ public class QuoteService implements IQuoteService {
 
     @Override
     @Transactional
-    public QuoteDTO create(QuoteRequestDTO quoteRequestDTO) {
+    public QuoteDTO create(AppUserDetails user, QuoteRequestDTO quoteRequestDTO) {
         Quote qotParent = quoteRequestDTO.qotParentId() != null
                 ? quoteRepository.findById(quoteRequestDTO.qotParentId())
                         .orElseThrow(() -> new ResourceNotFoundException("Devis non existant"))
@@ -70,6 +71,11 @@ public class QuoteService implements IQuoteService {
         quote.setQotStatus(QuoteStatus.CREATED);
         quote.setQotParent(qotParent);
         quote.setCart(cart);
+        quote.setCreatorId(user.getUser().getCtmId());
+
+        if (cart.getReceiverEmail() != null) {
+            quote.setReceiverEmail(cart.getReceiverEmail());
+        }
         // Création des QuoteLine à partir de cart
         cart.getOrderLines().forEach(ol -> {
             QuoteLine line = quoteLineService.build(ol);   // sans save()

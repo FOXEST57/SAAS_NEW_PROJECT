@@ -30,7 +30,7 @@ public class CartPipelineMapper {
     public CartRequestDTO quoteToCartRevision(Quote quote) {
         return new CartRequestDTO(
                 quote.getQotNumber() + "-R", // cartRef simuler depuis quoteNumber en attendant d'avoir un générateur automatique.
-                quote.getCart().getCustomer().getCtmId(),
+                quote.getCart().getCreator().getCtmId(),
                 null,
                 quote.getQotId()
         );

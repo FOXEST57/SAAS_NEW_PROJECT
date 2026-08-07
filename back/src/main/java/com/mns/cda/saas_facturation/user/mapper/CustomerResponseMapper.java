@@ -2,7 +2,6 @@ package com.mns.cda.saas_facturation.user.mapper;
 
 import com.mns.cda.saas_facturation.user.DTO.responseDTO.CustomerResponseDTO;
 import com.mns.cda.saas_facturation.location.mapper.AddressMapper;
-import com.mns.cda.saas_facturation.user.mapper.responseMapper.AccountTypeResponseMapper;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

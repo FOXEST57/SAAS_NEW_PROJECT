@@ -116,7 +116,7 @@ public class QuotePdfMapper {
      * envoyer un devis sans destinataire identifié n'aurait aucun sens.</p>
      */
     private Customer customerOf(Quote quote) {
-        Customer customer = quote.getCart() != null ? quote.getCart().getCustomer() : null;
+        Customer customer = quote.getCart() != null ? quote.getCart().getCreator() : null;
 
         if (customer == null) {
             throw new PdfGenerationException(
