@@ -22,7 +22,7 @@ public class CustomerResponseMapper {
                 customer.getCtmEmail(),
                 customer.getCtmPhone(),
                 addressMapper.toDTO(customer.getAddress()),
-                accountTypeResponseMapper.toResponseDTO(customer.getAccountType())
+                customer.getAccountType().getAccTypeLibelle()
         );
     }
 

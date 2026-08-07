@@ -80,7 +80,10 @@ public class CorporationService implements com.mns.cda.saas_facturation.user.Ise
 
     @Override
     public CorporationDTO update(Long id, CorporationRequestDTO corporationRequestDTO) {
-        Corporation corporation = corporationRepository.findById(id)
+
+        Corporation corporation = corporationRepository.findCorporationByOwner_CtmId(id);
+
+        corporationRepository.findById(corporation.getCorpId())
                 .orElseThrow(() -> new IllegalArgumentException("Corporation not found"));
 
         Address address = addressRepository.findById(corporationRequestDTO.addId())

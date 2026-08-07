@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.config;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter
 public class LowercaseConverter implements AttributeConverter<String, String> {
 
     @Override
