@@ -17,6 +17,7 @@ public class InvitationMapper {
                 invitation.getInvEmail(),
                 invitation.getInvCreationDate(),
                 invitation.getInvExpirationDate(),
+                invitation.getInvitationType(),
                 invitation.getCustomer() != null ? customerMapper.toDTO(invitation.getCustomer()) : null
         );
     }

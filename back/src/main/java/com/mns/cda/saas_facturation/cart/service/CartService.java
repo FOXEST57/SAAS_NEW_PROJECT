@@ -65,14 +65,16 @@ public class CartService implements ICartService {
         Customer customer = customerRepository.findById(dto.ctmId())
                 .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
-        Quote quote = quoteRepository.findById(dto.parentQuoteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Le devis avec l'id " +dto.parentQuoteId()+ " n'existe pas" ));
+        Quote qotParent = dto.parentQuoteId() != null
+                ? quoteRepository.findById(dto.parentQuoteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Devis non existant"))
+                : null;
 
         Cart cart = new Cart();
         cart.setCrtRef(dto.crtRef());
         cart.setCrtStatus(CartStatus.OPEN);
         cart.setCustomer(customer);
-        cart.setParentQuoteId(quote.getQotId());
+        cart.setParentQuoteId(qotParent != null ? qotParent.getQotId() : null);
 
         cartRepository.save(cart);
 
