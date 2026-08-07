@@ -23,8 +23,7 @@ public class CustomerMapper {
                 customer.getCtmEmail(),
                 customer.getCtmPhone(),
                 addressMapper.toDTO(customer.getAddress()),
-                accountTypeResponseMapper.toResponseDTO(customer.getAccountType()),
-                customer.getCustomers() != null ? customer.getCustomers().stream().map(customerResponseMapper::toDTO).toList() : null
+                customer.getAccountType().getAccTypeLibelle()
         );
     }
 

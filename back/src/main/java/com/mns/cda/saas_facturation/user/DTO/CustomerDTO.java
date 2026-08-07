@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.user.DTO;
 
+import com.mns.cda.saas_facturation.enumeration.AccountTypeEnum;
 import com.mns.cda.saas_facturation.location.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.user.DTO.responseDTO.AccountTypeResponseDTO;
 import com.mns.cda.saas_facturation.user.DTO.responseDTO.CustomerResponseDTO;
@@ -13,7 +14,6 @@ public record CustomerDTO(
         String ctmEmail,
         String ctmPhone,
         AddressDTO address,
-        AccountTypeResponseDTO accountType,
-        List<CustomerResponseDTO> customers
+        AccountTypeEnum accountType
 ) {
 }

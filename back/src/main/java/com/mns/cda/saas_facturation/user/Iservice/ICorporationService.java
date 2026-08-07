@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.user.Iservice;
 
 import com.mns.cda.saas_facturation.user.DTO.CorporationDTO;
 import com.mns.cda.saas_facturation.user.DTO.requestDTO.CorporationRequestDTO;
+import com.mns.cda.saas_facturation.user.model.Corporation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface ICorporationService {
 
     Optional<CorporationDTO> findById(Long id);
 
-    CorporationDTO create(CorporationRequestDTO corporationRequestDTO, Long ownerId);
+    Corporation create(CorporationRequestDTO corporationRequestDTO, Long ownerId);
 
     @Transactional
     void delete(Long id);

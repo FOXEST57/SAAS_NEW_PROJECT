@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.user.controller;
 
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
 import com.mns.cda.saas_facturation.user.DTO.requestDTO.LogInDTO;
 import com.mns.cda.saas_facturation.user.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.security.AppUserDetails;
@@ -38,8 +38,8 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "Utilisateur enregistré avec succès")
     })
     public ResponseEntity<CustomerDTO> signUp(
-            @RequestBody @Validated CustomerRequestDTO customer) {
-        return new ResponseEntity<>(customerService.create(customer), HttpStatus.OK);
+            @RequestBody @Validated CustomerOwnerRequestDTO customer) {
+        return new ResponseEntity<>(customerService.createOwner(customer), HttpStatus.OK);
     }
 
     @PostMapping("/logIn")

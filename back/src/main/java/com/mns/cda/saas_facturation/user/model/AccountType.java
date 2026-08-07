@@ -25,6 +25,7 @@ public class AccountType {
 
     @NotBlank
     @Enumerated(EnumType.STRING)
+    @Column(unique = true)
     protected AccountTypeEnum accTypeLibelle;
 
 }

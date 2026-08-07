@@ -41,7 +41,7 @@ public class CorporationService implements com.mns.cda.saas_facturation.user.Ise
     }
 
     @Override
-    public CorporationDTO create(CorporationRequestDTO corporationRequestDTO, Long ownerId) {
+    public Corporation create(CorporationRequestDTO corporationRequestDTO, Long ownerId) {
         Address address = addressRepository.findById(corporationRequestDTO.addId())
                 .orElseThrow(() -> new IllegalArgumentException("Address not found"));
 
@@ -63,12 +63,18 @@ public class CorporationService implements com.mns.cda.saas_facturation.user.Ise
         corporation.setAddress(address);
         corporation.setOwner(owner);
 
-        return corporationMapper.toDTO(corporationRepository.save(corporation));
+        return corporationRepository.save(corporation);
     }
 
     @Transactional
     @Override
     public void delete(Long id) {
+        Corporation corporation = corporationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Corporation not found"));
+        if (!id.equals(corporation.getOwner().getCtmId())) {
+            throw new IllegalArgumentException("Ne peut pas modifier les informations de l'entreprise.");
+        }
+
         corporationRepository.deleteById(id);
     }
 
@@ -80,15 +86,21 @@ public class CorporationService implements com.mns.cda.saas_facturation.user.Ise
         Address address = addressRepository.findById(corporationRequestDTO.addId())
                 .orElseThrow(() -> new IllegalArgumentException("Address not found"));
 
+        if (!id.equals(corporation.getOwner().getCtmId())) {
+            throw new IllegalArgumentException("Ne peut pas modifier les informations de l'entreprise.");
+        }
+
         corporation.setCorpName(corporationRequestDTO.corpName());
         corporation.setCorpSiret(corporationRequestDTO.corpSiret());
         corporation.setCorpEmail(corporationRequestDTO.corpEmail());
         corporation.setCorpPhone(corporationRequestDTO.corpPhone());
         corporation.setCorpTva(corporationRequestDTO.corpTva());
         corporation.setCorpIban(corporationRequestDTO.corpIban());
+
         corporation.setCorpPreRefQuote(corporationRequestDTO.corpPreRefQuote());
         corporation.setCorpPreRefInvoice(corporationRequestDTO.corpPreRefInvoice());
         corporation.setCorpTag(corporationRequestDTO.corpTag());
+
         corporation.setAddress(address);
 
         return corporationMapper.toDTO(corporationRepository.save(corporation));

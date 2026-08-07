@@ -1,7 +1,7 @@
 package com.mns.cda.saas_facturation.unitaire.dto.request;
 
 import com.mns.cda.saas_facturation.TestUtilitaire;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class CustomerRequestDTOUnitTest {
+public class CustomerOwnerRequestDTOUnitTest {
     
     public static Validator validator;
     
@@ -19,11 +19,11 @@ public class CustomerRequestDTOUnitTest {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    // CustomerRequestDTO ctmFirstName : @NotBlank
+    // CustomerOwnerRequestDTO ctmFirstName : @NotBlank
     @Test
     public void validCustomerWithCtmFirstNameNull_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 null,
                 "Doe",
                 "John.Doe@gmail.com",
@@ -44,7 +44,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmFirstNameBlankSpace_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 " ",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -65,7 +65,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmFirstNameBlank_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -86,7 +86,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmFirstNameNotBlank_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -105,11 +105,11 @@ public class CustomerRequestDTOUnitTest {
     }
 
 
-    // CustomerRequestDTO ctmLastName : @NotBlank
+    // CustomerOwnerRequestDTO ctmLastName : @NotBlank
     @Test
     public void validCustomerWithCtmLastNameNull_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 null,
                 "John.Doe@gmail.com",
@@ -130,7 +130,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmLastNameBlankSpace_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 " ",
                 "John.Doe@gmail.com",
@@ -151,7 +151,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmLastNameBlank_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "",
                 "John.Doe@gmail.com",
@@ -172,7 +172,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmLastNameNotBlank_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -190,11 +190,11 @@ public class CustomerRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // CustomerRequestDTO ctmEmail : @NotBlank
+    // CustomerOwnerRequestDTO ctmEmail : @NotBlank
     @Test
     public void validCustomerWithCtmEmailNull_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 null,
@@ -215,7 +215,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmEmailBlankSpace_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 " ",
@@ -236,7 +236,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmEmailBlank_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "",
@@ -257,7 +257,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmEmailNotBlank_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -275,11 +275,11 @@ public class CustomerRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // CustomerRequestDTO ctmEmail : @Email
+    // CustomerOwnerRequestDTO ctmEmail : @Email
     @Test
     public void validCustomerWithCtmEmailNotValid_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "invalid-email",
@@ -300,7 +300,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmEmailValid_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "",
@@ -318,11 +318,11 @@ public class CustomerRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // CustomerRequestDTO ctmPhone : @NotBlank
+    // CustomerOwnerRequestDTO ctmPhone : @NotBlank
     @Test
     public void validCustomerWithCtmPhoneNull_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -343,7 +343,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmPhoneBlankSpace_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -364,7 +364,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmPhoneBlank_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -385,7 +385,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmPhoneNotBlank_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -403,11 +403,11 @@ public class CustomerRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // CustomerRequestDTO ctmPhone : @ValidPhoneNumber
+    // CustomerOwnerRequestDTO ctmPhone : @ValidPhoneNumber
     @Test
     public void validCustomerWithCtmPhoneNotValid_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -428,7 +428,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithCtmPhoneValid_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -446,11 +446,11 @@ public class CustomerRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // CustomerRequestDTO ctmAddress : @NotNull
+    // CustomerOwnerRequestDTO ctmAddress : @NotNull
     @Test
     public void validCustomerWithAddressIdNull_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO("John",
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO("John",
                 "Doe",
                 "John.Doe@gmail.com",
                 "+33617755534",
@@ -470,7 +470,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithAddressIdNotNull_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",
@@ -488,11 +488,11 @@ public class CustomerRequestDTOUnitTest {
         Assertions.assertFalse(constraintExist);
     }
 
-    // CustomerRequestDTO accountType : @NotNull
+    // CustomerOwnerRequestDTO accountType : @NotNull
     @Test
     public void validCustomerWithAccountTypeNull_MustNotBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO("John",
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO("John",
                 "Doe",
                 "John.Doe@gmail.com",
                 "+33617755534",
@@ -512,7 +512,7 @@ public class CustomerRequestDTOUnitTest {
     @Test
     public void validCustomerWithAccountIdNotNull_MustBeValidated() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO(
+        CustomerOwnerRequestDTO customer = new CustomerOwnerRequestDTO(
                 "John",
                 "Doe",
                 "John.Doe@gmail.com",

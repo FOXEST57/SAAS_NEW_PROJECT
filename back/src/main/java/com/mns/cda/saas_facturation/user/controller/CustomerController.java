@@ -1,8 +1,10 @@
 package com.mns.cda.saas_facturation.user.controller;
 
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
 import com.mns.cda.saas_facturation.user.Iservice.ICustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +43,7 @@ import java.util.Optional;
  *
  * @see ICustomerService
  * @see CustomerDTO
- * @see CustomerRequestDTO
+ * @see CustomerOwnerRequestDTO
  */
 @RequiredArgsConstructor
 @RequestMapping("/customer")
@@ -135,8 +138,8 @@ public class CustomerController {
             @ApiResponse(responseCode = "201", description = "Client créé avec succès."),
             @ApiResponse(responseCode = "400", description = "Requête invalide.")
     })
-    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO dto) {
-        CustomerDTO customerCreated = customerService.create(dto);
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody @Valid CustomerOwnerRequestDTO dto) {
+        CustomerDTO customerCreated = customerService.createOwner(dto);
 
         return new ResponseEntity<>(customerCreated, HttpStatus.CREATED);
     }
@@ -157,7 +160,7 @@ public class CustomerController {
      *         avec le statut HTTP 200 OK
      * @throws ResourceNotFoundException si le client ciblé ou l'adresse référencée n'existe pas
      */
-    @PutMapping("/{ctmId}")
+    @PutMapping()
     @Operation(
             summary = "Modifie un client en base de données.",
             description = "Cette route permet de modifier un client en base de données."
@@ -165,8 +168,8 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Client modifié avec succès.")
     })
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long ctmId, @RequestBody @Valid CustomerRequestDTO dto) {
-            CustomerDTO customerUpdated = customerService.update(ctmId, dto);
+    public ResponseEntity<CustomerDTO> updateCustomer(@AuthenticationPrincipal AppUserDetails user, @RequestBody @Valid CustomerRequestDTO dto) {
+            CustomerDTO customerUpdated = customerService.update(user.getUser().getCtmId(), dto);
 
             return new ResponseEntity<>(customerUpdated, HttpStatus.OK);
     }

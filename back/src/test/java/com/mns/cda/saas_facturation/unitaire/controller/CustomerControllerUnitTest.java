@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.unitaire.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mns.cda.saas_facturation.location.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
 import com.mns.cda.saas_facturation.user.DTO.responseDTO.AccountTypeResponseDTO;
 import com.mns.cda.saas_facturation.user.DTO.responseDTO.CustomerResponseDTO;
 import com.mns.cda.saas_facturation.user.Iservice.ICustomerService;
@@ -39,7 +39,7 @@ public class CustomerControllerUnitTest {
     private ObjectMapper objectMapper;
 
     private CustomerDTO customerDTO;
-    private CustomerRequestDTO customerRequestDTO;
+    private CustomerOwnerRequestDTO customerOwnerRequestDTO;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +58,7 @@ public class CustomerControllerUnitTest {
                 customerResponseDTO
         );
 
-        customerRequestDTO = new CustomerRequestDTO(
+        customerOwnerRequestDTO = new CustomerOwnerRequestDTO(
                 "Jean",
                 "Dupont",
                 "dupont.jean@example.com",
@@ -123,16 +123,16 @@ public class CustomerControllerUnitTest {
     void createCustomer_avecDonneesValides_devraitRetourner201EtLeClientCree() throws Exception {
         // any(...) car seul le comportement du service nous intéresse ici,
         // pas la valeur exacte de l'argument (déjà couverte par le test de validation ci-dessous)
-        when(customerService.create(any(CustomerRequestDTO.class))).thenReturn(customerDTO);
+        when(customerService.createOwner(any(CustomerOwnerRequestDTO.class))).thenReturn(customerDTO);
 
         mockMvc.perform(post("/customer")
                         .contentType(MediaType.APPLICATION_JSON)
-                        // Convertit l'objet Java customerRequestDTO en JSON pour le body de la requête
-                        .content(objectMapper.writeValueAsString(customerRequestDTO)))
+                        // Convertit l'objet Java customerOwnerRequestDTO en JSON pour le body de la requête
+                        .content(objectMapper.writeValueAsString(customerOwnerRequestDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.ctmId").value(1));
 
-        verify(customerService, times(1)).create(any(CustomerRequestDTO.class));
+        verify(customerService, times(1)).createOwner(any(CustomerOwnerRequestDTO.class));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class CustomerControllerUnitTest {
 
         // Le service ne doit JAMAIS être appelé : la requête est rejetée avant,
         // par la validation Bean Validation (@Valid), pas par la logique métier.
-        verify(customerService, never()).create(any());
+        verify(customerService, never()).createOwner(any());
     }
 
     // ------------------------------------------------------------------
@@ -165,15 +165,15 @@ public class CustomerControllerUnitTest {
     @Test
     @DisplayName("PUT /customer/{id} -> 200 avec le customer modifié")
     void updateCustomer_devraitRetourner200EtLeClientModifie() throws Exception {
-        when(customerService.update(eq(1L), any(CustomerRequestDTO.class))).thenReturn(customerDTO);
+        when(customerService.update(eq(1L), any(CustomerOwnerRequestDTO.class))).thenReturn(customerDTO);
 
         mockMvc.perform(put("/customer/{ctmId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customerRequestDTO)))
+                        .content(objectMapper.writeValueAsString(customerOwnerRequestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ctmId").value(1));
 
-        verify(customerService, times(1)).update(eq(1L), any(CustomerRequestDTO.class));
+        verify(customerService, times(1)).update(eq(1L), any(CustomerOwnerRequestDTO.class));
     }
 
     // ------------------------------------------------------------------
