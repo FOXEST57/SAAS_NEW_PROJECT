@@ -5,6 +5,7 @@ import com.mns.cda.saas_facturation.enumeration.InvitationTypeEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,4 +52,10 @@ public class Invitation {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+
+    private boolean used = false;
+
+    @ManyToOne
+    @JoinColumn(name = "corporation_id")
+    private Corporation corporation;
 }

@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 public record InvitationDTO(
         Long invId,
         String invEmail,
-        LocalDateTime invCreationDate,
+        String customerLastName,
         LocalDateTime invExpirationDate,
         InvitationTypeEnum invType,
-        CustomerDTO customer
+        String corpoName
 ) {
 
 }

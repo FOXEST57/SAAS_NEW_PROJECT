@@ -71,18 +71,16 @@ public class Customer {
     @NotNull
     protected AccountType accountType;
 
-    @ManyToMany
-    protected List<Customer> customers;
-
+    //Liste de client à qui l'employer à envoyer une invitation null si pas employee
     @OneToMany(mappedBy = "customer")
     private List<Invitation> invitations = new ArrayList<>();
 
+    //Entreprise dans laquelle travail l'employer null si pas employee.
     @ManyToOne
-    @JoinColumn(name = "corp_employer_id")
-    protected Corporation employer;
+    @JoinColumn(name = "corp_corporation_id")
+    protected Corporation corporation;
 
-    @ManyToOne
-    @JoinColumn(name = "corp_client_id")
-    protected Corporation client;
-
+    //Liste des entreprises avec qui les clients ont un lien null si pas User.
+    @ManyToMany(mappedBy = "customers")
+    protected List<Corporation> corporations = new ArrayList<>();
 }

@@ -1,10 +1,11 @@
 package com.mns.cda.saas_facturation.user.service;
 
 import com.mns.cda.saas_facturation.enumeration.AccountTypeEnum;
-import com.mns.cda.saas_facturation.user.DTO.CorporationDTO;
+import com.mns.cda.saas_facturation.enumeration.InvitationTypeEnum;
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CreateUserFromInvitationDTO;
 import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.updateDTO.CustomerUpdateDTO;
 import com.mns.cda.saas_facturation.user.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.exception.SameAccountException;
@@ -13,14 +14,16 @@ import com.mns.cda.saas_facturation.user.model.AccountType;
 import com.mns.cda.saas_facturation.location.model.Address;
 import com.mns.cda.saas_facturation.user.model.Corporation;
 import com.mns.cda.saas_facturation.user.model.Customer;
+import com.mns.cda.saas_facturation.user.model.Invitation;
 import com.mns.cda.saas_facturation.user.repository.AccountTypeRepository;
 import com.mns.cda.saas_facturation.location.repository.AddressRepository;
 import com.mns.cda.saas_facturation.user.repository.CustomerRepository;
+import com.mns.cda.saas_facturation.user.repository.InvitationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +37,8 @@ public class CustomerService implements ICustomerService {
     private final AccountTypeRepository accountTypeRepository;
     private final PasswordEncoder passwordEncoder;
     private final CorporationService corporationService;
+    private final InvitationRepository invitationRepository;
+    private final CustomerService customerService;
 
     @Override
     public List<CustomerDTO> findAll() {
@@ -69,14 +74,50 @@ public class CustomerService implements ICustomerService {
         //On lui crée son entreprise
         Corporation corporation = corporationService.create(dto.corporation(), customer.getCtmId());
 
-        customer.setEmployer(corporation);
+        customer.setCorporation(corporation);
 
         return customerMapper.toDTO(customerRepository.save(customer));
 
     }
 
     @Override
-    public CustomerDTO update(Long ctmId, CustomerRequestDTO dto) throws ResourceNotFoundException, SameAccountException {
+    public CustomerDTO createCustomer(CreateUserFromInvitationDTO dto) {
+
+        Invitation invitation = invitationRepository.findByInvToken(dto.token())
+                .orElseThrow(() -> new IllegalArgumentException("Token d'invitation invalide"));
+
+
+        if (invitation.isUsed()) {
+            throw new IllegalStateException("Invitation déjà utilisée");
+        }
+        if (invitation.getInvExpirationDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Invitation expirée");
+        }
+        Address address = addressRepository.findById(dto.addressId())
+                .orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
+
+        Customer customer = new Customer();
+        customer.setCtmFirstName(dto.firstName());
+        customer.setCtmLastName(dto.lastName());
+        customer.setCtmEmail(invitation.getInvEmail());
+        customer.setCtmPhone(dto.phone());
+        customer.setPassword(passwordEncoder.encode(dto.password()));
+        customer.setAddress(address);
+
+        if (invitation.getInvitationType() == InvitationTypeEnum.EMPLOYEE) {
+            customer.setCorporation(invitation.getCorporation());
+        }
+        if (invitation.getInvitationType() == InvitationTypeEnum.CUSTOMER) {
+            customer.getCorporations().add(invitation.getCorporation());
+        }
+        invitation.setUsed(true);
+        invitationRepository.save(invitation);
+
+        return customerMapper.toDTO(customer);
+    }
+
+    @Override
+    public CustomerDTO update(Long ctmId, CustomerUpdateDTO dto) throws ResourceNotFoundException, SameAccountException {
         Customer customer = customerRepository.findById(ctmId).orElseThrow(() -> new ResourceNotFoundException("Client non existant"));
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
 

@@ -1,11 +1,11 @@
-package com.mns.cda.saas_facturation.user.DTO.requestDTO;
+package com.mns.cda.saas_facturation.user.DTO.updateDTO;
 
 import com.mns.cda.saas_facturation.validation.ValidPhoneNumber;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record CustomerRequestDTO(
+public record CustomerUpdateDTO(
         @NotBlank String ctmFirstName,
         @NotBlank String ctmLastName,
         @NotBlank @Email String ctmEmail,

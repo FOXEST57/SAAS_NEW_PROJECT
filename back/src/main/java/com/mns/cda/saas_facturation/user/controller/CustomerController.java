@@ -2,9 +2,10 @@ package com.mns.cda.saas_facturation.user.controller;
 
 import com.mns.cda.saas_facturation.security.AppUserDetails;
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CreateUserFromInvitationDTO;
 import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.updateDTO.CustomerUpdateDTO;
 import com.mns.cda.saas_facturation.user.Iservice.ICustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -144,6 +145,19 @@ public class CustomerController {
         return new ResponseEntity<>(customerCreated, HttpStatus.CREATED);
     }
 
+    @PostMapping("/invitation/complete")
+    @Operation(
+            summary = "Créer un nouveau client à partir d'une invitation.",
+            description = "Cette route permet de créer un nouveau client dans la base de données à partir")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Client créé avec succès."),
+            @ApiResponse(responseCode = "400", description = "Requête invalide.")
+    })
+    public ResponseEntity<CustomerDTO> createCustomer(@RequestBody CreateUserFromInvitationDTO dto) {
+        return new ResponseEntity<>(customerService.createCustomer(dto), HttpStatus.CREATED);
+    }
+
+
     /**
      * Met à jour intégralement un client existant à partir de son identifiant.
      *
@@ -168,7 +182,7 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Client modifié avec succès.")
     })
-    public ResponseEntity<CustomerDTO> updateCustomer(@AuthenticationPrincipal AppUserDetails user, @RequestBody @Valid CustomerRequestDTO dto) {
+    public ResponseEntity<CustomerDTO> updateCustomer(@AuthenticationPrincipal AppUserDetails user, @RequestBody @Valid CustomerUpdateDTO dto) {
             CustomerDTO customerUpdated = customerService.update(user.getUser().getCtmId(), dto);
 
             return new ResponseEntity<>(customerUpdated, HttpStatus.OK);

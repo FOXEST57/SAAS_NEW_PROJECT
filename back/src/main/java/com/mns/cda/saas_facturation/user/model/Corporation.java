@@ -15,6 +15,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -71,9 +72,13 @@ public class Corporation {
     @JoinColumn(name = "owner_ctm_id", unique = true)
     protected Customer owner;
 
-    @OneToMany(mappedBy = "employer", cascade = CascadeType.ALL, orphanRemoval = true)
-    protected List<Customer> employees;
+    @OneToMany(mappedBy = "corporation", cascade = CascadeType.ALL, orphanRemoval = true)
+    protected List<Customer> employees = new ArrayList<>();
 
-    @OneToMany(mappedBy = "client")
-    protected List<Customer> customers;
+
+    @ManyToMany(mappedBy = "corporations")
+    protected List<Customer> customers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "corporation")
+    protected List<Invitation> invitations = new ArrayList<>();
 }

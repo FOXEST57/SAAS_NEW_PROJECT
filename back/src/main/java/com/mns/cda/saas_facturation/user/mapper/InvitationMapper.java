@@ -9,16 +9,14 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class InvitationMapper {
 
-    private final CustomerMapper customerMapper;
-
-    public InvitationDTO toDTO(Invitation invitation) {
+    public InvitationDTO toDTO(Invitation invitation, String customerLastName) {
         return new InvitationDTO(
                 invitation.getInvId(),
                 invitation.getInvEmail(),
-                invitation.getInvCreationDate(),
+                customerLastName,
                 invitation.getInvExpirationDate(),
                 invitation.getInvitationType(),
-                invitation.getCustomer() != null ? customerMapper.toDTO(invitation.getCustomer()) : null
+                invitation.getCorporation().getCorpName()
         );
     }
 }

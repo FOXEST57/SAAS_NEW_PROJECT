@@ -1,10 +1,11 @@
 package com.mns.cda.saas_facturation.user.Iservice;
 
 import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
+import com.mns.cda.saas_facturation.user.DTO.requestDTO.CreateUserFromInvitationDTO;
 import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerOwnerRequestDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.exception.SameAccountException;
-import com.mns.cda.saas_facturation.user.DTO.requestDTO.CustomerRequestDTO;
+import com.mns.cda.saas_facturation.user.DTO.updateDTO.CustomerUpdateDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,9 @@ public interface ICustomerService {
 
     CustomerDTO createOwner(CustomerOwnerRequestDTO customer) throws ResourceNotFoundException, SameAccountException;
 
-    CustomerDTO update(Long ctmId, CustomerRequestDTO customer) throws ResourceNotFoundException, SameAccountException;
+    CustomerDTO createCustomer(CreateUserFromInvitationDTO dto);
+
+    CustomerDTO update(Long ctmId, CustomerUpdateDTO customer) throws ResourceNotFoundException, SameAccountException;
 
     void delete(Long ctmId) throws ResourceNotFoundException;
 
