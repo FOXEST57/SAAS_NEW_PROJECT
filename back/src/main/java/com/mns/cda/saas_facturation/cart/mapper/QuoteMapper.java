@@ -54,10 +54,10 @@ public class QuoteMapper {
                 quote.getQotStatus(),
                 quote.getQotParent() != null ? this.toDTO(quote.getQotParent()) : null,
                 quote.getCart().getCrtId(),
-                quote.getQotLines().stream().map(quoteLineMapper::toDTO).toList()
-//                totalHT,
-//                totalTVA,
-//                totalTTC
+                quote.getQotLines().stream().map(quoteLineMapper::toDTO).toList(),
+                quote.getCreatorId(),
+                quote.getReceiverEmail()
+
                 );
     }
 }

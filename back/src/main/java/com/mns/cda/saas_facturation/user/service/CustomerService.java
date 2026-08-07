@@ -35,7 +35,6 @@ public class CustomerService implements ICustomerService {
     private final PasswordEncoder passwordEncoder;
     private final CorporationService corporationService;
     private final InvitationRepository invitationRepository;
-    private final CustomerService customerService;
 
     @Override
     public List<CustomerDTO> findAll() {

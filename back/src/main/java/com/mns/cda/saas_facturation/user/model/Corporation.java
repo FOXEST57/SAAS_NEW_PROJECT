@@ -68,6 +68,7 @@ public class Corporation {
     @NotNull
     protected Address address;
 
+
     @ManyToOne
     @JoinColumn(name = "owner_ctm_id", unique = true)
     protected Customer owner;
@@ -75,9 +76,10 @@ public class Corporation {
     @OneToMany(mappedBy = "corporation", cascade = CascadeType.ALL, orphanRemoval = true)
     protected List<Customer> employees = new ArrayList<>();
 
-
-    @ManyToMany(mappedBy = "corporations")
+    @ManyToMany
     protected List<Customer> customers = new ArrayList<>();
+
+
 
     @OneToMany(mappedBy = "corporation")
     protected List<Invitation> invitations = new ArrayList<>();

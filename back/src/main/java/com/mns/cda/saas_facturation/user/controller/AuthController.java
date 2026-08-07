@@ -60,7 +60,7 @@ public class AuthController {
 
             String jwt = Jwts.builder()
                     .setSubject(user.ctmEmail())
-                    .addClaims(Map.of("role",appUser.getUser().getAccountType().getAccTypeLibelle()))
+                    .addClaims(Map.of("role",appUser.getUser().getAccountType()))
                     .signWith(SignatureAlgorithm.HS256, jwtSecret)
                     .compact();
             return new ResponseEntity<>(jwt, HttpStatus.OK);

@@ -76,6 +76,7 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     private List<Invitation> invitations = new ArrayList<>();
 
+
     //Entreprise dans laquelle travail l'employer null si pas employee.
     @ManyToOne
     @JoinColumn(name = "corp_corporation_id")

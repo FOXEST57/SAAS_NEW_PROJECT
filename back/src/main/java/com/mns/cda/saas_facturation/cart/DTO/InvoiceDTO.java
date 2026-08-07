@@ -11,5 +11,7 @@ public record InvoiceDTO (
     LocalDateTime invoiceCreatedDate,
     String invoicePathPDF,
     InvoiceStatus invoiceStatus,
-    List<InvoiceLineDTO> invoiceLines
+    List<InvoiceLineDTO> invoiceLines,
+    Long creatorId,
+    String customerEmail
 ){}

@@ -32,7 +32,9 @@ public class CommandMapper {
                 command.getCmdStatus(),
                 command.getQuote().getQotId(),
                 command.getQuote().getQotNumber(),
-                quoteLines
+                quoteLines,
+                command.getCreatorId(),
+                command.getReceiverEmail()
         );
 
     }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class CustomerMapper {
 
     private final AddressMapper addressMapper;
-    private final AccountTypeResponseMapper accountTypeResponseMapper;
     private final CustomerResponseMapper customerResponseMapper;
 
     public CustomerDTO toDTO(Customer customer) {
@@ -22,7 +21,7 @@ public class CustomerMapper {
                 customer.getCtmEmail(),
                 customer.getCtmPhone(),
                 addressMapper.toDTO(customer.getAddress()),
-                customer.getAccountType().getAccTypeLibelle()
+                customer.getAccountType()
         );
     }
 

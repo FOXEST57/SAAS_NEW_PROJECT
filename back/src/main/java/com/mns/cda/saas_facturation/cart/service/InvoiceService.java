@@ -68,6 +68,9 @@ public class InvoiceService implements IInvoiceService {
         invoice.setCommand(command);
         invoice.setInvoicePathPDF(PDF_PENDING);
 
+        invoice.setCreatorId(command.getCreatorId());
+        invoice.setReceiverEmail(command.getReceiverEmail());
+
         command.getQuote().getQotLines().forEach(ql -> {
             InvoiceLine line = invoiceLineService.build(ql);   // sans save()
             line.setInvoice(invoice);

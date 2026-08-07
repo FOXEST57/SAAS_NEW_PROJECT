@@ -112,29 +112,22 @@ VALUES
     (4, 3),
     (5, 3);
 
--- 14. Table ACCOUNT_TYPE (référencée par ACCOUNT.account_type_id)
-INSERT INTO account_type (acc_type_libelle)
-VALUES
-    ('ADMIN'),
-    ('USER'),
-    ('OWNER'),
-    ('EMPLOYEE');
 
 -- Mot de passe Dev : Azerty123!
 -- 15. Table CUSTOMER (référence ADDRESS)
-INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, password, ctm_phone, add_id, acc_type_id)
+INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, password, ctm_phone, add_id, account_type)
 VALUES
-    ('John', 'Doe', 'john.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33754156322', 1, 2),
-    ('Jane', 'Doe', 'jane.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33758965410', 1, 3),
-    ('Lily', 'Smith', 'lily.smith@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '0654125532', 2, 4);
+    ('John', 'Doe', 'john.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33754156322', 1, 'USER'),
+    ('Jane', 'Doe', 'jane.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33758965410', 1, 'OWNER'),
+    ('Lily', 'Smith', 'lily.smith@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '0654125532', 2, 'EMPLOYEE');
 
 -- 16. Table CART (référence CUSTOMER)
-INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, customer_id)
+INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, creator_id,receiver_email)
 VALUES
-    ('CART-0001', 'OPEN', current_date, current_date, 1),
-    ('CART-0002', 'VALIDATED', current_date, current_date, 1),
-    ('CART-0003', 'OPEN', current_date, current_date, 2),
-    ('CART-0004', 'OPEN', current_date, current_date, 3);
+    ('CART-0001', 'OPEN', current_date, current_date, 1, 'receiver@email.com'),
+    ('CART-0002', 'VALIDATED', current_date, current_date, 1,'receiver@email.com'),
+    ('CART-0003', 'OPEN', current_date, current_date, 2,'receiver@email.com'),
+    ('CART-0004', 'OPEN', current_date, current_date, 3,'receiver@email.com');
 
 -- 17. Table ORDER_LINE (clé composite article_id + cart_id)
 INSERT INTO order_line (article_id, cart_id, ord_ln_quantity)

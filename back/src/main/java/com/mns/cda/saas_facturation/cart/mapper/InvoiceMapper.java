@@ -28,7 +28,9 @@ public class InvoiceMapper {
                 invoice.getInvoiceCreatedDate(),
                 invoice.getInvoicePathPDF(),
                 invoice.getInvoiceStatus(),
-                invoiceLines
+                invoiceLines,
+                invoice.getCreatorId(),
+                invoice.getReceiverEmail()
         );
     }
 }

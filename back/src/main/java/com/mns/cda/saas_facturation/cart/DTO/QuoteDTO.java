@@ -1,6 +1,7 @@
 package com.mns.cda.saas_facturation.cart.DTO;
 
 import com.mns.cda.saas_facturation.enumeration.QuoteStatus;
+import com.mns.cda.saas_facturation.user.DTO.CustomerDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,9 +16,8 @@ public record QuoteDTO(
         QuoteStatus qotStatus,
         QuoteDTO qotParent,
         Long cartId,
-        List<QuoteLineDTO> qotLines
-//        BigDecimal totalHT,
-//        BigDecimal totalTva,
-//        BigDecimal totalTTC
+        List<QuoteLineDTO> qotLines,
+        Long creatorId,
+        String customerEmail
 ) {
 }

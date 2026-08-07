@@ -32,6 +32,7 @@ public class CartPipelineMapper {
                 quote.getQotNumber() + "-R", // cartRef simuler depuis quoteNumber en attendant d'avoir un générateur automatique.
                 quote.getCart().getCreator().getCtmId(),
                 null,
+                quote.getReceiverEmail(),
                 quote.getQotId()
         );
     }

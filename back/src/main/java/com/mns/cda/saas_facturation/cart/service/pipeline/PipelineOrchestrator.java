@@ -27,7 +27,7 @@ public class PipelineOrchestrator {
     @EventListener
     public void onCartValidated(CartValidatedEvent event) {
         QuoteRequestDTO dto = mapper.cartToQuote(event.getCart());
-        quoteService.create(dto);
+        quoteService.create(null, dto);
     }
 
     @EventListener

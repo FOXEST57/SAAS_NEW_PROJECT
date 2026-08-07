@@ -59,6 +59,8 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
         Command command = new Command();
         command.setQuote(quote);
         command.setCmdStatus(CommandStatus.CREATED);
+        command.setCreatorId(quote.getCreatorId());
+        command.setReceiverEmail(quote.getReceiverEmail());
 
         return commandMapper.toDTO(commandRepository.save(command));
     }

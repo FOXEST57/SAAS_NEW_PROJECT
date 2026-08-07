@@ -69,9 +69,8 @@ public class CartController {
             @ApiResponse(responseCode = "201", description = "Panier créé à partir du devis"),
             @ApiResponse(responseCode = "404", description = "Devis introuvable")
     })
-    public CartDTO revisitQuote(@AuthenticationPrincipal AppUserDetails user,
-                                @PathVariable Long id) {
-        return cartService.quoteToRevisitedCart(user, id);
+    public CartDTO revisitQuote(@PathVariable Long id) {
+        return cartService.quoteToRevisitedCart( id);
     }
 
 

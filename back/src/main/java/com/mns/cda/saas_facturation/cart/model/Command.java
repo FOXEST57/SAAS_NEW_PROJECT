@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.cart.model;
 
 import com.mns.cda.saas_facturation.enumeration.CommandStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,4 +40,11 @@ public class Command {
     @OneToOne
     @JoinColumn(name = "quote_id", unique = true)
     protected Quote quote;
+
+    @NotNull
+    protected Long creatorId;
+
+    @NotNull
+    @Email
+    protected String receiverEmail;
 }

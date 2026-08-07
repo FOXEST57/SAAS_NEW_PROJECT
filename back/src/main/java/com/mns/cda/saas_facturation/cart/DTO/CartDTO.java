@@ -14,6 +14,7 @@ public record CartDTO (
         LocalDateTime crtLastModifieDate,
         CartStatus crtStatus,
         CustomerDTO creator,
+        String customerEmail,
         List<OrderLineResponseDTO> orderLines
 ){
 }

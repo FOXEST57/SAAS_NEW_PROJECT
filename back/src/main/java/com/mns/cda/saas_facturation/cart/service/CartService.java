@@ -68,10 +68,20 @@ public class CartService implements ICartService {
         Cart cart = new Cart();
         cart.setCrtRef(dto.crtRef());
         cart.setCrtStatus(CartStatus.OPEN);
-        cart.setCreator(userDetails.getUser());
+
+
         cart.setReceiverEmail(dto.receiverEmail());
         cart.setParentQuoteId(qotParent != null ? qotParent.getQotId() : null);
 
+            if (userDetails != null) {
+                cart.setCreator(userDetails.getUser());
+            } else if (qotParent != null) {
+                cartRepository.findById(qotParent.getCreatorId())
+                        .ifPresent(cart1 ->
+                                cart.setCreator(cart1.getCreator()));
+            } else {
+                throw new ResourceNotFoundException("Le créateur du panier n'existe pas");
+            }
         cartRepository.save(cart);
 
         if (dto.orderLines() != null && !dto.orderLines().isEmpty()) {
@@ -94,9 +104,10 @@ public class CartService implements ICartService {
 
     @Override
     public CartDTO quoteToRevisitedCart(Long quoteId) {
-        Quote parent = quoteRepository.findById(quoteId).orElseThrow(() -> new RuntimeException("Quote not found"));
+        Quote parent = quoteRepository.findById(quoteId)
+                .orElseThrow(() -> new RuntimeException("Quote not found"));
         CartRequestDTO dto = cartPipelineMapper.quoteToCartRevision(parent);
-        return this.create(dto);
+        return this.create(null, dto);
     }
 
     @Override
