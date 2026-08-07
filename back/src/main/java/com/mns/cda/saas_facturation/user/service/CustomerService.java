@@ -10,12 +10,10 @@ import com.mns.cda.saas_facturation.user.Iservice.ICustomerService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.exception.SameAccountException;
 import com.mns.cda.saas_facturation.user.mapper.CustomerMapper;
-import com.mns.cda.saas_facturation.user.model.AccountType;
 import com.mns.cda.saas_facturation.location.model.Address;
 import com.mns.cda.saas_facturation.user.model.Corporation;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import com.mns.cda.saas_facturation.user.model.Invitation;
-import com.mns.cda.saas_facturation.user.repository.AccountTypeRepository;
 import com.mns.cda.saas_facturation.location.repository.AddressRepository;
 import com.mns.cda.saas_facturation.user.repository.CustomerRepository;
 import com.mns.cda.saas_facturation.user.repository.InvitationRepository;
@@ -57,7 +55,6 @@ public class CustomerService implements ICustomerService {
     @Override
     public CustomerDTO createOwner(CustomerOwnerRequestDTO dto) throws ResourceNotFoundException, SameAccountException {
         Address address = addressRepository.findById(dto.addId()).orElseThrow(() -> new ResourceNotFoundException("Adresse non existante"));
-        AccountType accountType = accountTypeRepository.findAccountTypeByAccTypeLibelle(AccountTypeEnum.OWNER);
 
         // On crée l'utilisateur
         Customer customer = new Customer();
@@ -66,7 +63,7 @@ public class CustomerService implements ICustomerService {
         customer.setCtmEmail(dto.ctmEmail());
         customer.setCtmPhone(dto.ctmPhone());
         customer.setAddress(address);
-        customer.setAccountType(accountType);
+        customer.setAccountType(AccountTypeEnum.OWNER);
         customer.setPassword(passwordEncoder.encode(dto.password()));
 
         customerRepository.save(customer);
