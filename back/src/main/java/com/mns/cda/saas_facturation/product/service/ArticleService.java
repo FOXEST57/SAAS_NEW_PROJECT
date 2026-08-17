@@ -4,6 +4,7 @@ import com.mns.cda.saas_facturation.product.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.InventoryRequestDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.MakerReferenceRequestDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleActiveUpdateDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.product.DTO.ArticleDTO;
@@ -77,6 +78,17 @@ public class ArticleService implements IArticleService {
                 .stream()                   // Transforme la liste en flux pour le traitement
                 .map(articleMapper::toDTO)           // Convertit chaque entité Article en ArticleDTO
                 .toList();                  // Collecte le résultat dans une liste immuable
+    }
+
+    @Override
+    public List<ArticleDTO> findAllIsActive() {
+
+
+        return articleRepository.findAll()
+                .stream()
+                .filter(Article::isActive)
+                .map(articleMapper::toDTO)
+                .toList();
     }
 
     /**
@@ -279,5 +291,18 @@ public class ArticleService implements IArticleService {
         // Persistance des modifications puis conversion en DTO pour la réponse HTTP
         return articleMapper.toDTO(articleRepository.save(article));
     }
+
+    @Override
+    public ArticleDTO updateActive(long id, ArticleActiveUpdateDTO dto) throws ResourceNotFoundException {
+
+        // Récupération de l'entité existante : on travaille sur l'objet BDD pour conserver son splId
+        Article article = articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article non existant"));
+
+        article.setActive(dto.isActive());
+        return articleMapper.toDTO(articleRepository.save(article));
+
+    }
+
 
 }

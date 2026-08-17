@@ -85,6 +85,7 @@ public class Article {
     @DecimalMin(value = "0.0", inclusive = false)
     protected BigDecimal artPriceExcludeTaxes;
 
+    protected boolean isActive = true;
 
     @CreatedDate
     @Column(updatable = false)

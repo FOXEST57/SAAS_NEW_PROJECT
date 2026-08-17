@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.product.Iservice;
 
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.product.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleActiveUpdateDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.product.controller.ArticleController;
@@ -32,6 +33,8 @@ public interface IArticleService {
      * @return une {@link List} de {@link ArticleDTO} (vide si aucun article n'existe)
      */
     List<ArticleDTO> findAll();
+
+    List<ArticleDTO> findAllIsActive();
 
     /**
      * Recherche un article par son identifiant unique.
@@ -80,4 +83,6 @@ public interface IArticleService {
      * @throws ResourceNotFoundException si l'article ciblé, la TVA ou le fournisseur référencé n'existe pas en base
      */
     ArticleDTO update(long id, ArticleUpdateDTO dto) throws ResourceNotFoundException;
+
+    ArticleDTO updateActive(long id, ArticleActiveUpdateDTO dto) throws ResourceNotFoundException;
 }

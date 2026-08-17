@@ -42,6 +42,7 @@ public record ArticleRequestDTO(
         @NotBlank String artName,
         @NotBlank String artDescription,
         @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,
+        boolean isActive,
         @NotNull @Min(1) Long tvaId,
         List<Long> categoryIds,
         List<SupplierReferenceRequestDTO> suppliers,

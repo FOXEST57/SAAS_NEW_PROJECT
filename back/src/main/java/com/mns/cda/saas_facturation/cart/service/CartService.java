@@ -80,6 +80,10 @@ public class CartService implements ICartService {
                 Article article = articleRepository.findById(orderLine.articleId())
                         .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + orderLine.articleId() + " n'existe pas"));
 
+                if(article.isActive() != true) {
+                    throw new IllegalStateException("L'article avec l'id " + orderLine.articleId() + " n'est pas actif");
+                }
+
                 OrderLine link = new OrderLine(
                         new OrderLine.OrderLineId(),
                         article,

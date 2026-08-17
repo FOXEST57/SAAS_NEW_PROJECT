@@ -78,13 +78,13 @@ VALUES
     ('Fabricant 4', 'fabricant4@gmail.com', '+33621795938',1);
 
 -- 10. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
-INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes,art_create_date, art_update_date, tva_id)
+INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes,is_Active,art_create_date, art_update_date, tva_id)
 VALUES
-    ('ref-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99,current_date, current_date, 1),
-    ('ref-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90,  current_date, current_date, 1),
-    ('ref-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, current_date, current_date, 1),
-    ('ref-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, current_date, current_date, 3),
-    ('ref-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99,  current_date, current_date, 2);
+    ('ref-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99,true,current_date, current_date, 1),
+    ('ref-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, false ,current_date, current_date, 1),
+    ('ref-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, false,current_date, current_date, 1),
+    ('ref-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, false,current_date, current_date, 3),
+    ('ref-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99,true,current_date, current_date, 2);
 
 -- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference,supplier_price, spl_ref_stock)
 INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_sell_price, spl_ref_stock, status, spl_ref_create_date, spl_ref_update_date)

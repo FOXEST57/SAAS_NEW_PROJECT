@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.product.controller;
 
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.ArticleRequestDTO;
 import com.mns.cda.saas_facturation.product.DTO.ArticleDTO;
+import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleActiveUpdateDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.ArticleUpdateDTO;
 import com.mns.cda.saas_facturation.product.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
@@ -77,6 +78,19 @@ public class ArticleController {
     })
     public List<ArticleDTO> getArticles() {
         return articleService.findAll();
+    }
+
+
+    @GetMapping("/list/actif")
+    @Operation(
+            summary = "Récupère la liste des articles actif.",
+            description = "Cette route permet de récupérer la liste de tous les articles actif dans la base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Liste des articles récupérée avec succès.")
+    })
+    public List<ArticleDTO> getArticlesActif() {
+        return articleService.findAllIsActive();
     }
 
     /**
@@ -216,4 +230,22 @@ public class ArticleController {
         ArticleDTO updated = articleService.update(id, dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
+
+    @PatchMapping("/{id}")
+    @Operation(
+            summary = "Modifie le statut actif d'un article en base de données.",
+            description = "Cette route permet de modifier un statut actif d'un article en base de données."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Statut modifié avec succès."),
+            @ApiResponse(responseCode = "404", description = "L'Article n'existe pas.")
+    })
+    public ResponseEntity<ArticleDTO> updateStatut(
+            @PathVariable Long id,
+            @Valid @RequestBody ArticleActiveUpdateDTO dto
+    ) {
+        ArticleDTO updated = articleService.updateActive(id, dto);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
+    }
+
 }
