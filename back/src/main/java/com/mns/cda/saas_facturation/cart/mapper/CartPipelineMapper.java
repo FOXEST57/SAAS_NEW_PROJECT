@@ -1,16 +1,16 @@
 package com.mns.cda.saas_facturation.cart.mapper;
 
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.InvoiceRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.*;
 import com.mns.cda.saas_facturation.cart.model.Cart;
 import com.mns.cda.saas_facturation.cart.model.Command;
 import com.mns.cda.saas_facturation.cart.model.Quote;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Service
@@ -28,6 +28,7 @@ public class CartPipelineMapper {
     }
 
     public CartRequestDTO quoteToCartRevision(Quote quote) {
+
         return new CartRequestDTO(
                 quote.getQotNumber() + "-R", // cartRef simuler depuis quoteNumber en attendant d'avoir un générateur automatique.
                 quote.getCart().getCreator().getCtmId(),

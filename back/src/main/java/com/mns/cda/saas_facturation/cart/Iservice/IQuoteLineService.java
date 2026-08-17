@@ -19,6 +19,8 @@ public interface IQuoteLineService {
     // Construit la ligne figée sans la persister : le devis s'en charge par cascade.
     QuoteLine build(OrderLine orderLine);
 
+    QuoteLine copy(QuoteLine source);
+
     QuoteLine patchQuantity (Long quoteLineId, PatchQuoteLineQuantity dto) throws ResourceNotFoundException;
 
     void delete(Long quotLineId) throws ResourceNotFoundException;

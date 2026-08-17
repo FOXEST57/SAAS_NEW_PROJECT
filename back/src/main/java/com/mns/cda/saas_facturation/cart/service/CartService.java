@@ -3,10 +3,12 @@ package com.mns.cda.saas_facturation.cart.service;
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
+import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestRevisitedDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.OrderLineRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
 import com.mns.cda.saas_facturation.cart.mapper.CartPipelineMapper;
 import com.mns.cda.saas_facturation.cart.model.Quote;
+import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
 import com.mns.cda.saas_facturation.cart.service.pipeline.CartValidatedEvent;
 import com.mns.cda.saas_facturation.enumeration.CartStatus;
@@ -69,7 +71,6 @@ public class CartService implements ICartService {
         cart.setCrtRef(dto.crtRef());
         cart.setCrtStatus(CartStatus.OPEN);
 
-
         cart.setReceiverEmail(dto.receiverEmail());
         cart.setParentQuoteId(qotParent != null ? qotParent.getQotId() : null);
 
@@ -110,8 +111,8 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
 
-        Customer customer = customerRepository.findById(dto.ctmId())
-                .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
+        Customer customer = customerRepository.findById(dto.creatorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.creatorId()+ " n'existe pas" ));
 
         cart.setCrtRef(dto.crtRef());
         cart.setReceiverEmail(customer.getCtmEmail());
@@ -125,7 +126,11 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findById(dto.crtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " + dto.crtId() + " n'existe pas"));
         cart.setCrtStatus(dto.crtStatus());
-        if (cart.getCrtStatus() == CartStatus.VALIDATED) {
+
+        boolean becomesValidated = dto.crtStatus() == CartStatus.VALIDATED
+                && cart.getCrtStatus() != CartStatus.VALIDATED;
+        cart.setCrtStatus(dto.crtStatus());
+        if (becomesValidated) {
             publisher.publishEvent(new CartValidatedEvent(cart));
         }
         return cartMapper.toDTO(cartRepository.save(cart));

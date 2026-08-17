@@ -37,22 +37,6 @@ public class QuoteLineService implements IQuoteLineService {
         return quoteLineRepository.findById(cntId).map(quoteLineMapper::toDTO);
     }
 
-//    @Override
-//    public QuoteLine create(OrderLine orderLine) {
-//
-//        QuoteLine quoteLine = new QuoteLine(
-//                null,
-//                orderLine.getOrdLnQuantity(),
-//                orderLine.getArticle().getArtPriceExcludeTaxes(),
-//                orderLine.getArticle().getArtName(),
-//                orderLine.getArticle().getArtReference(),
-//                orderLine.getArticle().getTva().getTvaTaux(),
-//                null
-//
-//        );
-//        return quoteLineRepository.save(quoteLine);
-//    }
-
     @Override
     public QuoteLine build(OrderLine orderLine) {
         Article article = orderLine.getArticle();
@@ -64,6 +48,19 @@ public class QuoteLineService implements IQuoteLineService {
         line.setArticleRef(article.getArtReference());
         line.setTvaRate(article.getTva().getTvaTaux());
         // `quote` est renseigné par l'appelant : c'est lui qui connaît le devis.
+        return line;
+    }
+
+    @Override
+    public QuoteLine copy(QuoteLine source) {
+        QuoteLine line = new QuoteLine();
+
+        line.setQotLnQuantity(source.getQotLnQuantity());
+        line.setQotLnPriceHT(source.getQotLnPriceHT());
+        line.setArticleName(source.getArticleName());
+        line.setArticleRef(source.getArticleRef());
+        line.setTvaRate(source.getTvaRate());
+
         return line;
     }
 

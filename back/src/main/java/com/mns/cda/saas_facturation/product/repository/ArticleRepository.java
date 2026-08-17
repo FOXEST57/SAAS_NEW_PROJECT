@@ -4,6 +4,8 @@ import com.mns.cda.saas_facturation.product.model.Article;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Repository JPA gérant les accès en base de données pour l'entité {@link Article}.
  *
@@ -22,4 +24,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
+    Optional<Article> findArticleByArtReference(String artReference);
 }

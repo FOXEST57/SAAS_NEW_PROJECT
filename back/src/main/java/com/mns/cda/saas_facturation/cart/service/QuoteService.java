@@ -77,6 +77,13 @@ public class QuoteService implements IQuoteService {
             quote.setReceiverEmail(cart.getReceiverEmail());
         }
         // Création des QuoteLine à partir de cart
+        if (qotParent != null) {
+            qotParent.getQotLines().forEach(parent -> {
+                QuoteLine copy = quoteLineService.copy(parent);   // recopie l'instantané, sans le catalogue
+                copy.setQuote(quote);
+                quote.getQotLines().add(copy);
+            });
+        }
         cart.getOrderLines().forEach(ol -> {
             QuoteLine line = quoteLineService.build(ol);   // sans save()
             line.setQuote(quote);
@@ -91,16 +98,10 @@ public class QuoteService implements IQuoteService {
     public QuoteDTO updateQuantity(Long qotId, PatchQuoteLineQuantity quantity) {
         Quote quote = quoteRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
 
-        EnumSet<QuoteStatus> modifiableStatuses = EnumSet.of(
-                QuoteStatus.PENDING,
-                QuoteStatus.CREATED,
-                QuoteStatus.REJECTED
-        );
-
-        if (!modifiableStatuses.contains(quote.getQotStatus())) {
-            throw new IllegalStateException("Le devis n'est pas dans un état modifiable");
+        if (quote.getQotPathPDF() != null) {
+            throw new IllegalStateException(
+                    "Le devis a été transmis : son PDF fait foi, toute correction passe par une révision");
         }
-
         QuoteLine quoteLine = quote.getQotLines().stream()
                 .filter(line -> line.getArticleRef().equalsIgnoreCase(quantity.artRef()))
                 .findFirst()
