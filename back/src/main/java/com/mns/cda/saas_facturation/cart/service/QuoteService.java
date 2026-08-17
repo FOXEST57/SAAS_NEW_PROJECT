@@ -71,7 +71,7 @@ public class QuoteService implements IQuoteService {
         quote.setQotStatus(QuoteStatus.CREATED);
         quote.setQotParent(qotParent);
         quote.setCart(cart);
-        quote.setCreatorId(user.getUser().getCtmId());
+        quote.setCreatorId(user != null ? user.getUser().getCtmId() : cart.getCreator().getCtmId());
 
         if (cart.getReceiverEmail() != null) {
             quote.setReceiverEmail(cart.getReceiverEmail());

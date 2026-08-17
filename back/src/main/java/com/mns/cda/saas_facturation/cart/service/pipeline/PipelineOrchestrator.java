@@ -8,6 +8,7 @@ import com.mns.cda.saas_facturation.cart.service.CartService;
 import com.mns.cda.saas_facturation.cart.service.CommandService;
 import com.mns.cda.saas_facturation.cart.service.InvoiceService;
 import com.mns.cda.saas_facturation.cart.service.QuoteService;
+import com.mns.cda.saas_facturation.security.AppUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

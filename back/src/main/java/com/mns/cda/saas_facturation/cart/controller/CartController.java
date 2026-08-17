@@ -6,6 +6,7 @@ import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
 import com.mns.cda.saas_facturation.security.AppUserDetails;
+import com.mns.cda.saas_facturation.user.model.Customer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -58,8 +59,8 @@ public class CartController {
             @ApiResponse(responseCode = "409", description = "Pannier déjà existant en BDD portant la même référence")
     })
     public ResponseEntity<CartDTO> create(@AuthenticationPrincipal AppUserDetails userDetails, @Valid @RequestBody CartRequestDTO dto) {
-
-            CartDTO response = cartService.create(userDetails, dto);
+        Customer creator = userDetails.getUser();
+            CartDTO response = cartService.create(creator, dto);
             return new ResponseEntity<>(response, HttpStatus.CREATED); // 201
     }
 

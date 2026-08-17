@@ -58,7 +58,7 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public CartDTO create(AppUserDetails userDetails, CartRequestDTO dto) {
+    public CartDTO create(Customer creator, CartRequestDTO dto) {
 
         Quote qotParent = dto.parentQuoteId() != null
                 ? quoteRepository.findById(dto.parentQuoteId())
@@ -73,15 +73,7 @@ public class CartService implements ICartService {
         cart.setReceiverEmail(dto.receiverEmail());
         cart.setParentQuoteId(qotParent != null ? qotParent.getQotId() : null);
 
-            if (userDetails != null) {
-                cart.setCreator(userDetails.getUser());
-            } else if (qotParent != null) {
-                cartRepository.findById(qotParent.getCreatorId())
-                        .ifPresent(cart1 ->
-                                cart.setCreator(cart1.getCreator()));
-            } else {
-                throw new ResourceNotFoundException("Le créateur du panier n'existe pas");
-            }
+        cart.setCreator(creator);
         cartRepository.save(cart);
 
         if (dto.orderLines() != null && !dto.orderLines().isEmpty()) {
@@ -106,8 +98,10 @@ public class CartService implements ICartService {
     public CartDTO quoteToRevisitedCart(Long quoteId) {
         Quote parent = quoteRepository.findById(quoteId)
                 .orElseThrow(() -> new RuntimeException("Quote not found"));
+        Customer creator = customerRepository.findById(parent.getCreatorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Le creator n'existe pas"));
         CartRequestDTO dto = cartPipelineMapper.quoteToCartRevision(parent);
-        return this.create(null, dto);
+        return this.create(creator, dto);
     }
 
     @Override
@@ -120,7 +114,7 @@ public class CartService implements ICartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.ctmId()+ " n'existe pas" ));
 
         cart.setCrtRef(dto.crtRef());
-        cart.setCreator(customer);
+        cart.setReceiverEmail(customer.getCtmEmail());
 
         return cartMapper.toDTO(cartRepository.save(cart));
     }
