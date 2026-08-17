@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.cart.service.pipeline;
 
+import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CommandRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.InvoiceRequestDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.QuoteRequestDTO;
@@ -8,6 +9,7 @@ import com.mns.cda.saas_facturation.cart.service.CartService;
 import com.mns.cda.saas_facturation.cart.service.CommandService;
 import com.mns.cda.saas_facturation.cart.service.InvoiceService;
 import com.mns.cda.saas_facturation.cart.service.QuoteService;
+import com.mns.cda.saas_facturation.enumeration.CartStatus;
 import com.mns.cda.saas_facturation.security.AppUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,9 @@ public class PipelineOrchestrator {
 
     @EventListener
     public void onQuoteRevisited(QuoteRevisitedEvent event) {
+        Long parentCartId = event.getQuote().getCart().getCrtId();
+
+        cartService.patchStatus(new PatchCartStatus(parentCartId, CartStatus.REVISITED));
         cartService.quoteToRevisitedCart(event.getQuote().getQotId());
     }
 

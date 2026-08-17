@@ -15,6 +15,7 @@ public record CartDTO (
         CartStatus crtStatus,
         CustomerDTO creator,
         String customerEmail,
+        Long parentQuoteId,
         List<OrderLineResponseDTO> orderLines
 ){
 }

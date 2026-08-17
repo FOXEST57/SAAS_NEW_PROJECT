@@ -3,12 +3,10 @@ package com.mns.cda.saas_facturation.cart.service;
 import com.mns.cda.saas_facturation.cart.DTO.CartDTO;
 import com.mns.cda.saas_facturation.cart.DTO.patchDTO.PatchCartStatus;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestDTO;
-import com.mns.cda.saas_facturation.cart.DTO.requestDTO.CartRequestRevisitedDTO;
 import com.mns.cda.saas_facturation.cart.DTO.requestDTO.OrderLineRequestDTO;
 import com.mns.cda.saas_facturation.cart.Iservice.ICartService;
 import com.mns.cda.saas_facturation.cart.mapper.CartPipelineMapper;
 import com.mns.cda.saas_facturation.cart.model.Quote;
-import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
 import com.mns.cda.saas_facturation.cart.service.pipeline.CartValidatedEvent;
 import com.mns.cda.saas_facturation.enumeration.CartStatus;
@@ -16,7 +14,6 @@ import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.CartMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.cart.model.Cart;
-import com.mns.cda.saas_facturation.security.AppUserDetails;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import com.mns.cda.saas_facturation.cart.model.OrderLine;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
@@ -111,11 +108,8 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
 
-        Customer customer = customerRepository.findById(dto.creatorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Le client avec l'id " +dto.creatorId()+ " n'existe pas" ));
-
         cart.setCrtRef(dto.crtRef());
-        cart.setReceiverEmail(customer.getCtmEmail());
+        cart.setReceiverEmail(dto.receiverEmail());
 
         return cartMapper.toDTO(cartRepository.save(cart));
     }
@@ -123,14 +117,36 @@ public class CartService implements ICartService {
     @Override
     @Transactional
     public CartDTO patchStatus(PatchCartStatus dto) {
+
         Cart cart = cartRepository.findById(dto.crtId())
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " + dto.crtId() + " n'existe pas"));
-        cart.setCrtStatus(dto.crtStatus());
 
-        boolean becomesValidated = dto.crtStatus() == CartStatus.VALIDATED
-                && cart.getCrtStatus() != CartStatus.VALIDATED;
-        cart.setCrtStatus(dto.crtStatus());
-        if (becomesValidated) {
+        CartStatus current = cart.getCrtStatus();
+        CartStatus next = dto.crtStatus();
+
+        switch (current) {
+            case OPEN -> {
+                if (next != CartStatus.VALIDATED) {
+                    throw new IllegalStateException(
+                            "Impossible de passer un panier OPEN à un autre statut que VALIDATED.");
+                }
+            }
+            case VALIDATED -> {
+                if (next != CartStatus.REVISITED) {
+                    throw new IllegalStateException(
+                            "Impossible de passer un panier VALIDATED à un autre statut que REVISITED.");
+                }
+            }
+            case REVISITED ->
+                throw new IllegalStateException(
+                        "Un panier REVISITED est figé, il ne peut plus être modifié."
+                );
+            default -> throw new IllegalStateException(
+                    "Statut actuel du panier inconnu : " + current);
+        }
+        cart.setCrtStatus(next);
+
+        if (next == CartStatus.VALIDATED) {
             publisher.publishEvent(new CartValidatedEvent(cart));
         }
         return cartMapper.toDTO(cartRepository.save(cart));

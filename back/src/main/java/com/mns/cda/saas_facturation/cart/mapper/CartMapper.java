@@ -34,6 +34,7 @@ public class CartMapper {
                cart.getCrtStatus(),
                customerMapper.toDTO(cart.getCreator()),
                cart.getReceiverEmail(),
+               cart.getParentQuoteId(),
                orderLines
        );
 
