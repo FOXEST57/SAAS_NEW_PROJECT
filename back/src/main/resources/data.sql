@@ -114,14 +114,14 @@ VALUES
 
 
 -- Mot de passe Dev : Azerty123!
--- 15. Table CUSTOMER (référence ADDRESS)
+-- 14. Table CUSTOMER (référence ADDRESS)
 INSERT INTO customer (ctm_first_name, ctm_last_name, ctm_email, password, ctm_phone, add_id, account_type)
 VALUES
     ('John', 'Doe', 'john.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33754156322', 1, 'USER'),
     ('Jane', 'Doe', 'jane.doe@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '+33758965410', 1, 'OWNER'),
     ('Lily', 'Smith', 'lily.smith@email.com','$2a$10$Yc9vvYfNt6s2kmA3AWwzYuW5Z6lxMxxRyox4Hzb1IAbq74BvP9RW6', '0654125532', 2, 'EMPLOYEE');
 
--- 16. Table CART (référence CUSTOMER)
+-- 15. Table CART (référence CUSTOMER)
 INSERT INTO cart (crt_ref, crt_status, crt_create_date, crt_last_modifie_date, creator_id,receiver_email)
 VALUES
     ('CART-0001', 'OPEN', current_date, current_date, 1, 'receiver@email.com'),
@@ -129,7 +129,7 @@ VALUES
     ('CART-0003', 'OPEN', current_date, current_date, 2,'receiver@email.com'),
     ('CART-0004', 'OPEN', current_date, current_date, 3,'receiver@email.com');
 
--- 17. Table ORDER_LINE (clé composite article_id + cart_id)
+-- 16. Table ORDER_LINE (clé composite article_id + cart_id)
 INSERT INTO order_line (article_id, cart_id, ord_ln_quantity)
 VALUES
     (1, 1, 2),
@@ -139,7 +139,7 @@ VALUES
     (5, 3, 1),
     (1, 4, 4);
 
--- 18. Table INVENTORY (référence ARTICLE)
+-- 17. Table INVENTORY (référence ARTICLE)
 INSERT INTO inventory (article_art_id, inv_stock, inv_date)
 VALUES
     (1, 100, '2024-06-01'),
@@ -147,3 +147,209 @@ VALUES
     (3, 200, '2024-06-01'),
     (4, 250, '2024-06-01'),
     (5, 300, '2024-06-01');
+
+-- 18. Table QUOTE (référence CART)
+INSERT INTO quote (
+    qot_expiration_date,
+    cart_crt_id,
+    creator_id,
+    qot_created_date,
+    qot_modified_date,
+    qot_parent_qot_id,
+    qot_number,
+    qot_pathpdf,
+    receiver_email,
+    qot_status
+)
+VALUES
+    (
+                CURRENT_DATE + 30,
+                1,
+                1,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                NULL,
+                'DEV-2026-0001',
+                'DEV-2026-0001.pdf',
+                'john.doe@email.com',
+                'ACCEPTED'
+    ),
+    (
+                CURRENT_DATE + 30,
+                2,
+                1,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                NULL,
+                'DEV-2026-0002',
+                'DEV-2026-0002.pdf',
+                'jane.doe@email.com',
+                'ACCEPTED'
+    ),
+    (
+                CURRENT_DATE + 30,
+                3,
+                2,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                NULL,
+                'DEV-2026-0003',
+                'DEV-2026-0003.pdf',
+                'lily.smith@email.com',
+                'ACCEPTED'
+    );
+
+-- 19. Table QUOTE_LINE (référence QUOTE)
+INSERT INTO quote_line (
+    qot_ln_priceht,
+    qot_ln_quantity,
+    tva_rate,
+    quote_qot_id,
+    article_name,
+    article_ref
+)
+VALUES
+    (79.99, 2, 0.20, 1, 'Clavier mécanique', 'ref-001'),
+    (39.90, 1, 0.20, 1, 'Souris ergonomique', 'ref-002'),
+    (229.00, 1, 0.20, 2, 'Écran 27 pouces', 'ref-003'),
+    (119.50, 2, 0.20, 3, 'Casque audio', 'ref-004');
+
+-- 20. Table COMMAND (référence QUOTE)
+INSERT INTO command (
+    cmd_create_date,
+    cmd_modified_date,
+    creator_id,
+    quote_id,
+    receiver_email,
+    cmd_status
+)
+VALUES
+    (
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                1,
+                1,
+                'john.doe@email.com',
+                'ACCEPTED'
+    ),
+    (
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                1,
+                2,
+                'jane.doe@email.com',
+                'ACCEPTED'
+    ),
+    (
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP,
+                2,
+                3,
+                'lily.smith@email.com',
+                'ACCEPTED'
+    );
+
+-- 21. Table INVOICE (référence COMMAND)
+INSERT INTO invoice (
+    command_cmd_id,
+    creator_id,
+    invoice_created_date,
+    invoice_modified_date,
+    invoice_number,
+    invoice_pathpdf,
+    receiver_email,
+    invoice_status
+)
+VALUES
+    (
+        1,
+        1,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP,
+        'FAC-2026-0001',
+        'FAC-2026-0001.pdf',
+        'john.doe@email.com',
+        'PARTIALLY_PAID'
+    ),
+    (
+        2,
+        1,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP,
+        'FAC-2026-0002',
+        'FAC-2026-0002.pdf',
+        'jane.doe@email.com',
+        'ISSUED'
+    ),
+    (
+        3,
+        2,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP,
+        'FAC-2026-0003',
+        'FAC-2026-0003.pdf',
+        'lily.smith@email.com',
+        'PAID'
+    );
+
+-- 22. Table INVOICE_LINE (référence INVOICE)
+INSERT INTO invoice_line (
+    inv_ln_priceht,
+    inv_ln_quantity,
+    tva_rate,
+    invoice_invoice_id,
+    article_name,
+    article_ref
+)
+VALUES
+    (79.99, 2, 0.20, 1, 'Clavier mécanique', 'ref-001'),
+    (39.90, 1, 0.20, 1, 'Souris ergonomique', 'ref-002'),
+    (229.00, 1, 0.20, 2, 'Écran 27 pouces', 'ref-003'),
+    (119.50, 2, 0.20, 3, 'Casque audio', 'ref-004');
+
+-- 23. Table PAYMENT (référence INVOICE)
+-- Facture 1 : deux paiements
+-- 100 € d'acompte par virement
+-- 99,88 € de solde par carte bancaire
+INSERT INTO payment (
+    pay_account,
+    pay_amount,
+    invoice_id,
+    pay_created_date,
+    pay_type
+)
+VALUES
+    (
+        true,
+        100.00,
+        1,
+        CURRENT_TIMESTAMP,
+        'BANK_TRANSFER'
+    ),
+    (
+        false,
+        5.00,
+        1,
+        CURRENT_TIMESTAMP,
+        'CREDIT_CARD'
+    );
+
+-- Facture 2 : aucun paiement
+-- Permet de tester une facture sans paiement.
+
+-- Facture 3 : paiement intégral par prélèvement
+INSERT INTO payment (
+    pay_account,
+    pay_amount,
+    invoice_id,
+    pay_created_date,
+    pay_type
+)
+VALUES
+    (
+        false,
+        239.00,
+        3,
+        CURRENT_TIMESTAMP,
+        'DIRECT_DEBIT'
+    );

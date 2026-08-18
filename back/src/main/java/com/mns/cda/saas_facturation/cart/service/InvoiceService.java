@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -56,8 +57,8 @@ public class InvoiceService implements IInvoiceService {
     }
 
     @Override
-    public InvoiceDTO findById(Long qotId) {
-        Invoice invoice = invoiceRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
+    public InvoiceDTO findById(Long invId) {
+        Invoice invoice = invoiceRepository.findById(invId).orElseThrow(() -> new ResourceNotFoundException("Devis non existant"));
 
         return invoiceMapper.toDTO(invoice);
     }
@@ -94,29 +95,84 @@ public class InvoiceService implements IInvoiceService {
         // invoiceCreatedDate, dont le PDF a besoin.
         Invoice saved = invoiceRepository.save(invoice);
 
-        // Le PDF est fabriqué maintenant, pas au premier téléchargement : il
-        // fige le document tel qu'il est à l'instant de l'émission. Si le
-        // logo, les mentions légales ou tes coordonnées changent demain, cette
-        // facture-là restera identique à celle envoyée au client.
-        // VOIR POUR GÉNÉRER LE DOCUMENT LORSQUE LA FACTURE PASSE EN STATUT ISSUED
-        saved.setInvoicePathPDF(invoicePdfService.generate(saved));
-
         return invoiceMapper.toDTO(invoiceRepository.save(saved));
     }
 
     @Transactional
     @Override
-    public void delete(Long qotId) {
-        Invoice invoice = invoiceRepository.findById(qotId).orElseThrow(() -> new ResourceNotFoundException("Facture non existante"));
+    public void delete(Long invId) {
+        Invoice invoice = invoiceRepository.findById(invId).orElseThrow(() -> new ResourceNotFoundException("Facture non existante"));
 
         invoiceRepository.delete(invoice);
     }
 
 
     @Override
+    @Transactional
     public InvoiceDTO updateStatus(PatchInvoiceStatus dto) {
-        Invoice invoice = invoiceRepository.findById(dto.invoiceId()).orElseThrow(() -> new ResourceNotFoundException("Facture non existante"));
-        invoice.setInvoiceStatus(dto.invoiceStatus());
+
+        Invoice invoice = invoiceRepository.findById(dto.invoiceId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Facture non existante"));
+
+        InvoiceStatus currentStatus = invoice.getInvoiceStatus();
+        InvoiceStatus newStatus = dto.invoiceStatus();
+
+        if (!isValidTransition(currentStatus, newStatus)) {
+            throw new IllegalStateException(
+                    "Transition de statut impossible : "
+                            + currentStatus + " → " + newStatus
+            );
+        }
+
+        if (currentStatus == InvoiceStatus.CREATED
+                && newStatus == InvoiceStatus.ISSUED) {
+
+            invoice.setInvoiceStatus(InvoiceStatus.ISSUED);
+
+            invoice.setInvoicePathPDF(
+                    invoicePdfService.generate(invoice)
+            );
+
+        } else {
+            invoice.setInvoiceStatus(newStatus);
+        }
+
         return invoiceMapper.toDTO(invoiceRepository.save(invoice));
     }
+
+    private boolean isValidTransition(
+            InvoiceStatus currentStatus,
+            InvoiceStatus newStatus
+    ) {
+        return switch (currentStatus) {
+
+            case CREATED ->
+                    newStatus == InvoiceStatus.ISSUED
+                            || newStatus == InvoiceStatus.CANCELLED;
+
+            case ISSUED ->
+                    newStatus == InvoiceStatus.SENT
+                            || newStatus == InvoiceStatus.CANCELLED;
+
+            case SENT ->
+                    newStatus == InvoiceStatus.PARTIALLY_PAID
+                            || newStatus == InvoiceStatus.PAID
+                            || newStatus == InvoiceStatus.OVERDUE
+                            || newStatus == InvoiceStatus.CANCELLED;
+
+            case PARTIALLY_PAID ->
+                    newStatus == InvoiceStatus.PAID
+                            || newStatus == InvoiceStatus.OVERDUE
+                            || newStatus == InvoiceStatus.CANCELLED;
+
+            case OVERDUE ->
+                    newStatus == InvoiceStatus.PAID
+                            || newStatus == InvoiceStatus.CANCELLED;
+
+            case PAID, CANCELLED ->
+                    false;
+        };
+    }
+
 }

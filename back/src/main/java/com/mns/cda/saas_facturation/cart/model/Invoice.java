@@ -64,4 +64,7 @@ public class Invoice {
     @NotNull
     @Email
     protected String receiverEmail;
+
+    @OneToMany(mappedBy = "invoice")
+    protected List<Payment> payments = new ArrayList<>();
 }
