@@ -32,7 +32,6 @@ public class Cart {
 
     @NotBlank
     @Column(unique = true, nullable = false)
-    @Convert(converter = LowercaseConverter.class)
     protected String crtRef;
 
     @CreatedDate

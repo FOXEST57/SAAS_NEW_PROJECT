@@ -14,6 +14,12 @@ import com.mns.cda.saas_facturation.cart.repository.InvoiceRepository;
 import com.mns.cda.saas_facturation.enumeration.InvoiceStatus;
 import com.mns.cda.saas_facturation.exception.ResourceAlreadyExistException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.referencement.ReferenceCounterService;
+import com.mns.cda.saas_facturation.referencement.ReferenceType;
+import com.mns.cda.saas_facturation.user.model.Corporation;
+import com.mns.cda.saas_facturation.user.model.Customer;
+import com.mns.cda.saas_facturation.user.repository.CorporationRepository;
+import com.mns.cda.saas_facturation.user.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +35,9 @@ public class InvoiceService implements IInvoiceService {
     private final CommandRepository commandRepository;
     private final InvoiceLineService invoiceLineService;
     private final IInvoicePdfService invoicePdfService;
+    private final CorporationRepository corporationRepository;
+
+    private final ReferenceCounterService referenceCounterService;
 
     /**
      * Valeur temporaire du chemin du PDF. Le vrai chemin dépend de la date
@@ -36,6 +45,7 @@ public class InvoiceService implements IInvoiceService {
      * la colonne refuse d'être vide, il faut donc y mettre quelque chose.
      */
     private static final String PDF_PENDING = "en cours de génération";
+    private final CustomerRepository customerRepository;
 
     @Override
     public List<InvoiceDTO> findAll() {
@@ -63,13 +73,16 @@ public class InvoiceService implements IInvoiceService {
         }
 
         Invoice invoice = new Invoice();
-        invoice.setInvoiceNumber(invoiceRequestDTO.invoiceNumber());
         invoice.setInvoiceStatus(InvoiceStatus.CREATED);
         invoice.setCommand(command);
         invoice.setInvoicePathPDF(PDF_PENDING);
 
         invoice.setCreatorId(command.getCreatorId());
         invoice.setReceiverEmail(command.getReceiverEmail());
+
+        Customer creator = customerRepository.findById(invoice.getCreatorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer non existante"));
+        invoice.setInvoiceNumber(referenceCounterService.generateReference(creator.getCorporation(), ReferenceType.INVOICE));
 
         command.getQuote().getQotLines().forEach(ql -> {
             InvoiceLine line = invoiceLineService.build(ql);   // sans save()

@@ -37,6 +37,9 @@ public class Command {
     @Enumerated(EnumType.STRING)
     protected CommandStatus cmdStatus;
 
+    @NotNull
+    protected String cmdReference;
+
     @OneToOne
     @JoinColumn(name = "quote_id", unique = true)
     protected Quote quote;

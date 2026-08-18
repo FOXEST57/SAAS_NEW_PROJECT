@@ -12,6 +12,7 @@ public record CommandDTO(
         CommandStatus cmdStatus,
         Long quoteId,
         String quoteNumber,
+        String cmdReference,
         List<QuoteLineDTO> quoteLines,
         Long creatorId,
         String customerEmail

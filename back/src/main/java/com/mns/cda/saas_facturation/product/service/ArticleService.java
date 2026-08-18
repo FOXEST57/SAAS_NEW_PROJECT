@@ -12,6 +12,8 @@ import com.mns.cda.saas_facturation.product.DTO.InventoryDTO;
 import com.mns.cda.saas_facturation.product.Iservice.IArticleService;
 import com.mns.cda.saas_facturation.product.model.*;
 import com.mns.cda.saas_facturation.product.repository.*;
+import com.mns.cda.saas_facturation.referencement.ReferenceCounterService;
+import com.mns.cda.saas_facturation.referencement.ReferenceType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.mns.cda.saas_facturation.product.mapper.ArticleMapper;
@@ -60,6 +62,7 @@ public class ArticleService implements IArticleService {
     private final InventoryService inventoryService;
     private final InventoryRepository inventoryRepository;
     private final MakerRepository makerRepository;
+    private final ReferenceCounterService referenceCounterService;
 
     /**
      * Récupère la liste complète de tous les articles en base de données.
@@ -136,7 +139,8 @@ public class ArticleService implements IArticleService {
         // Construction de l'entité Article : le splId est null car généré automatiquement par la BDD (@GeneratedValue) avec une liste vide pour les suppliers
         Article article = new Article();
 
-                article.setArtReference(dto.artReference());
+                article.setArtReference(referenceCounterService
+                        .generateReference(null, ReferenceType.ARTICLE));
                 article.setArtName(dto.artName());
                 article.setArtDescription(dto.artDescription());
                 article.setArtPriceExcludeTaxes(dto.artPriceExcludeTaxes());

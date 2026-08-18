@@ -27,7 +27,6 @@ import java.util.List;
  * <p>Les entités liées (TVA et fournisseur) sont référencées par leur identifiant
  * uniquement — c'est le service qui se charge de les récupérer en base.</p>
  *
- * @param artReference          référence commerciale de l'article — ne doit pas être vide
  * @param artName               nom de l'article — ne doit pas être vide
  * @param artDescription        description de l'article — ne doit pas être vide
  * @param artPriceExcludeTaxes  prix hors taxes — doit être strictement supérieur à 0
@@ -38,7 +37,6 @@ import java.util.List;
  */
 
 public record ArticleRequestDTO(
-        @NotBlank @Column(unique = true) String artReference,
         @NotBlank String artName,
         @NotBlank String artDescription,
         @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal artPriceExcludeTaxes,

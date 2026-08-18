@@ -19,6 +19,8 @@ import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import com.mns.cda.saas_facturation.cart.repository.CartRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.cart.repository.QuoteRepository;
+import com.mns.cda.saas_facturation.referencement.ReferenceCounterService;
+import com.mns.cda.saas_facturation.referencement.ReferenceType;
 import com.mns.cda.saas_facturation.security.AppUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class QuoteService implements IQuoteService {
     private final IQuotePdfService quotePdfService;
 
     private final ApplicationEventPublisher publisher;
+    private final ReferenceCounterService referenceCounterService;
 
 
     @Override
@@ -66,7 +69,9 @@ public class QuoteService implements IQuoteService {
         Cart cart = cartRepository.findById(quoteRequestDTO.cartId()).orElseThrow(() -> new ResourceNotFoundException("Panier non existant"));
 
         Quote quote = new Quote();
-        quote.setQotNumber(quoteRequestDTO.qotNumber());
+        quote.setQotNumber(referenceCounterService
+                .generateReference(user.getUser().getCorporation(),
+                        ReferenceType.QUOTE));
         quote.setQotExpirationDate(quoteRequestDTO.qotExpirationDate());
         quote.setQotStatus(QuoteStatus.CREATED);
         quote.setQotParent(qotParent);

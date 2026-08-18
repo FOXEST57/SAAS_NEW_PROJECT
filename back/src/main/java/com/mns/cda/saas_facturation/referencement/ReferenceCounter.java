@@ -16,7 +16,7 @@ public class ReferenceCounter {
     private Long rfcId;
 
     @ManyToOne
-    @JoinColumn(name = "crp_id", nullable = false)
+    @JoinColumn(name = "crp_id")
     private Corporation corporation;
 
     @Column(nullable = false)

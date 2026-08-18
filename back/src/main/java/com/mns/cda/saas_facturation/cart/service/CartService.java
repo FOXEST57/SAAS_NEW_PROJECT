@@ -14,6 +14,8 @@ import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.CartMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.cart.model.Cart;
+import com.mns.cda.saas_facturation.referencement.ReferenceCounterService;
+import com.mns.cda.saas_facturation.referencement.ReferenceType;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import com.mns.cda.saas_facturation.cart.model.OrderLine;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
@@ -39,6 +41,7 @@ public class CartService implements ICartService {
     private final CartPipelineMapper cartPipelineMapper;
     private final QuoteRepository quoteRepository;
 
+    private final ReferenceCounterService referenceCounterService;
     private final ApplicationEventPublisher publisher;
 
     @Override
@@ -65,7 +68,8 @@ public class CartService implements ICartService {
                 : null;
 
         Cart cart = new Cart();
-        cart.setCrtRef(dto.crtRef());
+        cart.setCrtRef(referenceCounterService
+                .generateReference(creator.getCorporation(), ReferenceType.CART));
         cart.setCrtStatus(CartStatus.OPEN);
 
         cart.setReceiverEmail(dto.receiverEmail());

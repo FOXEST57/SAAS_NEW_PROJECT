@@ -1,5 +1,6 @@
 package com.mns.cda.saas_facturation.referencement;
 
+import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.user.model.Corporation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,10 @@ public class ReferenceCounterService {
     private final ReferenceCounterRepository counterRepository;
 
     @Transactional
-    public String generateReference(Corporation corporation, ReferenceType type) {
+    public String generateReference(Corporation corporation , ReferenceType type) {
+        if (corporation == null && type != ReferenceType.ARTICLE && type != ReferenceType.COMMAND) {
+            throw new ResourceNotFoundException("l'entreprise demandé n'existe pas");
+        }
 
         ReferenceCounter counter = counterRepository.findByCorporation_CorpIdAndObjectType(corporation.getCorpId(), type)
                 .orElseGet(() ->{
@@ -27,35 +31,29 @@ public class ReferenceCounterService {
         counterRepository.save(counter);
         return switch (type) {
             case ARTICLE -> {
-                String ref = type.name() + "-" +
+                yield type.name() + "-" +
                         String.format("%06d", counter.getCounter());
-                yield ref;
             }
             case CART -> {
-                String ref = corporation.getCorpPreRefCart() +
+                yield corporation.getCorpPreRefCart() +
                         "-" + type.name() + "-" +
                         String.format("%06d", counter.getCounter());
-                yield ref;
             }
             case QUOTE -> {
-                String ref = corporation.getCorpPreRefQuote() +
+                yield corporation.getCorpPreRefQuote() +
                         "-" + type.name() + "-" +
                         String.format("%06d", counter.getCounter());
-                yield ref;
             }
             case INVOICE -> {
-                String ref = corporation.getCorpPreRefInvoice() +
+                yield corporation.getCorpPreRefInvoice() +
                         "-" + type.name() + "-" +
                         String.format("%06d", counter.getCounter());
-                yield ref;
             }
             case COMMAND -> {
-                String ref = type.name() + "-" +
+                yield type.name() + "-" +
                         String.format("%06d", counter.getCounter());
-                yield ref;
             }
             default -> throw new IllegalStateException("Unexpected value: " + type);
-
         };
 
     }
