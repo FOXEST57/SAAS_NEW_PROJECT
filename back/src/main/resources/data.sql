@@ -78,32 +78,45 @@ VALUES
     ('Fabricant 4', 'fabricant4@gmail.com', '+33621795938',1);
 
 -- 10. Table ARTICLE (référence TVA et CATEGORY uniquement — pas de supplier_id direct)
-INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes,is_Active,art_create_date, art_update_date, tva_id)
+INSERT INTO article (art_reference, art_name, art_description, art_price_exclude_taxes, is_active, art_created_date, art_updated_date, tva_id)
 VALUES
-    ('ref-001', 'Clavier mécanique', 'Clavier mécanique switchs rouges, idéal pour le gaming.', 79.99,true,current_date, current_date, 1),
+    ('ref-001', 'Clavier mécanique', 'Clavier mécanique switches rouges, idéal pour le gaming.', 79.99,true,current_date, current_date, 1),
     ('ref-002', 'Souris ergonomique', 'Souris sans fil ergonomique pour réduire la fatigue du poignet.', 39.90, false ,current_date, current_date, 1),
     ('ref-003', 'Écran 27 pouces', 'Écran IPS 27 pouces 144Hz, parfait pour le travail et le jeu.', 229.00, false,current_date, current_date, 1),
     ('ref-004', 'Casque audio', 'Casque circum-aural avec réduction de bruit active.', 119.50, false,current_date, current_date, 3),
     ('ref-005', 'Hub USB-C', 'Hub USB-C 7 ports compatible Mac et Windows.', 29.99,true,current_date, current_date, 2);
 
--- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference,supplier_price, spl_ref_stock)
-INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference, spl_ref_sell_price, spl_ref_stock, status, spl_ref_create_date, spl_ref_update_date)
+-- 11. Table SUPPLIER_REFERENCE (article, supplier, spl_ref_reference)
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference)
 VALUES
-    (1, 1, 'TC-USB-64', 120.00, 120, 'RECEIVED', current_date, current_date),
-    (1, 2, 'OP-USB-64', 80.00, 120, 'RECEIVED', current_date, current_date),
-    (2, 3, 'FP-CHAIR-ERG', 40.00, 120, 'ACCEPTED', current_date, current_date),
-    (3, 1, 'TC-SCREEN-27', 25.00, 120, 'CANCELLED', current_date, current_date),
-    (4, 2, 'OP-PAPER-A4', 400.00, 120, 'PENDING', current_date, current_date);
+    (1, 1, 'TC-USB-64'),
+    (1, 2, 'OP-USB-64'),
+    (2, 3, 'FP-CHAIR-ERG'),
+    (3, 1, 'TC-SCREEN-27'),
+    (4, 2, 'OP-PAPER-A4');
 
 -- 12. Table MAKER_REFERENCE (clé composite article_id + maker_id)
-INSERT INTO maker_reference (article_id, maker_id, art_mkr_reference, art_mkr_stock, art_mkr_sell_price, status, art_mkr_create_date, art_mkr_update_date)
+INSERT INTO maker_reference (article_id, maker_id, art_mkr_reference)
 VALUES
-    (1, 1, 'MKR-CLAV-001',1,1.00, 'ACCEPTED', current_date, current_date),
-    (2, 2, 'MKR-SOUR-002',10,10.00, 'RECEIVED', current_date, current_date),
-    (3, 1, 'MKR-ECR-003',2,2.00, 'PENDING', current_date, current_date),
-    (4, 3, 'MKR-CASQ-004',20,20.00, 'PENDING', current_date, current_date);
+    (1, 1, 'MKR-CLAV-001'),
+    (2, 2, 'MKR-SOUR-002'),
+    (3, 1, 'MKR-ECR-003'),
+    (4, 3, 'MKR-CASQ-004');
 
---13. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
+-- 13. Table DELIVERY
+INSERT INTO delivery (dlv_quantity, dlv_buying_price, dlv_status, dlv_created_date, dlv_updated_date, spl_article_id, supplier_id, mkr_article_id, maker_id)
+VALUES
+    (3, 60.00, 'ACCEPTED', current_date, current_date, 1, 1, null, null),
+    (2, 55.99, 'ACCEPTED', current_date, current_date, 1, 2, null, null),
+    (10, 29.99, 'PENDING', current_date, current_date, 2, 3, null, null),
+    (5, 199.99, 'ACCEPTED', current_date, current_date, 3, 1, null, null),
+    (4, 85.99, 'ACCEPTED', current_date, current_date, 4, 2, null, null),
+    (6, 58.90, 'ACCEPTED', current_date, current_date, null, null, 1, 1),
+    (1, 25.90, 'ACCEPTED', current_date, current_date, null, null, 2, 2),
+    (1, 200.00, 'PENDING', current_date, current_date, null, null, 3, 1),
+    (2, 99.99, 'ACCEPTED', current_date, current_date, null, null, 4, 3);
+
+--14. Table ARTICLE_CATEGORY (clé composite article_id + category_id)
 INSERT INTO article_category (article_id, category_id)
 VALUES
     (1, 3),
@@ -111,7 +124,6 @@ VALUES
     (3, 4),
     (4, 3),
     (5, 3);
-
 
 -- Mot de passe Dev : Azerty123!
 -- 15. Table CUSTOMER (référence ADDRESS)

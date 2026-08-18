@@ -2,8 +2,8 @@ package com.mns.cda.saas_facturation.product.mapper;
 
 import com.mns.cda.saas_facturation.product.DTO.ArticleDTO;
 import com.mns.cda.saas_facturation.product.DTO.ArticleLightDTO;
-import com.mns.cda.saas_facturation.product.mapper.responseMapper.MakerReferenceResponseMapper;
-import com.mns.cda.saas_facturation.product.mapper.responseMapper.SupplierReferenceResponseMapper;
+import com.mns.cda.saas_facturation.product.mapper.responseMapper.MakerReferenceResponseArticleMapper;
+import com.mns.cda.saas_facturation.product.mapper.responseMapper.SupplierReferenceResponseArticleMapper;
 import com.mns.cda.saas_facturation.product.mapper.responseMapper.CategoryResponseMapper;
 import com.mns.cda.saas_facturation.product.mapper.responseMapper.TvaResponseMapper;
 import com.mns.cda.saas_facturation.product.DTO.responseDTO.*;
@@ -11,6 +11,7 @@ import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.product.model.MakerReference;
 import com.mns.cda.saas_facturation.product.model.SupplierReference;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
+import com.mns.cda.saas_facturation.product.service.StockService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +22,12 @@ import java.util.List;
 @AllArgsConstructor
 public class ArticleMapper {
 
+    private final ArticleRepository articleRepository;
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
-    private final SupplierReferenceResponseMapper supplierReferenceMapper;
-    private final ArticleRepository articleRepository;
-    private final MakerReferenceResponseMapper makerReferenceResponseMapper;
+    private final SupplierReferenceResponseArticleMapper supplierReferenceResponseArticleMapper;
+    private final MakerReferenceResponseArticleMapper makerReferenceResponseArticleMapper;
+    private final StockService stockService;
 
     public ArticleDTO toDTO(Article article) {
 
@@ -42,16 +44,16 @@ public class ArticleMapper {
                 .toList()
                 :List.of();
 
-        List<SupplierReferenceResponseDTO> suppliersLinks = article.getSuppliers() != null
-                ? article.getSuppliers()
+        List<SupplierReferenceResponseArticleDTO> suppliersLinks = article.getSupplierReferences() != null
+                ? article.getSupplierReferences()
                 .stream()
-                .map(supplierReferenceMapper::toResponseDTO)
+                .map(supplierReferenceResponseArticleMapper::toResponseArticleDTO)
                 .toList()
                 :List.of();
 
-        List<MakerReferenceResponseDTO> makerLinks = article.getMakerReferences()
+        List<MakerReferenceResponseArticleDTO> makerLinks = article.getMakerReferences()
                 .stream()
-                .map(makerReferenceResponseMapper::toResponseDto)
+                .map(makerReferenceResponseArticleMapper::toResponseArticleDto)
                 .toList();
 
         // Construction du DTO de réponse avec toutes les données calculées et mappées
@@ -61,11 +63,12 @@ public class ArticleMapper {
                 article.getArtName(),
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(), // Prix HT
-                calculStock(article), // Stock total calculé dynamiquement
+                stockService.getAvailableStockByArticle(article.getArtId()), // Stock disponible calculé dynamiquement
+                article.isActive(),
                 tvaResponseMapper.toResponseDto(article.getTva()),
-                priceTTC,
-                article.getArtCreateDate(),
-                article.getArtUpdateDate(),// Prix TTC calculé dynamiquement
+                priceTTC, // Prix TTC calculé dynamiquement
+                article.getArtCreatedDate(),
+                article.getArtUpdatedDate(),
                 categoriesResponse,
                 suppliersLinks,
                 makerLinks
@@ -82,32 +85,33 @@ public class ArticleMapper {
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
-                calculStock(article),
+                article.isActive(),
+                stockService.getAvailableStockByArticle(article.getArtId()),
                 priceTTC
         );
     }
 
 
-    public ArticleResponseMakerReferenceDTO MakerReferenceToDTO(MakerReference makerReference) {
+    public ArticleResponseMakerReferenceDTO makerReferenceToDTO(MakerReference makerReference) {
         Article article = makerReference.getArticle();
 
-        List<SupplierReferenceResponseDTO> suppliers = articleRepository.findById(article.getArtId())
-                .map(art -> art.getSuppliers()
+        List<SupplierReferenceResponseArticleDTO> suppliers = articleRepository.findById(article.getArtId())
+                .map(art -> art.getSupplierReferences()
                         .stream()
-                        .map(supplierReferenceMapper::toResponseDTO)
+                        .map(supplierReferenceResponseArticleMapper::toResponseArticleDTO)
                         .toList())
                 .orElse(List.of());
 
         return new ArticleResponseMakerReferenceDTO(
                 article.getArtId(),
-                article.getArtReference(),
                 article.getArtName(),
+                article.getArtReference(),
                 suppliers
 
         );
     }
 
-    public ArticleResponseSupplierDTO supplierReferenceToDTO(SupplierReference supplierReference) {
+    public ArticleResponseSupplierReferenceDTO supplierReferenceToDTO(SupplierReference supplierReference) {
         Article article = supplierReference.getArticle();
 
         List<CategoryResponseDTO> categories = article.getCategories() != null
@@ -117,18 +121,18 @@ public class ArticleMapper {
                 .toList()
                 :List.of();
 
-        return new ArticleResponseSupplierDTO(
+        return new ArticleResponseSupplierReferenceDTO(
                 article.getArtId(),
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(),
-                calculStock(article),
+                stockService.getAvailableStockByArticle(article.getArtId()),
                 tvaResponseMapper.toResponseDto(article.getTva()),
                 categories,
                 article.getMakerReferences()
                         .stream()
-                        .map(makerReferenceResponseMapper::toResponseDto)
+                        .map(makerReferenceResponseArticleMapper::toResponseArticleDto)
                         .toList()
         );
     }
@@ -139,19 +143,5 @@ public class ArticleMapper {
                 article.getArtReference(),
                 article.getArtName()
         );
-    }
-
-    public int calculStock(Article article) {
-        int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
-                .mapToInt(makerReference -> makerReference.getArtMkrStock())
-                .sum()
-                : 0;
-
-
-        int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
-                .mapToInt(supplierReference -> supplierReference.getSplRefStock())
-                .sum()
-                : 0;
-        return totalStockMarker + totalStockSupplier;
     }
 }

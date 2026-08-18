@@ -79,14 +79,14 @@ public class Supplier {
     @ValidPhoneNumber
     private String splPhone;
 
-        /**
+    /**
      * Liste des articles associés à ce fournisseur.
      * Relation {@code @OneToMany} bidirectionnelle mappée par le champ {@code supplier}
      * de l'entité {@link Article}. Initialisée à une liste vide pour éviter
      * les {@code NullPointerException} lors de l'ajout d'articles.
      */
     @OneToMany(mappedBy = "supplier")
-    private List<SupplierReference> articles ;
+    private List<SupplierReference> articles;
 
     @ManyToOne
     @JoinColumn(name = "address_id")

@@ -14,6 +14,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,33 +44,22 @@ public class MakerReference {
     @ManyToOne
     @MapsId("articleId")
     @JoinColumn(name = "article_id")
+    @NotNull
     protected Article article;
 
     @ManyToOne
     @MapsId("makerId")
     @JoinColumn(name ="maker_id")
+    @NotNull
     protected Maker maker;
+
+    @OneToMany(mappedBy = "makerReference")
+    @NotNull
+    protected List<Delivery> deliveries = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
     @NotBlank
     @Convert(converter = LowercaseConverter.class)
     protected  String artMkrReference;
-
-    protected int artMkrStock;
-
-    @CreatedDate
-    @Column(updatable = false)
-    protected LocalDateTime artMkrCreateDate;
-
-    @LastModifiedDate
-    protected LocalDateTime artMkrUpdateDate;
-
-    @NotNull
-    @DecimalMin(value = "0.00", inclusive = true)
-    protected BigDecimal artMkrSellPrice;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    protected DeliveryStatus status;
 
 }

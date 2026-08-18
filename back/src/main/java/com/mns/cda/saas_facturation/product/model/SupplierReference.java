@@ -1,22 +1,18 @@
 package com.mns.cda.saas_facturation.product.model;
 
 import com.mns.cda.saas_facturation.config.LowercaseConverter;
-import com.mns.cda.saas_facturation.enumeration.DeliveryStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Setter
@@ -67,26 +63,13 @@ public class SupplierReference {
     @NotNull
     protected Supplier supplier;
 
+    @OneToMany(mappedBy = "supplierReference")
+    @NotNull
+    protected List<Delivery> deliveries = new ArrayList<>();
+
     @NotBlank
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     @Convert(converter = LowercaseConverter.class)
     protected String splRefReference;
-
-    @NotNull
-    @DecimalMin(value = "0.00", inclusive = true)
-    protected BigDecimal splRefSellPrice;
-
-    protected int splRefStock;
-
-    @CreatedDate
-    @Column(updatable = false)
-    protected LocalDateTime splRefCreateDate;
-
-    @LastModifiedDate
-    protected LocalDateTime splRefUpdateDate;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    protected DeliveryStatus status;
 
 }

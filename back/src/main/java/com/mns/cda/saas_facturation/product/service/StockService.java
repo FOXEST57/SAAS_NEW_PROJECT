@@ -3,10 +3,7 @@ package com.mns.cda.saas_facturation.product.service;
 import com.mns.cda.saas_facturation.cart.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.enumeration.DeliveryStatus;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
-import com.mns.cda.saas_facturation.product.model.Article;
-import com.mns.cda.saas_facturation.product.model.Inventory;
-import com.mns.cda.saas_facturation.product.model.MakerReference;
-import com.mns.cda.saas_facturation.product.model.SupplierReference;
+import com.mns.cda.saas_facturation.product.model.*;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,36 +39,63 @@ public class StockService {
     */
 
     public int calculStockByStatus(Article article, DeliveryStatus status, LocalDateTime inventoryDate) {
-
         switch (status) {
             case DeliveryStatus.RECEIVED -> {
+                int totalStockMaker = article.getMakerReferences() != null
+                        ? article.getMakerReferences()
+                        .stream()
+                        .map(MakerReference::getDeliveries)
+                        .map(deliveries -> deliveries
+                                .stream()
+                                .filter(delivery -> delivery.getDlvStatus() == status
+                                        && delivery.getDlvUpdatedDate().isAfter(inventoryDate))
+                                .mapToInt(Delivery::getDlvQuantity)
+                                .sum()
+                        )
+                        .mapToInt(Integer::intValue)
+                        .sum()
+                        : 0;
+                int totalStockSupplier = article.getSupplierReferences() != null
+                        ? article.getSupplierReferences()
+                        .stream()
+                        .map(SupplierReference::getDeliveries)
+                        .map(deliveries -> deliveries
+                                .stream()
+                                .filter(delivery -> delivery.getDlvStatus() == status
+                                        && delivery.getDlvUpdatedDate().isAfter(inventoryDate))
+                                .mapToInt(Delivery::getDlvQuantity)
+                                .sum()
+                        )
+                        .mapToInt(Integer::intValue)
+                        .sum()
+                        : 0;
+                return totalStockMaker + totalStockSupplier;
+            }
+            case DeliveryStatus.PENDING -> {
                 int totalStockMarker = article.getMakerReferences() != null
                         ? article.getMakerReferences()
                         .stream()
-                        .filter(makerReference -> makerReference.getStatus() == status
-                                && makerReference.getArtMkrUpdateDate().isAfter(inventoryDate))
-                        .mapToInt(MakerReference::getArtMkrStock)
+                        .map(MakerReference::getDeliveries)
+                        .map(deliveries -> deliveries
+                                .stream()
+                                .filter(delivery -> delivery.getDlvStatus() == status)
+                                .mapToInt(Delivery::getDlvQuantity)
+                                .sum()
+                        )
+                        .mapToInt(Integer::intValue)
                         .sum()
                         : 0;
-                int totalStockSupplier = article.getSuppliers() != null
-                        ? article.getSuppliers()
+                int totalStockSupplier = article.getSupplierReferences() != null
+                        ? article.getSupplierReferences()
                         .stream()
-                        .filter(supplierReference -> supplierReference.getStatus() == status
-                                && supplierReference.getSplRefUpdateDate().isAfter(inventoryDate))
-                        .mapToInt(SupplierReference::getSplRefStock)
-                        .sum()
-                        : 0;
-                return totalStockMarker + totalStockSupplier;
-            }
-            case DeliveryStatus.PENDING -> {
-                int totalStockMarker = article.getMakerReferences() != null ? article.getMakerReferences().stream()
-                        .filter(makerReference -> makerReference.getStatus() == status)
-                        .mapToInt(MakerReference::getArtMkrStock)
-                        .sum()
-                        : 0;
-                int totalStockSupplier = article.getSuppliers() != null ? article.getSuppliers().stream()
-                        .filter(supplierReference -> supplierReference.getStatus() == status)
-                        .mapToInt(SupplierReference::getSplRefStock)
+                        .map(SupplierReference::getDeliveries)
+                        .map(deliveries -> deliveries
+                                .stream()
+                                .filter(delivery -> delivery.getDlvStatus() == status)
+                                .mapToInt(Delivery::getDlvQuantity)
+                                .sum()
+                        )
+                        .mapToInt(Integer::intValue)
                         .sum()
                         : 0;
                 return totalStockMarker + totalStockSupplier;

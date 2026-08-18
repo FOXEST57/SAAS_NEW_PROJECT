@@ -5,7 +5,7 @@ import com.mns.cda.saas_facturation.location.DTO.AddressDTO;
 import com.mns.cda.saas_facturation.product.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.product.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
-import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.responseDTO.SupplierResponseDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.Iservice.ISupplierReferenceService;
@@ -83,13 +83,13 @@ class SupplierReferenceControllerUnitTest {
     private SupplierReferenceDTO supplierReferenceDTO;
     private SupplierReferenceRequestDTO supplierReferenceRequestDTO;
     private SupplierDTO supplierDTO;
-    private ArticleResponseSupplierDTO articleDTO;
+    private ArticleResponseSupplierReferenceDTO articleDTO;
 
     /**
      * Initialise un jeu de données commun avant chaque test, pour éviter de le
      * dupliquer dans chaque méthode de test.
      *
-     * <p>{@link ArticleResponseSupplierDTO} et {@link SupplierResponseDTO} sont ici de simples mocks Mockito :
+     * <p>{@link ArticleResponseSupplierReferenceDTO} et {@link SupplierResponseDTO} sont ici de simples mocks Mockito :
      * on ne connaît/teste pas leur contenu dans ce fichier, seulement le fait que
      * {@code SupplierReferenceDTO} les transporte correctement. Remplace ces lignes par de
      * vraies instances si tu préfères vérifier des champs précis (ex.
@@ -97,7 +97,7 @@ class SupplierReferenceControllerUnitTest {
      */
     @BeforeEach
     void setUp() {
-        ArticleResponseSupplierDTO articleResponseSupplierDTO = mock(ArticleResponseSupplierDTO.class);
+        ArticleResponseSupplierReferenceDTO articleResponseSupplierDTO = mock(ArticleResponseSupplierReferenceDTO.class);
         SupplierResponseDTO supplierResponseDTO = mock(SupplierResponseDTO.class);
         AddressDTO addressDTO = mock(AddressDTO.class);
 
@@ -125,7 +125,7 @@ class SupplierReferenceControllerUnitTest {
                 addressDTO
         );
 
-        articleDTO = new ArticleResponseSupplierDTO(
+        articleDTO = new ArticleResponseSupplierReferenceDTO(
                 1L,
                 "référence",
                 "name",

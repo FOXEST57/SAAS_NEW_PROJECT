@@ -14,6 +14,7 @@ import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.product.model.Maker;
 import com.mns.cda.saas_facturation.product.model.MakerReference;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
+import com.mns.cda.saas_facturation.product.repository.DeliveryRepository;
 import com.mns.cda.saas_facturation.product.repository.MakerReferenceRepository;
 import com.mns.cda.saas_facturation.product.repository.MakerRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class MakerReferenceService implements IMakerReferenceService {
     private final MakerReferenceMapper makerReferenceMapper;
     private final MakerMapper makerMapper;
     private final ArticleMapper articleMapper;
+    private final DeliveryRepository deliveryRepository;
 
     @Override
     public List<MakerReferenceDTO> findAll() {
@@ -52,7 +54,7 @@ public class MakerReferenceService implements IMakerReferenceService {
     public List<ArticleResponseMakerReferenceDTO> findAllByMaker(Long mkrId)  {
         return makerReferenceRepository.findByMkrRefId_MakerId(mkrId)
                 .stream()
-                .map(articleMapper::MakerReferenceToDTO)
+                .map(articleMapper::makerReferenceToDTO)
                 .toList();
     }
 
@@ -78,12 +80,11 @@ public class MakerReferenceService implements IMakerReferenceService {
                 new MakerReference.MakerReferenceId(dto.artId(), dto.mkrId()),
                 article,
                 maker,
-                dto.artMkrReference(),
-                dto.artMkrStock(),
-                null,
-                null,
-                dto.artMkrSellPrice(),
-                dto.status()
+                dto.deliveryIds().stream().map(id ->
+                        deliveryRepository.findById(id).orElseThrow(
+                                () -> new ResourceNotFoundException("La commande avec l'id " + id + " n'existe pas")
+                        )).toList(),
+                dto.artMkrReference()
         );
 
         return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
@@ -91,18 +92,13 @@ public class MakerReferenceService implements IMakerReferenceService {
 
     @Override
     public MakerReferenceDTO modify(Long artId, Long mkrId, UpdateMakerReferenceDTO dto) throws ResourceNotFoundException {
-
        MakerReference makerReference = makerReferenceRepository.findById(
                new MakerReference.MakerReferenceId(artId,mkrId)
        ).orElseThrow(() -> new ResourceNotFoundException("Référence fabricant non existante"));
 
        makerReference.setArtMkrReference(dto.reference());
-       makerReference.setArtMkrStock(dto.artMkrStock());
-       makerReference.setArtMkrSellPrice(dto.artMkrSellPrice());
-       makerReference.setStatus(dto.status());
 
        return makerReferenceMapper.toDto(makerReferenceRepository.save(makerReference));
-
     }
 
     @Override

@@ -8,6 +8,7 @@ public record ArticleLightDTO(
         String artReference,
         String artName,
         String artDescription,
+        boolean isActive,
         int artStock,
         BigDecimal artPriceTTC
 ) {

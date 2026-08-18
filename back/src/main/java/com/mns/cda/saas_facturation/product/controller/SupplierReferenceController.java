@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.product.controller;
 import com.mns.cda.saas_facturation.product.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.product.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
-import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.Iservice.ISupplierReferenceService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,7 +51,7 @@ public class SupplierReferenceController {
     }
 
     @GetMapping("/list-article/{supplierId}")
-    public List<ArticleResponseSupplierDTO> findBySupplierId(
+    public List<ArticleResponseSupplierReferenceDTO> findBySupplierId(
             @PathVariable Long supplierId
     ){
         return supplierReferenceService.findBySupplierId(supplierId);

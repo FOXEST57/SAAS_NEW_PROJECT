@@ -1,9 +1,9 @@
 package com.mns.cda.saas_facturation.product.mapper.responseMapper;
 
-import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.responseDTO.CategoryResponseDTO;
-import com.mns.cda.saas_facturation.product.mapper.ArticleMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
+import com.mns.cda.saas_facturation.product.service.StockService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,34 +11,33 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ArticleResponseSupplierMapper {
+public class ArticleResponseSupplierReferenceMapper {
 
     private final CategoryResponseMapper categoryMapper;
     private final TvaResponseMapper tvaResponseMapper;
-    private final MakerReferenceResponseMapper makerReferenceResponseMapper;
-    private final ArticleMapper articleMapper;
+    private final MakerReferenceResponseArticleMapper makerReferenceResponseArticleMapper;
+    private final StockService stockService;
 
-    public ArticleResponseSupplierDTO toResponseDTO(Article article) {
-
+    public ArticleResponseSupplierReferenceDTO toResponseDTO(Article article) {
         List<CategoryResponseDTO> categoriesResponse = article.getCategories() != null
                 ? article.getCategories()
                 .stream()
                 .map(categoryMapper::toResponseDTO)
                 .toList()
-                :List.of();
+                : List.of();
 
-        return new ArticleResponseSupplierDTO(
+        return new ArticleResponseSupplierReferenceDTO(
                 article.getArtId(),
                 article.getArtReference(),
                 article.getArtName(),
                 article.getArtDescription(),
                 article.getArtPriceExcludeTaxes(),
-                articleMapper.calculStock(article),
+                stockService.getAvailableStockByArticle(article.getArtId()),
                 tvaResponseMapper.toResponseDto(article.getTva()),
                 categoriesResponse,
                 article.getMakerReferences()
                         .stream()
-                        .map(makerReferenceResponseMapper::toResponseDto)
+                        .map(makerReferenceResponseArticleMapper::toResponseArticleDto)
                         .toList()
         );
     }

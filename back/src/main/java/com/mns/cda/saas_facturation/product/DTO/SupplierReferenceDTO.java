@@ -1,15 +1,15 @@
 package com.mns.cda.saas_facturation.product.DTO;
 
-import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierReferenceDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.DeliveryResponseDTO;
 import com.mns.cda.saas_facturation.product.DTO.responseDTO.SupplierResponseDTO;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 public record SupplierReferenceDTO(
-        ArticleResponseSupplierDTO article,
+        ArticleResponseSupplierReferenceDTO article,
         SupplierResponseDTO supplier,
         String splRefReference,
-        BigDecimal supplierPrice,
-        int splRefStock
+        List<DeliveryResponseDTO> deliveries
 ) {
 }
