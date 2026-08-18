@@ -3,6 +3,7 @@ package com.mns.cda.saas_facturation.cart.mapper;
 import com.mns.cda.saas_facturation.cart.DTO.InvoiceDTO;
 import com.mns.cda.saas_facturation.cart.DTO.InvoiceLineDTO;
 import com.mns.cda.saas_facturation.cart.model.Invoice;
+import com.mns.cda.saas_facturation.cart.service.InvoiceCalculationService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.List;
 public class InvoiceMapper {
 
     protected final InvoiceLineMapper invoiceLineMapper;
+    protected final InvoiceCalculationService invoiceCalculation;
 
     public InvoiceDTO toDTO(Invoice invoice) {
 
@@ -30,7 +32,8 @@ public class InvoiceMapper {
                 invoice.getInvoiceStatus(),
                 invoiceLines,
                 invoice.getCreatorId(),
-                invoice.getReceiverEmail()
+                invoice.getReceiverEmail(),
+                invoiceCalculation.calculateRemainingAmount(invoice)
         );
     }
 }

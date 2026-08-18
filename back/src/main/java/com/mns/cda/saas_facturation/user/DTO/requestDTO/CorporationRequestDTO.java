@@ -14,6 +14,7 @@ public record CorporationRequestDTO(
     @NotBlank @ValidPhoneNumber String corpPhone,
     String corpPreRefQuote,
     String corpPreRefInvoice,
+    String corpPreRefCart,
     @NotBlank String corpIban,
     String corpTag,
     @NotNull Long addId

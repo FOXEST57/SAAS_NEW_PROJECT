@@ -47,6 +47,8 @@ public class Corporation {
 
     protected String corpPreRefInvoice;
 
+    protected String corpPreRefCart;
+
     @Email
     @NotBlank
     protected String corpEmail;

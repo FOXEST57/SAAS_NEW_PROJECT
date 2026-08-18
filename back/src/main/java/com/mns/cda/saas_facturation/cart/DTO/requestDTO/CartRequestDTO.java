@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record CartRequestDTO (
-        @NotBlank @Column(unique = true,nullable = false) String crtRef,
         List<OrderLineRequestDTO> orderLines,
         @NotBlank @Email String receiverEmail,
         Long parentQuoteId

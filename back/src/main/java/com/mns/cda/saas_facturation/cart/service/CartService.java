@@ -14,6 +14,8 @@ import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 import com.mns.cda.saas_facturation.cart.mapper.CartMapper;
 import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.cart.model.Cart;
+import com.mns.cda.saas_facturation.referencement.ReferenceCounterService;
+import com.mns.cda.saas_facturation.referencement.ReferenceType;
 import com.mns.cda.saas_facturation.user.model.Customer;
 import com.mns.cda.saas_facturation.cart.model.OrderLine;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
@@ -39,6 +41,7 @@ public class CartService implements ICartService {
     private final CartPipelineMapper cartPipelineMapper;
     private final QuoteRepository quoteRepository;
 
+    private final ReferenceCounterService referenceCounterService;
     private final ApplicationEventPublisher publisher;
 
     @Override
@@ -65,7 +68,8 @@ public class CartService implements ICartService {
                 : null;
 
         Cart cart = new Cart();
-        cart.setCrtRef(dto.crtRef());
+        cart.setCrtRef(referenceCounterService
+                .generateReference(creator.getCorporation(), ReferenceType.CART));
         cart.setCrtStatus(CartStatus.OPEN);
 
         cart.setReceiverEmail(dto.receiverEmail());
@@ -80,7 +84,7 @@ public class CartService implements ICartService {
                 Article article = articleRepository.findById(orderLine.articleId())
                         .orElseThrow(() -> new ResourceNotFoundException("L'article avec l'id " + orderLine.articleId() + " n'existe pas"));
 
-                if(article.isActive() != true) {
+                if(article.isActive() != true){
                     throw new IllegalStateException("L'article avec l'id " + orderLine.articleId() + " n'est pas actif");
                 }
 
@@ -112,7 +116,6 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
 
-        cart.setCrtRef(dto.crtRef());
         cart.setReceiverEmail(dto.receiverEmail());
 
         return cartMapper.toDTO(cartRepository.save(cart));

@@ -14,6 +14,8 @@ import com.mns.cda.saas_facturation.cart.service.pipeline.CommandAcceptedEvent;
 import com.mns.cda.saas_facturation.enumeration.CommandStatus;
 import com.mns.cda.saas_facturation.exception.ResourceAlreadyExistException;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
+import com.mns.cda.saas_facturation.referencement.ReferenceCounterService;
+import com.mns.cda.saas_facturation.referencement.ReferenceType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,6 +31,7 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
     private final CommandMapper commandMapper;
     private final QuoteRepository quoteRepository;
 
+    private final ReferenceCounterService referenceCounterService;
     private final ApplicationEventPublisher publisher;
 
     @Override
@@ -59,6 +62,7 @@ public class CommandService implements com.mns.cda.saas_facturation.cart.Iservic
         Command command = new Command();
         command.setQuote(quote);
         command.setCmdStatus(CommandStatus.CREATED);
+        command.setCmdReference(referenceCounterService.generateReference(null, ReferenceType.COMMAND));
         command.setCreatorId(quote.getCreatorId());
         command.setReceiverEmail(quote.getReceiverEmail());
 
