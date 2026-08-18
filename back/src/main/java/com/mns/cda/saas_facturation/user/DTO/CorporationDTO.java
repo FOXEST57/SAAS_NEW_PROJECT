@@ -11,6 +11,7 @@ public record CorporationDTO(
         LocalDateTime corpCreationDate,
         String corpPreRefQuote,
         String corpPreRefInvoice,
+        String corpPreRefCart,
         String corpEmail,
         String corpPhone,
         String corpTva,

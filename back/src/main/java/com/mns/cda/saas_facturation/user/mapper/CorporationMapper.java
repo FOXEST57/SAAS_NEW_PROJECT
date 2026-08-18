@@ -25,6 +25,7 @@ public class CorporationMapper {
                 corporation.getCorpCreationDate(),
                 corporation.getCorpPreRefQuote(),
                 corporation.getCorpPreRefInvoice(),
+                corporation.getCorpPreRefCart(),
                 corporation.getCorpEmail(),
                 corporation.getCorpPhone(),
                 corporation.getCorpTva(),
