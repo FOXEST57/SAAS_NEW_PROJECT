@@ -116,7 +116,6 @@ public class CartService implements ICartService {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Le panier avec l'id " +id+ " n'existe pas" ));
 
-        cart.setCrtRef(dto.crtRef());
         cart.setReceiverEmail(dto.receiverEmail());
 
         return cartMapper.toDTO(cartRepository.save(cart));
