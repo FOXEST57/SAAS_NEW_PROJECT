@@ -221,7 +221,8 @@ INSERT INTO command (
     creator_id,
     quote_id,
     receiver_email,
-    cmd_status
+    cmd_status,
+    cmd_reference
 )
 VALUES
     (
@@ -230,7 +231,8 @@ VALUES
                 1,
                 1,
                 'john.doe@email.com',
-                'ACCEPTED'
+                'ACCEPTED',
+                'TEST1'
     ),
     (
                 CURRENT_TIMESTAMP,
@@ -238,7 +240,8 @@ VALUES
                 1,
                 2,
                 'jane.doe@email.com',
-                'ACCEPTED'
+                'ACCEPTED',
+                'TEST2'
     ),
     (
                 CURRENT_TIMESTAMP,
@@ -246,7 +249,8 @@ VALUES
                 2,
                 3,
                 'lily.smith@email.com',
-                'ACCEPTED'
+                'ACCEPTED',
+                'TEST3'
     );
 
 -- 21. Table INVOICE (référence COMMAND)
