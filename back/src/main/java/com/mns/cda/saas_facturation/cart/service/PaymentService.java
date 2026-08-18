@@ -68,8 +68,7 @@ public class PaymentService implements IPaymentService {
         // Montant restant avant le nouveau paiement
         BigDecimal remainingAmount =
                 invoiceCalculationService.calculateRemainingAmount(
-                        invoice,
-                        totalPaid
+                        invoice
                 );
 
         // Vérification du dépassement

@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface ReferenceCounterRepository extends JpaRepository<ReferenceCounter, Long> {
     Optional<ReferenceCounter> findByCorporation_CorpIdAndObjectType(Long corporationCorpId, ReferenceType objectType);
+
+    Optional<ReferenceCounter> findByCorporationIsNullAndObjectType(ReferenceType type);
 }

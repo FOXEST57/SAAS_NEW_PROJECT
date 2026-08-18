@@ -63,16 +63,20 @@ INSERT INTO category (cat_parent_id, cat_name, cat_slug) VALUES
     (1, 'Écrans', 'ecrans'),
     (NULL, 'Bureautique', 'bureautique');
 
--- CUSTOMER
+-- Customer Creator :
 INSERT INTO customer (add_id, corp_corporation_id, ctm_creation_date, ctm_modification_date, ctm_email, ctm_first_name, ctm_last_name, ctm_phone, password, account_type) VALUES
-    (1, NULL, '2026-01-10T09:00:00', '2026-01-10T09:00:00', 'john.doe@email.com', 'John', 'Doe', '0611223344', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
-    (2, NULL, '2026-01-12T10:00:00', '2026-01-12T10:00:00', 'alice.martin@email.com', 'Alice', 'Martin', '0622334455', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
-    (3, NULL, '2026-01-15T11:00:00', '2026-01-15T11:00:00', 'paul.dupont@email.com', 'Paul', 'Dupont', '0633445566', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
-    (NULL, NULL, '2026-01-05T08:00:00', '2026-01-05T08:00:00', 'admin@saas-facturation.fr', 'Admin', 'System', '0644556677', '$2a$10$abcdefghijklmnopqrstuv', 'ADMIN');
+(1, NULL, '2026-01-10T09:00:00', '2026-01-10T09:00:00', 'john.doe@email.com', 'John', 'Doe', '0611223344', '$2a$10$buK.PnKNJgZex1l0MGDX5OJMKHX7elvrE05KboGVs95EETucrcigq', 'OWNER');
 
 -- CORPORATION
 INSERT INTO corporation (address_add_id, owner_ctm_id, corp_creation_date, corp_modification_date, corp_email, corp_iban, corp_name, corp_phone, corp_pre_ref_invoice, corp_pre_ref_quote, corp_siret, corp_tag, corp_tva) VALUES
-    (4, 4, '2026-01-05T08:30:00', '2026-01-05T08:30:00', 'contact@techsolutions.fr', 'FR7612345678901234567890123', 'Tech Solutions', '0387556677', 'FAC-', 'DEV-', '12345678901234', 'TECH', 'FR12345678901');
+    (4, 1, '2026-01-05T08:30:00', '2026-01-05T08:30:00', 'contact@techsolutions.fr', 'FR7612345678901234567890123', 'Tech Solutions', '0387556677', 'FAC', 'DEV', '12345678901234', 'TECH', 'FR12345678901');
+
+-- CUSTOMER
+INSERT INTO customer (add_id, corp_corporation_id, ctm_creation_date, ctm_modification_date, ctm_email, ctm_first_name, ctm_last_name, ctm_phone, password, account_type) VALUES
+    (1, NULL, '2026-01-05T08:00:00', '2026-01-05T08:00:00', 'admin@saas-facturation.fr', 'Admin', 'System', '0644556677', '$2a$10$abcdefghijklmnopqrstuv', 'ADMIN'),
+    (2, 1, '2026-01-12T10:00:00', '2026-01-12T10:00:00', 'alice.martin@email.com', 'Alice', 'Martin', '0622334455', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
+    (3, 1, '2026-01-15T11:00:00', '2026-01-15T11:00:00', 'paul.dupont@email.com', 'Paul', 'Dupont', '0633445566', '$2a$10$abcdefghijklmnopqrstuv', 'USER');
+
 
 -- CORPORATION_CUSTOMERS
 INSERT INTO corporation_customers (corporations_corp_id, customers_ctm_id) VALUES
@@ -160,7 +164,7 @@ INSERT INTO quote_line (qot_ln_priceht, qot_ln_quantity, tva_rate, quote_qot_id,
 INSERT INTO command (cmd_create_date, cmd_modified_date, cmd_reference, creator_id, quote_id, receiver_email, cmd_status) VALUES
     ('2026-02-20T09:00:00', '2026-02-20T09:00:00', 'CDE-2026-0001', 1, 1, 'john.doe@email.com', 'DELIVERED'),
     ('2026-02-21T10:00:00', '2026-02-21T10:00:00', 'CDE-2026-0002', 2, 2, 'alice.martin@email.com', 'ACCEPTED'),
-    ('2026-02-22T11:00:00', '2026-02-22T11:00:00', 'CDE-2026-0003', 3, NULL, 'paul.dupont@email.com', 'PENDING');
+    ('2026-02-22T11:00:00', '2026-02-22T11:00:00', 'CDE-2026-0003', 3, 3, 'paul.dupont@email.com', 'PENDING');
 
 -- INVOICE
 INSERT INTO invoice (command_cmd_id, creator_id, invoice_created_date, invoice_modified_date, invoice_number, invoice_pathpdf, receiver_email, invoice_status) VALUES

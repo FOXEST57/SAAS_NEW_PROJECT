@@ -2,6 +2,7 @@ package com.mns.cda.saas_facturation.cart.DTO;
 
 import com.mns.cda.saas_facturation.enumeration.InvoiceStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,5 +14,6 @@ public record InvoiceDTO (
     InvoiceStatus invoiceStatus,
     List<InvoiceLineDTO> invoiceLines,
     Long creatorId,
-    String customerEmail
+    String customerEmail,
+    BigDecimal Remaining
 ){}

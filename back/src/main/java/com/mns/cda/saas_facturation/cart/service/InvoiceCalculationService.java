@@ -28,9 +28,9 @@ public class InvoiceCalculationService {
     }
 
     public BigDecimal calculateRemainingAmount(
-            Invoice invoice,
-            BigDecimal totalPaid
+            Invoice invoice
     ) {
+        BigDecimal totalPaid = this.calculateTotalTTC(invoice);
         return calculateTotalTTC(invoice)
                 .subtract(totalPaid);
     }
