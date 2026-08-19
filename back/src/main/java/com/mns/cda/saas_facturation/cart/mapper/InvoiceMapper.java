@@ -24,6 +24,12 @@ public class InvoiceMapper {
                         .toList() :
                 List.of();
 
+        // La commande peut manquer sur une facture créée hors pipeline : on ne
+        // déréférence pas sans contrôle, sous peine de faire échouer findAll().
+        Long commandId = invoice.getCommand() != null
+                ? invoice.getCommand().getCmdId()
+                : null;
+
         return new InvoiceDTO(
                 invoice.getInvoiceId(),
                 invoice.getInvoiceNumber(),
@@ -33,6 +39,9 @@ public class InvoiceMapper {
                 invoiceLines,
                 invoice.getCreatorId(),
                 invoice.getReceiverEmail(),
+                commandId,
+                invoiceCalculation.calculateTotalTTC(invoice),
+                invoiceCalculation.calculateTotalPaid(invoice),
                 invoiceCalculation.calculateRemainingAmount(invoice)
         );
     }
