@@ -13,23 +13,23 @@ import java.util.List;
 @Repository
 public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
     @Query(value = """
-   SELECT\s
+   SELECT
        a.art_id AS artId,
        a.art_name AS artName,
        a.art_reference AS artRef,
-       /* MAKER PENDING */
+       /* + MAKER PENDING */
        COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'PENDING'
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'PENDING'
        ), 0)
        /* + SUPPLIER PENDING */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'PENDING'
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'PENDING'
        ), 0)
    FROM article a;
 """, nativeQuery = true)
@@ -61,11 +61,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + MAKER RECEIVED */
        + COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'RECEIVED'
-             AND mk.art_mkr_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -76,11 +76,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + SUPPLIER RECEIVED */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'RECEIVED'
-             AND spl.spl_ref_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -156,11 +156,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + MAKER RECEIVED */
        + COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'RECEIVED'
-             AND mk.art_mkr_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -171,11 +171,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + SUPPLIER RECEIVED */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'RECEIVED'
-             AND spl.spl_ref_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -232,11 +232,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + MAKER RECEIVED */
        + COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'RECEIVED'
-             AND mk.art_mkr_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -247,11 +247,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + SUPPLIER RECEIVED */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'RECEIVED'
-             AND spl.spl_ref_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -280,17 +280,17 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
         /* + PENDING */
         /* + MAKER PENDING */
        + COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'PENDING'
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'PENDING'
        ), 0)
        /* + SUPPLIER PENDING */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'PENDING'
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'PENDING'
        ), 0)
    FROM article a;
 """, nativeQuery = true)
@@ -314,11 +314,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + MAKER RECEIVED */
        + COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'RECEIVED'
-             AND mk.art_mkr_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -329,11 +329,11 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
    
        /* + SUPPLIER RECEIVED */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'RECEIVED'
-             AND spl.spl_ref_update_date >= (
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'RECEIVED'
+             AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
                    FROM inventory inv
                    WHERE inv.article_art_id = a.art_id
@@ -362,17 +362,17 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
         /* + PENDING */
         /* + MAKER PENDING */
        + COALESCE((
-           SELECT SUM(mk.art_mkr_stock)
-           FROM maker_reference mk
-           WHERE mk.article_id = a.art_id
-             AND mk.status = 'PENDING'
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.mkr_article_id = a.art_id
+             AND dlv.dlv_status = 'PENDING'
        ), 0)
        /* + SUPPLIER PENDING */
        + COALESCE((
-           SELECT SUM(spl.spl_ref_stock)
-           FROM supplier_reference spl
-           WHERE spl.article_id = a.art_id
-             AND spl.status = 'PENDING'
+           SELECT SUM(dlv.dlv_quantity)
+           FROM delivery dlv
+           WHERE dlv.spl_article_id = a.art_id
+             AND dlv.dlv_status = 'PENDING'
        ), 0)
    
         /* - ORDERED */
