@@ -1,4 +1,4 @@
-package com.mns.cda.saas_facturation.cart.DTO;
+package com.mns.cda.saas_facturation.product.DTO;
 
 public record ActualStockDTO(
         Long artId,

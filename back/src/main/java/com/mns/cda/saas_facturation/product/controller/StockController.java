@@ -1,7 +1,7 @@
-package com.mns.cda.saas_facturation.cart.controller;
+package com.mns.cda.saas_facturation.product.controller;
 
 
-import com.mns.cda.saas_facturation.cart.DTO.ActualStockDTO;
+import com.mns.cda.saas_facturation.product.DTO.ActualStockDTO;
 import com.mns.cda.saas_facturation.cart.repository.QuoteLineRepository;
 import com.mns.cda.saas_facturation.product.service.StockService;
 import io.swagger.v3.oas.annotations.tags.Tag;

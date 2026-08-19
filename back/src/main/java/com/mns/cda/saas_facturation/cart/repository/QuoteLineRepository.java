@@ -1,6 +1,6 @@
 package com.mns.cda.saas_facturation.cart.repository;
 
-import com.mns.cda.saas_facturation.cart.DTO.ActualStockDTO;
+import com.mns.cda.saas_facturation.product.DTO.ActualStockDTO;
 import com.mns.cda.saas_facturation.cart.model.QuoteLine;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
