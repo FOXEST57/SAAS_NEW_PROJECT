@@ -85,7 +85,7 @@ INSERT INTO corporation_customers (corporations_corp_id, customers_ctm_id) VALUE
     (1, 3);
 
 -- ARTICLE
-INSERT INTO article (tva_id, art_price_exclude_taxes, is_active, art_create_date, art_update_date, art_description, art_name, art_reference) VALUES
+INSERT INTO article (tva_id, art_price_exclude_taxes, is_active, art_created_date, art_updated_date, art_description, art_name, art_reference) VALUES
     (1, 79.99, TRUE, '2026-01-20T09:00:00', '2026-01-20T09:00:00', 'Clavier mécanique rétroéclairé', 'Clavier mécanique', 'ref-001'),
     (1, 39.90, TRUE, '2026-01-20T09:05:00', '2026-01-20T09:05:00', 'Souris ergonomique sans fil', 'Souris ergonomique', 'ref-002'),
     (1, 249.90, TRUE, '2026-01-20T09:10:00', '2026-01-20T09:10:00', 'Écran 27 pouces QHD', 'Écran 27 pouces', 'ref-003'),
@@ -116,14 +116,14 @@ VALUES
     (1, 1, 'MKR-CLAV-001'),
     (2, 2, 'MKR-SOUR-002'),
     (3, 1, 'MKR-ECR-003'),
-    (4, 3, 'MKR-CASQ-004');
+    (4, 2, 'MKR-CASQ-004');
 
 -- SUPPLIER_REFERENCE
 INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference)
 VALUES
     (1, 1, 'TC-USB-64'),
     (1, 2, 'OP-USB-64'),
-    (2, 3, 'FP-CHAIR-ERG'),
+    (2, 2, 'FP-CHAIR-ERG'),
     (3, 1, 'TC-SCREEN-27'),
     (4, 2, 'OP-PAPER-A4');
 
@@ -132,13 +132,13 @@ INSERT INTO delivery (dlv_quantity, dlv_buying_price, dlv_status, dlv_created_da
 VALUES
     (3, 60.00, 'ACCEPTED', current_date, current_date, 1, 1, null, null),
     (2, 55.99, 'ACCEPTED', current_date, current_date, 1, 2, null, null),
-    (10, 29.99, 'PENDING', current_date, current_date, 2, 3, null, null),
+    (10, 29.99, 'PENDING', current_date, current_date, 2, 2, null, null),
     (5, 199.99, 'ACCEPTED', current_date, current_date, 3, 1, null, null),
     (4, 85.99, 'ACCEPTED', current_date, current_date, 4, 2, null, null),
     (6, 58.90, 'ACCEPTED', current_date, current_date, null, null, 1, 1),
     (1, 25.90, 'ACCEPTED', current_date, current_date, null, null, 2, 2),
     (1, 200.00, 'PENDING', current_date, current_date, null, null, 3, 1),
-    (2, 99.99, 'ACCEPTED', current_date, current_date, null, null, 4, 3);
+    (2, 99.99, 'ACCEPTED', current_date, current_date, null, null, 4, 2);
 
 -- INVENTORY
 INSERT INTO inventory (article_art_id, inv_date, inv_stock) VALUES
