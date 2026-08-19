@@ -63,16 +63,20 @@ INSERT INTO category (cat_parent_id, cat_name, cat_slug) VALUES
     (1, 'Écrans', 'ecrans'),
     (NULL, 'Bureautique', 'bureautique');
 
--- CUSTOMER
+-- Customer Creator :
 INSERT INTO customer (add_id, corp_corporation_id, ctm_creation_date, ctm_modification_date, ctm_email, ctm_first_name, ctm_last_name, ctm_phone, password, account_type) VALUES
-    (1, NULL, '2026-01-10T09:00:00', '2026-01-10T09:00:00', 'john.doe@email.com', 'John', 'Doe', '0611223344', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
-    (2, NULL, '2026-01-12T10:00:00', '2026-01-12T10:00:00', 'alice.martin@email.com', 'Alice', 'Martin', '0622334455', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
-    (3, NULL, '2026-01-15T11:00:00', '2026-01-15T11:00:00', 'paul.dupont@email.com', 'Paul', 'Dupont', '0633445566', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
-    (NULL, NULL, '2026-01-05T08:00:00', '2026-01-05T08:00:00', 'admin@saas-facturation.fr', 'Admin', 'System', '0644556677', '$2a$10$abcdefghijklmnopqrstuv', 'ADMIN');
+(1, NULL, '2026-01-10T09:00:00', '2026-01-10T09:00:00', 'john.doe@email.com', 'John', 'Doe', '0611223344', '$2a$10$buK.PnKNJgZex1l0MGDX5OJMKHX7elvrE05KboGVs95EETucrcigq', 'OWNER');
 
 -- CORPORATION
 INSERT INTO corporation (address_add_id, owner_ctm_id, corp_creation_date, corp_modification_date, corp_email, corp_iban, corp_name, corp_phone, corp_pre_ref_invoice, corp_pre_ref_quote, corp_siret, corp_tag, corp_tva) VALUES
-    (4, 4, '2026-01-05T08:30:00', '2026-01-05T08:30:00', 'contact@techsolutions.fr', 'FR7612345678901234567890123', 'Tech Solutions', '0387556677', 'FAC-', 'DEV-', '12345678901234', 'TECH', 'FR12345678901');
+    (4, 1, '2026-01-05T08:30:00', '2026-01-05T08:30:00', 'contact@techsolutions.fr', 'FR7612345678901234567890123', 'Tech Solutions', '0387556677', 'FAC', 'DEV', '12345678901234', 'TECH', 'FR12345678901');
+
+-- CUSTOMER
+INSERT INTO customer (add_id, corp_corporation_id, ctm_creation_date, ctm_modification_date, ctm_email, ctm_first_name, ctm_last_name, ctm_phone, password, account_type) VALUES
+    (1, NULL, '2026-01-05T08:00:00', '2026-01-05T08:00:00', 'admin@saas-facturation.fr', 'Admin', 'System', '0644556677', '$2a$10$abcdefghijklmnopqrstuv', 'ADMIN'),
+    (2, 1, '2026-01-12T10:00:00', '2026-01-12T10:00:00', 'alice.martin@email.com', 'Alice', 'Martin', '0622334455', '$2a$10$abcdefghijklmnopqrstuv', 'USER'),
+    (3, 1, '2026-01-15T11:00:00', '2026-01-15T11:00:00', 'paul.dupont@email.com', 'Paul', 'Dupont', '0633445566', '$2a$10$abcdefghijklmnopqrstuv', 'USER');
+
 
 -- CORPORATION_CUSTOMERS
 INSERT INTO corporation_customers (corporations_corp_id, customers_ctm_id) VALUES
@@ -81,7 +85,7 @@ INSERT INTO corporation_customers (corporations_corp_id, customers_ctm_id) VALUE
     (1, 3);
 
 -- ARTICLE
-INSERT INTO article (tva_id, art_price_exclude_taxes, is_active, art_create_date, art_update_date, art_description, art_name, art_reference) VALUES
+INSERT INTO article (tva_id, art_price_exclude_taxes, is_active, art_created_date, art_updated_date, art_description, art_name, art_reference) VALUES
     (1, 79.99, TRUE, '2026-01-20T09:00:00', '2026-01-20T09:00:00', 'Clavier mécanique rétroéclairé', 'Clavier mécanique', 'ref-001'),
     (1, 39.90, TRUE, '2026-01-20T09:05:00', '2026-01-20T09:05:00', 'Souris ergonomique sans fil', 'Souris ergonomique', 'ref-002'),
     (1, 249.90, TRUE, '2026-01-20T09:10:00', '2026-01-20T09:10:00', 'Écran 27 pouces QHD', 'Écran 27 pouces', 'ref-003'),
@@ -107,18 +111,34 @@ INSERT INTO supplier (address_id, spl_email, spl_name, spl_phone) VALUES
     (7, 'sales@lux-supply.lu', 'Lux Supply', '26112233');
 
 -- MAKER_REFERENCE
-INSERT INTO maker_reference (article_id, maker_id, art_mkr_sell_price, art_mkr_stock, art_mkr_create_date, art_mkr_update_date, art_mkr_reference, status) VALUES
-    (1, 1, 69.90, 25, '2026-01-21T09:00:00', '2026-01-21T09:00:00', 'TM-KB-001', 'RECEIVED'),
-    (2, 1, 29.90, 40, '2026-01-21T09:05:00', '2026-01-21T09:05:00', 'TM-MS-002', 'ACCEPTED'),
-    (3, 2, 210.00, 15, '2026-01-21T09:10:00', '2026-01-21T09:10:00', 'PD-MON-003', 'ACCEPTED'),
-    (4, 2, 105.00, 20, '2026-01-21T09:15:00', '2026-01-21T09:15:00', 'PD-HS-004', 'PENDING');
+INSERT INTO maker_reference (article_id, maker_id, art_mkr_reference)
+VALUES
+    (1, 1, 'MKR-CLAV-001'),
+    (2, 2, 'MKR-SOUR-002'),
+    (3, 1, 'MKR-ECR-003'),
+    (4, 2, 'MKR-CASQ-004');
 
 -- SUPPLIER_REFERENCE
-INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_sell_price, spl_ref_stock, spl_ref_create_date, spl_ref_update_date, spl_ref_reference, status) VALUES
-    (1, 1, 68.50, 30, '2026-01-22T09:00:00', '2026-01-22T09:00:00', 'HS-KB-001', 'ACCEPTED'),
-    (2, 1, 28.50, 50, '2026-01-22T09:05:00', '2026-01-22T09:05:00', 'HS-MS-002', 'RECEIVED'),
-    (3, 2, 205.00, 10, '2026-01-22T09:10:00', '2026-01-22T09:10:00', 'LS-MON-003', 'PENDING'),
-    (5, 2, 14.00, 100, '2026-01-22T09:15:00', '2026-01-22T09:15:00', 'LS-PAD-005', 'ACCEPTED');
+INSERT INTO supplier_reference (article_id, supplier_id, spl_ref_reference)
+VALUES
+    (1, 1, 'TC-USB-64'),
+    (1, 2, 'OP-USB-64'),
+    (2, 2, 'FP-CHAIR-ERG'),
+    (3, 1, 'TC-SCREEN-27'),
+    (4, 2, 'OP-PAPER-A4');
+
+-- DELIVERY
+INSERT INTO delivery (dlv_quantity, dlv_buying_price, dlv_status, dlv_created_date, dlv_updated_date, spl_article_id, supplier_id, mkr_article_id, maker_id)
+VALUES
+    (3, 60.00, 'ACCEPTED', current_date, current_date, 1, 1, null, null),
+    (2, 55.99, 'ACCEPTED', current_date, current_date, 1, 2, null, null),
+    (10, 29.99, 'PENDING', current_date, current_date, 2, 2, null, null),
+    (5, 199.99, 'ACCEPTED', current_date, current_date, 3, 1, null, null),
+    (4, 85.99, 'ACCEPTED', current_date, current_date, 4, 2, null, null),
+    (6, 58.90, 'ACCEPTED', current_date, current_date, null, null, 1, 1),
+    (1, 25.90, 'ACCEPTED', current_date, current_date, null, null, 2, 2),
+    (1, 200.00, 'PENDING', current_date, current_date, null, null, 3, 1),
+    (2, 99.99, 'ACCEPTED', current_date, current_date, null, null, 4, 2);
 
 -- INVENTORY
 INSERT INTO inventory (article_art_id, inv_date, inv_stock) VALUES
@@ -160,7 +180,7 @@ INSERT INTO quote_line (qot_ln_priceht, qot_ln_quantity, tva_rate, quote_qot_id,
 INSERT INTO command (cmd_create_date, cmd_modified_date, cmd_reference, creator_id, quote_id, receiver_email, cmd_status) VALUES
     ('2026-02-20T09:00:00', '2026-02-20T09:00:00', 'CDE-2026-0001', 1, 1, 'john.doe@email.com', 'DELIVERED'),
     ('2026-02-21T10:00:00', '2026-02-21T10:00:00', 'CDE-2026-0002', 2, 2, 'alice.martin@email.com', 'ACCEPTED'),
-    ('2026-02-22T11:00:00', '2026-02-22T11:00:00', 'CDE-2026-0003', 3, NULL, 'paul.dupont@email.com', 'PENDING');
+    ('2026-02-22T11:00:00', '2026-02-22T11:00:00', 'CDE-2026-0003', 3, 3, 'paul.dupont@email.com', 'PENDING');
 
 -- INVOICE
 INSERT INTO invoice (command_cmd_id, creator_id, invoice_created_date, invoice_modified_date, invoice_number, invoice_pathpdf, receiver_email, invoice_status) VALUES

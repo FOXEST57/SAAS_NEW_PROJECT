@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.product.DTO.responseDTO;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record ArticleResponseSupplierDTO(
+public record ArticleResponseSupplierReferenceDTO(
         Long artId,
         String artReference,
         String artName,
@@ -12,6 +12,6 @@ public record ArticleResponseSupplierDTO(
         int artStock,
         TvaResponseDTO tva,
         List<CategoryResponseDTO> categories,
-        List<MakerReferenceResponseDTO> makers
+        List<MakerReferenceResponseArticleDTO> makers
 ) {
 }

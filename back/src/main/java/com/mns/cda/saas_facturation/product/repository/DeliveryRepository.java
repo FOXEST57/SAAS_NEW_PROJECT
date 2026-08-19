@@ -1,11 +1,13 @@
 package com.mns.cda.saas_facturation.product.repository;
 
-import com.mns.cda.saas_facturation.product.model.Article;
+import com.mns.cda.saas_facturation.product.model.Delivery;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
- * Repository JPA gérant les accès en base de données pour l'entité {@link Article}.
+ * Repository JPA gérant les accès en base de données pour l'entité {@link Delivery}.
  *
  * <p>Étend {@link JpaRepository} qui fournit automatiquement les opérations CRUD
  * de base ({@code findAll}, {@code findById}, {@code save}, {@code deleteById}, etc.)
@@ -13,13 +15,13 @@ import org.springframework.stereotype.Repository;
  *
  * <p>Les paramètres génériques précisent :</p>
  * <ul>
- *   <li>{@link Article} — le type de l'entité gérée</li>
- *   <li>{@link Long} — le type de la clé primaire ({@code articleId})</li>
+ *   <li>{@link Delivery} — le type de l'entité gérée</li>
+ *   <li>{@link Long} — le type de la clé primaire ({@code deliveryId})</li>
  * </ul>
  *
- * @see Article
+ * @see Delivery
  * @see JpaRepository
  */
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, Long> {
+public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
 }

@@ -43,12 +43,13 @@ public record ArticleDTO(
         String artDescription,
         BigDecimal artPriceExcludeTaxes,
         int artStock,
+        boolean isActive,
         TvaResponseDTO tva,
         BigDecimal artPriceTTC,
-        LocalDateTime  artCreatedDate,
-        LocalDateTime  artUpdatedDate,
+        LocalDateTime artCreatedDate,
+        LocalDateTime artUpdatedDate,
         List<CategoryResponseDTO> categories,
-        List<SupplierReferenceResponseDTO> suppliers,
-        List<MakerReferenceResponseDTO> makers
+        List<SupplierReferenceResponseArticleDTO> suppliers,
+        List<MakerReferenceResponseArticleDTO> makers
 ) {
 }

@@ -6,6 +6,6 @@ public record ArticleResponseMakerReferenceDTO(
         Long artId,
         String artName,
         String artReference,
-        List<SupplierReferenceResponseDTO> suppliers
+        List<SupplierReferenceResponseArticleDTO> suppliers
 ){
 }

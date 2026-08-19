@@ -69,14 +69,23 @@ public class QuoteService implements IQuoteService {
         Cart cart = cartRepository.findById(quoteRequestDTO.cartId()).orElseThrow(() -> new ResourceNotFoundException("Panier non existant"));
 
         Quote quote = new Quote();
-        quote.setQotNumber(referenceCounterService
-                .generateReference(user.getUser().getCorporation(),
-                        ReferenceType.QUOTE));
+
         quote.setQotExpirationDate(quoteRequestDTO.qotExpirationDate());
         quote.setQotStatus(QuoteStatus.CREATED);
         quote.setQotParent(qotParent);
         quote.setCart(cart);
-        quote.setCreatorId(user != null ? user.getUser().getCtmId() : cart.getCreator().getCtmId());
+
+        if (user != null) {
+            quote.setCreatorId(user.getUser().getCtmId());
+            quote.setQotNumber(referenceCounterService
+                    .generateReference(user.getUser().getCorporation(),
+                            ReferenceType.QUOTE));
+        } else {
+            quote.setCreatorId(cart.getCreator().getCtmId());
+            quote.setQotNumber(referenceCounterService
+                    .generateReference(cart.getCreator().getCorporation(),
+                            ReferenceType.QUOTE));
+        }
 
         if (cart.getReceiverEmail() != null) {
             quote.setReceiverEmail(cart.getReceiverEmail());
@@ -142,6 +151,8 @@ public class QuoteService implements IQuoteService {
             quote.setQotPathPDF(quotePdfService.generate(quote));
         }
 
+        quote = quoteRepository.save(quote);
+
         if(quote.getQotStatus() == QuoteStatus.REVISITED) {
             publisher.publishEvent(new QuoteRevisitedEvent(quote));
 
@@ -149,6 +160,6 @@ public class QuoteService implements IQuoteService {
             publisher.publishEvent(new QuoteAcceptedEvent(quote));
 
         }
-        return quoteMapper.toDTO(quoteRepository.save(quote));
+        return quoteMapper.toDTO(quote);
     }
 }

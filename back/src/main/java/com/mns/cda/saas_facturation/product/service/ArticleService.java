@@ -51,7 +51,6 @@ import java.util.Optional;
 @RequiredArgsConstructor // Lombok génère un constructeur avec tous les champs final (injection automatique)
 public class ArticleService implements IArticleService {
 
-    // Repositories : interfaces Spring Data JPA qui gèrent les accès base de données
     private final ArticleRepository articleRepository;
     private final TvaRepository tvaRepository;
     private final SupplierRepository supplierRepository;
@@ -62,6 +61,7 @@ public class ArticleService implements IArticleService {
     private final InventoryService inventoryService;
     private final InventoryRepository inventoryRepository;
     private final MakerRepository makerRepository;
+    private final DeliveryRepository deliveryRepository;
     private final ReferenceCounterService referenceCounterService;
 
     /**
@@ -85,8 +85,6 @@ public class ArticleService implements IArticleService {
 
     @Override
     public List<ArticleDTO> findAllIsActive() {
-
-
         return articleRepository.findAll()
                 .stream()
                 .filter(Article::isActive)
@@ -180,12 +178,11 @@ public class ArticleService implements IArticleService {
                         new SupplierReference.SupplierReferenceId(article.getArtId(), supplier.getSplId()),
                         article,
                         supplier,
-                        splRef.splRefReference(),
-                        splRef.splRefSellPrice(),
-                        splRef.splRefStock(),
-                        null,
-                        null,
-                        splRef.status()
+                        splRef.deliveryIds().stream().map(id ->
+                                deliveryRepository.findById(id).orElseThrow(
+                                        () -> new ResourceNotFoundException("Le fournisseur avec l'id " + id + " n'existe pas")
+                                )).toList(),
+                        splRef.splRefReference()
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer
                 supplierReferenceRepository.save(link);
@@ -204,12 +201,11 @@ public class ArticleService implements IArticleService {
                         new MakerReference.MakerReferenceId(article.getArtId(), maker.getMkrId()),
                         article,
                         maker,
-                        mkrRef.artMkrReference(),
-                        mkrRef.artMkrStock(),
-                        null,
-                        null,
-                        mkrRef.artMkrSellPrice(),
-                        mkrRef.status()
+                        mkrRef.deliveryIds().stream().map(id ->
+                                deliveryRepository.findById(id).orElseThrow(
+                                        () -> new ResourceNotFoundException("La commande avec l'id " + id + " n'existe pas")
+                                )).toList(),
+                        mkrRef.artMkrReference()
                 );
                 //On sauvegarde la nouvelle relation qu'on vient de créer
                 makerReferenceRepository.save(link);

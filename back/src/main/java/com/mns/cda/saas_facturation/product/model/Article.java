@@ -89,10 +89,10 @@ public class Article {
 
     @CreatedDate
     @Column(updatable = false)
-    protected LocalDateTime artCreateDate;
+    protected LocalDateTime artCreatedDate;
 
     @LastModifiedDate
-    protected LocalDateTime artUpdateDate;
+    protected LocalDateTime artUpdatedDate;
 
     /**
      * Taux de TVA associé à cet article.
@@ -111,7 +111,10 @@ public class Article {
      * La colonne de jointure en base est {@code supplier_id}.
      */
     @OneToMany(mappedBy = "article")
-    protected List<SupplierReference> suppliers = new ArrayList<>();
+    protected List<SupplierReference> supplierReferences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article")
+    protected List<MakerReference> makerReferences = new ArrayList<>();
 
     /**
      * Catégorie de classement de l'article.
@@ -124,9 +127,6 @@ public class Article {
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     protected List<Category> categories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "article")
-    protected List<MakerReference> makerReferences = new ArrayList<>();
 
     @OneToMany(mappedBy = "article")
     protected List<Inventory> inventories = new ArrayList<>();

@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.product.service;
 import com.mns.cda.saas_facturation.product.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.product.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
-import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.Iservice.ISupplierReferenceService;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
@@ -14,6 +14,7 @@ import com.mns.cda.saas_facturation.product.model.Article;
 import com.mns.cda.saas_facturation.product.model.SupplierReference;
 import com.mns.cda.saas_facturation.product.model.Supplier;
 import com.mns.cda.saas_facturation.product.repository.ArticleRepository;
+import com.mns.cda.saas_facturation.product.repository.DeliveryRepository;
 import com.mns.cda.saas_facturation.product.repository.SupplierReferenceRepository;
 import com.mns.cda.saas_facturation.product.repository.SupplierRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SupplierReferenceService implements ISupplierReferenceService {
 
-    protected final SupplierReferenceRepository supplierReferenceRepository;
-    protected final SupplierRepository supplierRepository;
-    protected final ArticleRepository articleRepository;
+    private final SupplierReferenceRepository supplierReferenceRepository;
+    private final SupplierRepository supplierRepository;
+    private final ArticleRepository articleRepository;
+    private final DeliveryRepository deliveryRepository;
 
     private final SupplierReferenceMapper supplierReferenceMapper;
     private final SupplierMapper supplierMapper;
@@ -63,7 +65,7 @@ public class SupplierReferenceService implements ISupplierReferenceService {
 
     //Get By ID Supplier
     @Override
-    public List<ArticleResponseSupplierDTO> findBySupplierId(Long supplierId) {
+    public List<ArticleResponseSupplierReferenceDTO> findBySupplierId(Long supplierId) {
         return supplierReferenceRepository.findBySplRefId_SupplierId(supplierId)
                 .stream()
                 .map(articleMapper::supplierReferenceToDTO)
@@ -86,12 +88,11 @@ public class SupplierReferenceService implements ISupplierReferenceService {
                 new SupplierReference.SupplierReferenceId(),
                 splRefArticle,
                 splRefSupplier,
-                dto.splRefReference(),
-                dto.splRefSellPrice(),
-                dto.splRefStock(),
-                null,
-                null,
-                dto.status()
+                dto.deliveryIds().stream().map(id ->
+                        deliveryRepository.findById(id).orElseThrow(
+                                () -> new ResourceNotFoundException("La commande avec l'id " + id + " n'existe pas")
+                        )).toList(),
+                dto.splRefReference()
         );
 
         return supplierReferenceMapper.toDTO(supplierReferenceRepository.save(splRef));
@@ -109,9 +110,6 @@ public class SupplierReferenceService implements ISupplierReferenceService {
         ).orElseThrow(() -> new ResourceNotFoundException("Référence fournisseur non existante"));
 
         splRef.setSplRefReference(dto.splRefReference());
-        splRef.setSplRefStock(dto.splRefStock());
-        splRef.setSplRefSellPrice(dto.splRefSellPrice());
-        splRef.setStatus(dto.status());
 
         SupplierReference saved = supplierReferenceRepository.save(splRef);
         return supplierReferenceMapper.toDTO(saved);

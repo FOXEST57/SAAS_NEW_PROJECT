@@ -3,7 +3,7 @@ package com.mns.cda.saas_facturation.product.Iservice;
 import com.mns.cda.saas_facturation.product.DTO.SupplierDTO;
 import com.mns.cda.saas_facturation.product.DTO.SupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.requestDTO.SupplierReferenceRequestDTO;
-import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierDTO;
+import com.mns.cda.saas_facturation.product.DTO.responseDTO.ArticleResponseSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.product.DTO.updateDTO.UpdateSupplierReferenceDTO;
 import com.mns.cda.saas_facturation.exception.ResourceNotFoundException;
 
@@ -20,7 +20,7 @@ public interface ISupplierReferenceService {
     List<SupplierDTO> findByArticleId(Long articleId);
 
     //Get By ID Supplier
-    List<ArticleResponseSupplierDTO> findBySupplierId(Long supplierId);
+    List<ArticleResponseSupplierReferenceDTO> findBySupplierId(Long supplierId);
 
     SupplierReferenceDTO create(SupplierReferenceRequestDTO dto)
             throws ResourceNotFoundException;
