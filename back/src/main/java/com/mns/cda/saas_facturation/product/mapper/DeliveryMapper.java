@@ -22,8 +22,12 @@ public class DeliveryMapper {
                 delivery.getDlvStatus(),
                 delivery.getDlvCreatedDate(),
                 delivery.getDlvUpdatedDate(),
-                supplierReferenceResponseDeliveryMapper.toResponseDeliveryDTO(delivery.getSupplierReference()),
-                makerReferenceResponseDeliveryMapper.toResponseDeliveryDto(delivery.getMakerReference())
+                delivery.getSupplierReference() != null
+                        ? supplierReferenceResponseDeliveryMapper.toResponseDeliveryDTO(delivery.getSupplierReference())
+                        : null,
+                delivery.getMakerReference() != null
+                        ? makerReferenceResponseDeliveryMapper.toResponseDeliveryDto(delivery.getMakerReference())
+                        : null
         );
     }
 

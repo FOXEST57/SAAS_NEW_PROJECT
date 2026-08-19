@@ -21,14 +21,14 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'PENDING'
        ), 0)
        /* + SUPPLIER PENDING */
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'PENDING'
        ), 0)
    FROM article a;
@@ -63,7 +63,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -78,7 +78,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -158,7 +158,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -173,7 +173,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -234,7 +234,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -249,7 +249,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -282,14 +282,14 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'PENDING'
        ), 0)
        /* + SUPPLIER PENDING */
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'PENDING'
        ), 0)
    FROM article a;
@@ -316,7 +316,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -331,7 +331,7 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'RECEIVED'
              AND dlv.dlv_updated_date >= (
                    SELECT inv.inv_date
@@ -364,14 +364,14 @@ public interface QuoteLineRepository extends JpaRepository<QuoteLine, Long> {
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.mkr_article_id = a.art_id
+           WHERE dlv.mkr_article_id <> null AND dlv.mkr_article_id = a.art_id
              AND dlv.dlv_status = 'PENDING'
        ), 0)
        /* + SUPPLIER PENDING */
        + COALESCE((
            SELECT SUM(dlv.dlv_quantity)
            FROM delivery dlv
-           WHERE dlv.spl_article_id = a.art_id
+           WHERE dlv.spl_article_id <> null AND dlv.spl_article_id = a.art_id
              AND dlv.dlv_status = 'PENDING'
        ), 0)
    
